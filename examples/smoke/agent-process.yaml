@@ -1,0 +1,33 @@
+name: protocol-smoke
+image: agentos/protocol-smoke:local
+task: Agent processes recover from interruption.
+pricing:
+  input_usd_per_million: 0
+  output_usd_per_million: 0
+implementation:
+  adapter: jsonlines
+  command:
+    - python
+    - /app/agent.py
+  env: {}
+mounts: []
+capabilities:
+  tools: []
+  filesystem_read: []
+  filesystem_write: []
+  network_destinations: []
+  secrets: []
+budget:
+  max_tokens: 0
+  max_cost_usd: 0
+  max_duration_seconds: 30
+  max_concurrency: 1
+  max_children: 0
+approval_rules: []
+retry:
+  max_attempts: 1
+  backoff_seconds: 0
+checkpoint:
+  enabled: false
+  interval_seconds: 0
+  resume_on_start: false

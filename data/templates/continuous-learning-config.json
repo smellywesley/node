@@ -1,0 +1,14 @@
+{
+  "version": "2.1",
+  "observer": {
+    "enabled": false,
+    "run_interval_minutes": 5,
+    "min_observations_to_analyze": 20
+  },
+  "agentos_bridge": {
+    "source": "data/logs/sessions.jsonl",
+    "store_raw_prompts": false,
+    "store_source_contents": false,
+    "minimum_applied_confidence": 0.7
+  }
+}

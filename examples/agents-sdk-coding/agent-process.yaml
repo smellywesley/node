@@ -1,0 +1,47 @@
+name: agents-sdk-reviewed-coding
+image: agentos/agents-sdk-coding:local
+task: Create a small reviewed Go package containing an Add function.
+model: offline-deterministic
+pricing:
+  input_usd_per_million: 0
+  output_usd_per_million: 0
+implementation:
+  adapter: openai-agents-sdk
+  command:
+    - --heartbeat-seconds
+    - "1"
+  env:
+    AGENTOS_AGENT_FACTORY: coding_agent:create_agent
+    AGENTOS_ALLOW_CUSTOM_MODEL: offline-deterministic
+    AGENTOS_DISABLE_STREAMING: "1"
+    AGENTOS_RESULT_ARTIFACT: /workspace/reviewed/add.go
+    OPENAI_AGENTS_DISABLE_TRACING: "1"
+mounts:
+  - source: work/agents-sdk-coding-workspace
+    target: /workspace
+    read_only: true
+capabilities:
+  tools:
+    - fs.write
+  filesystem_read:
+    - /workspace
+  filesystem_write:
+    - /workspace
+  network_destinations: []
+  secrets: []
+budget:
+  max_tokens: 100
+  max_cost_usd: 0
+  max_duration_seconds: 60
+  max_concurrency: 1
+  max_children: 0
+approval_rules:
+  - action: fs.write
+    match: /workspace/reviewed
+retry:
+  max_attempts: 1
+  backoff_seconds: 0
+checkpoint:
+  enabled: false
+  interval_seconds: 0
+  resume_on_start: false

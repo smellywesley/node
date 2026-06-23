@@ -1,0 +1,210 @@
+﻿# AgentOS
+
+AgentOS is a local-first process supervisor for AI coding agents. It does not
+replace Linux or Windows. It adds durable lifecycle, policy, approvals, budgets,
+container isolation, recovery, replay, and auditability around probabilistic
+agent workloads.
+
+```text
+Developer -> CLI -> authenticated local API -> daemon -> policy -> container
+                              |                    |
+                              v                    v
+                        SQLite event log       model + tools
+```
+
+## What works
+
+- Durable process state and append-only SQLite events
+- Restart recovery for interrupted non-terminal processes
+- Durable checkpoints passed back to restarted workers
+- Container execution with read-only root, dropped capabilities, resource limits,
+  immutable image resolution, and no network by default
+- Capability checks and digest-bound, single-use approvals
+- Daemon-brokered approval-gated filesystem writes
+- Idempotent tool-call records with explicit `outcome_unknown`
+- Token, cost, duration, concurrency, and child-process limits
+- Parent cancellation and child capability/budget narrowing
+- Projection replay with no external side effects
+- Redacted audit bundle export
+- OpenAI Agents SDK JSON-lines adapter with streamed usage accounting
+- Persistent Agentic OS kernel, specialists, commands, and file memory
+
+## Quick start
+
+Requirements: Docker Desktop or another Docker-compatible engine for running agent containers. The localhost dashboard itself works without Docker.
+
+From a release zip:
+
+```powershell
+Expand-Archive .\agentos-v1-windows-amd64.zip -DestinationPath .
+cd .\agentos-v1-windows-amd64
+Get-FileHash .\bin\agentos.exe
+.\bin\agentos.exe doctor
+.\scripts\start-localhost.cmd
+```
+
+`agentos doctor` checks loopback binding, state directory safety, approval-token readiness, and Docker availability. Treat `dashboard --print-url` output as a secret because it contains a credential-bearing URL fragment.
+
+For the localhost control plane, build and open the dashboard in one command:
+
+```powershell
+.\scripts\start-localhost.cmd
+```
+
+This starts an isolated demo daemon under `work\localhost`, opens
+`http://127.0.0.1:7467`, and places both credentials only in the launched
+browser tab's session storage. The dashboard itself works without Docker;
+running an agent process requires a Docker-compatible engine. Stop the demo
+daemon with:
+
+```powershell
+.\scripts\stop-localhost.cmd
+```
+
+Build from source:
+
+```powershell
+.\scripts\build.cmd
+```
+
+Start the daemon:
+
+```powershell
+$env:AGENTOS_APPROVER_TOKEN = [guid]::NewGuid().ToString("N") + [guid]::NewGuid().ToString("N")
+.\bin\agentos.exe serve
+```
+
+In another terminal:
+
+```powershell
+$env:AGENTOS_APPROVER_TOKEN = "<the same approval secret>"
+.\bin\agentos.exe dashboard
+.\bin\agentos.exe ps
+docker build -f .\examples\agents-sdk-coding\Dockerfile `
+  -t agentos/agents-sdk-coding:local .
+New-Item -ItemType Directory -Force .\work\agents-sdk-coding-workspace
+.\bin\agentos.exe validate .\examples\agents-sdk-coding\agent-process.yaml
+.\bin\agentos.exe run .\examples\agents-sdk-coding\agent-process.yaml
+.\bin\agentos.exe approvals
+.\bin\agentos.exe approve <approval-id> "reviewed"
+```
+
+The approved Go artifact appears under
+`work\agents-sdk-coding-workspace\reviewed`. This example uses the installed
+OpenAI Agents SDK with an offline deterministic model, so it needs no provider
+key.
+
+For an offline first run, load the separately distributed example image bundle
+instead of building from PyPI:
+
+```powershell
+docker load -i .\agentos-agents-sdk-coding-local.tar.gz
+```
+
+Regenerate that bundle from a verified local image with
+`.\scripts\package-example-image.cmd`.
+
+The daemon stores SQLite state and a random operator credential in
+`%USERPROFILE%\.agentos` by default. Approval decisions require the separate,
+non-persisted `AGENTOS_APPROVER_TOKEN`. Override state location with
+`AGENTOS_HOME`, but it must point at a dedicated subdirectory, never the user
+profile root or a filesystem root.
+
+The dashboard is embedded in the Go binary and has no frontend build
+dependency. Static assets are public on loopback, while every stateful API call
+still requires the operator credential. Browser API requests must be same-origin
+with the loopback daemon. Approval actions continue to require the separate
+approver credential. `dashboard --print-url` is intended for automation and
+prints a credential-bearing URL; treat its output as a secret.
+
+## CLI
+
+```text
+agentos serve
+agentos dashboard [--print-url]
+agentos run <manifest.yaml>
+agentos ps
+agentos inspect <process-id>
+agentos suspend|resume|cancel <process-id>
+agentos approvals
+agentos approve|deny <approval-id> [reason]
+agentos logs <process-id>
+agentos replay <process-id>
+agentos audit <process-id> [output.json]
+```
+
+## Security model
+
+Agents are treated as hostile workloads. The daemon:
+
+- never mounts the Docker socket into workers;
+- rejects non-loopback API bindings and authenticates every non-health request;
+- rejects symlink mount roots and unsafe Windows device/UNC path forms;
+- rejects manifests whose direct mounts, egress, or secrets would bypass a
+  matching approval rule;
+- disables networking unless the manifest declares destinations, then places
+  the worker on an isolated internal network with a per-process allowlist proxy;
+- injects only explicitly declared secret names and redacts their values from
+  captured output;
+- resolves image tags to repository digests before launch;
+- keeps policy, approvals, lifecycle, and budget authority outside adapters.
+- requires a distinct approver credential for approval decisions.
+
+Containers are defense in depth, not a perfect security boundary. On Windows,
+Docker Desktop and WSL2 boundaries must be audited separately before using
+untrusted agents.
+
+## Replay semantics
+
+`agentos replay` is projection replay: it deterministically rebuilds the process
+state from recorded events and performs no model calls, tools, or external side
+effects. A live rerun must be created as a new process.
+
+External side effects cannot generally be made exactly-once across a crash.
+AgentOS records stable idempotency keys and supports an explicit
+`outcome_unknown` result so operators reconcile ambiguous operations instead of
+blindly retrying them.
+
+## OpenAI Agents SDK adapter
+
+The adapter lives in [`adapters/agents-sdk`](adapters/agents-sdk). The example
+under [`examples/agents-sdk`](examples/agents-sdk) demonstrates a provider-backed
+agent and requires `OPENAI_API_KEY`. The offline example under
+[`examples/agents-sdk-coding`](examples/agents-sdk-coding) runs without a key and
+writes a reviewed artifact through the daemon broker. Direct SDK tools, MCP
+servers, and handoffs are disabled in v1.
+
+## Development
+
+```powershell
+.\scripts\test.cmd
+.\scripts\package.cmd
+```
+
+Release readiness lives in `docs\release-readiness.md`; deployment and scaling live in `docs\deployment-and-scaling.md`; uninstall/reset guidance lives in `docs\uninstall-and-reset.md`.
+
+Architecture decisions and session memory live under `data/`. Use the commands
+in `.Codex/commands/` to reconstruct and close persistent work sessions.
+
+## Continuous learning
+
+The repository integrates ECC Continuous Learning v2 with project-local,
+privacy-safe state:
+
+```powershell
+.\scripts\learning.cmd sync
+.\scripts\learning.cmd status
+.\scripts\learning.cmd evolve
+.\scripts\learning.cmd export
+```
+
+Raw learning state is ignored under `data\learning`. The bridge ingests only
+session outcome and count metadata from `data\logs\sessions.jsonl`; it does not
+store prompts, source contents, credentials, tool payloads, or model output.
+The default reviewed export is `outputs\agentos-instincts.md`.
+
+The matching Codex commands are `/instinct-status`, `/evolve`,
+`/instinct-export`, `/instinct-import`, `/promote`, and `/projects`.
+
+
+

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "entry_id": "cost_YYYYMMDDTHHMMSSZ_random",
+  "timestamp": "YYYY-MM-DDTHH:MM:SSZ",
+  "session_id": "ses_YYYYMMDDTHHMMSSZ_random",
+  "specialist": "runtime-dev",
+  "provider": "unknown",
+  "model": "unknown",
+  "input_tokens": null,
+  "output_tokens": null,
+  "cached_tokens": null,
+  "reasoning_tokens": null,
+  "amount_microusd": null,
+  "estimate": true,
+  "price_basis": null
+}

@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.x"
+          cache: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: go test ./...
+      - run: python -m unittest discover -s adapters/agents-sdk/tests
+        env:
+          PYTHONPATH: adapters/agents-sdk/src
+
+  build:
+    needs: test
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            goos: linux
+            goarch: amd64
+          - os: ubuntu-latest
+            goos: linux
+            goarch: arm64
+          - os: macos-latest
+            goos: darwin
+            goarch: arm64
+          - os: windows-latest
+            goos: windows
+            goarch: amd64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.x"
+      - shell: bash
+        run: |
+          mkdir -p dist
+          ext=""
+          [ "${{ matrix.goos }}" = "windows" ] && ext=".exe"
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} \
+            go build -buildvcs=false -trimpath -o "dist/agentos-${{ matrix.goos }}-${{ matrix.goarch }}${ext}" ./cmd/agentos
+      - uses: actions/upload-artifact@v4
+        with:
+          name: agentos-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/*

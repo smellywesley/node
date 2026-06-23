@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "event_id": "evt_YYYYMMDDTHHMMSSZ_random",
+  "timestamp": "YYYY-MM-DDTHH:MM:SSZ",
+  "event": "session_started",
+  "session_id": "ses_YYYYMMDDTHHMMSSZ_random",
+  "specialists": ["runtime-dev"],
+  "objective": "",
+  "outcome": null,
+  "changed_paths": [],
+  "verification": [],
+  "blockers": [],
+  "next_action": null,
+  "correction_of": null
+}

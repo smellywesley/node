@@ -1,0 +1,77 @@
+﻿name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            goos: linux
+            goarch: amd64
+            ext: ""
+          - runner: ubuntu-latest
+            goos: linux
+            goarch: arm64
+            ext: ""
+          - runner: macos-latest
+            goos: darwin
+            goarch: arm64
+            ext: ""
+          - runner: windows-latest
+            goos: windows
+            goarch: amd64
+            ext: ".exe"
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.x"
+      - shell: bash
+        run: |
+          mkdir -p dist
+          name="agentos-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.ext }}"
+          built_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} \
+            go build -buildvcs=false -trimpath \
+              -ldflags "-s -w -X main.version=${{ github.ref_name }} -X main.commit=${{ github.sha }} -X main.builtAt=$built_at" \
+              -o "dist/$name" ./cmd/agentos
+          cd dist
+          if command -v sha256sum >/dev/null; then
+            sha256sum "$name" > "$name.sha256"
+          else
+            shasum -a 256 "$name" > "$name.sha256"
+          fi
+      - if: matrix.goos == 'windows'
+        shell: pwsh
+        run: |
+          .\scripts\Package.ps1 -Version "${{ github.ref_name }}"
+          Remove-Item -LiteralPath "dist\agentos-${{ github.ref_name }}-windows-amd64" -Recurse -Force -ErrorAction SilentlyContinue
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/*
+
+  publish:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          merge-multiple: true
+          path: dist
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
+
+

@@ -1,0 +1,42 @@
+name: openai-agents-word-count
+image: agentos/openai-agents-word-count:local
+task: "How many words are in: Agent processes are durable, bounded, and inspectable."
+model: gpt-4.1-mini
+pricing:
+  input_usd_per_million: 0
+  output_usd_per_million: 0
+
+implementation:
+  adapter: openai-agents-sdk
+  command:
+    - --heartbeat-seconds
+    - "10"
+  env:
+    AGENTOS_AGENT_FACTORY: example_agent:create_agent
+
+mounts: []
+
+capabilities:
+  tools: []
+  filesystem_read: []
+  filesystem_write: []
+  network_destinations:
+    - api.openai.com
+  secrets:
+    - OPENAI_API_KEY
+
+budget:
+  max_tokens: 20000
+  max_cost_usd: 0
+  max_duration_seconds: 600
+  max_concurrency: 1
+  max_children: 0
+
+approval_rules: []
+retry:
+  max_attempts: 1
+  backoff_seconds: 0
+checkpoint:
+  enabled: false
+  interval_seconds: 0
+  resume_on_start: false

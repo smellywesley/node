@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentos-openai-agents-adapter"
+version = "0.1.0"
+description = "JSON-lines Agent Process OS v1 adapter for the OpenAI Agents SDK"
+requires-python = ">=3.11"
+dependencies = [
+  "openai-agents==0.17.4",
+]
+
+[project.scripts]
+agentos-agents-sdk = "agentos_agents_sdk.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentos_agents_sdk"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
