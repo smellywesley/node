@@ -90,6 +90,7 @@ Required features:
 - Team-safe token model: separate operator, approver, and read-only dashboard tokens.
 - Better error messages: every failure says problem, cause, fix, docs command.
 - One-command install and one-command demo from release zip.
+- Billable usage ledger for managed usage: customer/project/process rows, pricing snapshots, spend caps, and exportable reports.
 
 Acceptance test:
 
@@ -113,7 +114,7 @@ Required features:
 - Organization/project RBAC with SSO later, not before local team beta.
 - Remote runner registration with per-run isolation and heartbeat.
 - Central audit index and retention policy.
-- Billing and license enforcement.
+- Billing and license enforcement backed by an append-only usage ledger, not dashboard totals.
 - Policy templates for common repo scopes.
 - Integrations: GitHub checks, Slack approvals, SIEM/export hooks.
 

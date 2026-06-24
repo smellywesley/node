@@ -19,4 +19,4 @@ Expected proof:
 - `work\agents-sdk-live-workspace\reviewed\live_add.go` exists after approval;
 - `outputs\agents-sdk-live-audit.json` is exported with redacted tool payloads.
 
-The pricing values in `agent-process.yaml` are declared manifest inputs. Before using this for production accounting, update them to the current pricing for the selected OpenAI model.
+The demo manifest uses `gpt-5.4-mini` with the June 24, 2026 standard pricing snapshot from the OpenAI API pricing page. Before using this for production accounting, refresh and store the pricing snapshot for the selected model.

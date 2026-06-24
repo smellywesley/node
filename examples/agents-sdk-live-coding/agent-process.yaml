@@ -1,12 +1,12 @@
 name: openai-agents-live-coding
 image: agentos/openai-agents-live-coding:local
-model: gpt-4.1-mini
+model: gpt-5.4-mini
 task: |-
   Create a small reviewed Go package containing an Add function.
   Return only the Go source file content.
 pricing:
-  input_usd_per_million: 0.40
-  output_usd_per_million: 1.60
+  input_usd_per_million: 0.75
+  output_usd_per_million: 4.50
 implementation:
   adapter: openai-agents-sdk
   command:

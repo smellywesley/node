@@ -236,6 +236,7 @@ Do not build hosted SaaS, marketplace features, general multi-agent chat, or com
 
 - [x] Ship local pay-ready enforcement demo: approval-gated backend write, denied frontend write, nonzero usage/cost, replay, audit export.
 - [ ] Add provider-backed OpenAI/Agents SDK coding run with live token/cost tracking. Scaffold exists in `examples/agents-sdk-live-coding`; live verification requires an explicit `OPENAI_API_KEY`.
+- [ ] Add billing/metering ledger before managed usage billing: customer/project/process usage rows, pricing snapshots, spend caps, exports.
 - [ ] Add GitHub-oriented artifact flow: branch/diff/test result/audit bundle.
 - [x] Add one-command pay-ready demo script and release-zip path.
 - [ ] Add dashboard before/after explanation for skeptical buyers.
@@ -260,6 +261,7 @@ Do not build hosted SaaS, marketplace features, general multi-agent chat, or com
 | 5 | Eng | Allow `.Codex/commands/*.md` but block other `.Codex` state | Auto-decided | least privilege | Command docs are product source; runtime state is not. | Blocking all `.Codex` content. |
 | 6 | DX | Treat benchmark as product and operational gates | Auto-decided | prove the promise | AgentOS must benchmark both dashboard UX and process operations. | Page-speed-only benchmark. |
 | 7 | Release | Require demo gates before public push | Auto-decided | trust before distribution | The project is security-sensitive and should not publish unverified local state. | Push first, audit later. |
+| 8 | Billing | Start BYOK-first, add managed usage only after a billable ledger | Auto-decided | avoid unbounded spend risk | If AgentOS uses our provider key, we pay OpenAI first and need spend caps plus an append-only billing ledger before customer billing. | Charging only from dashboard totals. |
 
 ## Cross-Phase Themes
 
