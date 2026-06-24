@@ -9,6 +9,145 @@ const state = {
 
 const terminalStates = new Set(["succeeded", "failed", "cancelled"]);
 
+const stateLabels = {
+  created: "Created",
+  queued: "Queued",
+  running: "Running",
+  waiting_approval: "Needs approval",
+  suspended: "Suspended",
+  succeeded: "Succeeded",
+  failed: "Failed",
+  cancelled: "Cancelled",
+};
+
+function formatProcessState(processState) {
+  return stateLabels[processState] || String(processState || "unknown").replace("_", " ");
+}
+
+const defaultDemoTask = "Fix the code on the backend. Do not touch anything else.";
+
+function yamlBlock(text) {
+  const safe = String(text || defaultDemoTask)
+    .replace(/\r/g, "")
+    .replace(/\t/g, "  ")
+    .split("\n")
+    .map((line) => `  ${line}`)
+    .join("\n");
+  return `|-\n${safe}`;
+}
+
+function compileIntent(taskText) {
+  const lower = String(taskText || "").toLowerCase();
+  const backendOnly = lower.includes("backend") || lower.includes("server") || lower.includes("api");
+  if (!backendOnly) {
+    return {
+      name: "protocol-smoke",
+      image: "agentos/protocol-smoke:local",
+      adapter: "jsonlines",
+      readPaths: [],
+      writePaths: [],
+      tools: [],
+      mounts: [],
+      approvals: [],
+      maxTokens: 0,
+      maxCostUSD: 0,
+      durationSeconds: 30,
+      pricing: {input: 0, output: 0},
+      note: "No file access inferred. AgentOS would ask for more detail before allowing code changes.",
+    };
+  }
+  return {
+    name: "pay-ready-backend-only",
+    image: "agentos/pay-ready-demo:local",
+    adapter: "jsonlines-tools",
+    readPaths: ["/workspace"],
+    writePaths: ["/workspace/internal"],
+    tools: ["fs.write"],
+    mounts: [{source: "work/pay-ready-workspace", target: "/workspace", readOnly: true}],
+    approvals: [
+      {action: "fs.write", match: "/workspace/internal"},
+    ],
+    maxTokens: 4000,
+    maxCostUSD: 0.02,
+    durationSeconds: 60,
+    pricing: {input: 1, output: 3},
+    note: "Backend-only request detected. Writes outside /workspace/internal will be denied.",
+  };
+}
+
+function yamlList(values, indent = "  ") {
+  if (!values || values.length === 0) {
+    return "[]";
+  }
+  return `\n${values.map((value) => `${indent}- ${value}`).join("\n")}`;
+}
+
+function yamlMounts(mounts) {
+  if (!mounts || mounts.length === 0) {
+    return "[]";
+  }
+  return `\n${mounts.map((mount) => `  - source: ${mount.source}\n    target: ${mount.target}\n    read_only: ${mount.readOnly ? "true" : "false"}`).join("\n")}`;
+}
+
+function yamlApprovals(approvals) {
+  if (!approvals || approvals.length === 0) {
+    return "[]";
+  }
+  return `\n${approvals.map((rule) => `  - action: ${rule.action}\n    match: ${rule.match}`).join("\n")}`;
+}
+
+function buildDemoManifest(taskText) {
+  const contract = compileIntent(taskText);
+  return `name: ${contract.name}
+image: ${contract.image}
+model: demo-metered-model
+task: ${yamlBlock(taskText)}
+pricing:
+  input_usd_per_million: ${contract.pricing.input}
+  output_usd_per_million: ${contract.pricing.output}
+implementation:
+  adapter: ${contract.adapter}
+  command:
+    - python
+    - /app/agent.py
+  env: {}
+mounts: ${yamlMounts(contract.mounts)}
+capabilities:
+  tools: ${yamlList(contract.tools, "    ")}
+  filesystem_read: ${yamlList(contract.readPaths, "    ")}
+  filesystem_write: ${yamlList(contract.writePaths, "    ")}
+  network_destinations: []
+  secrets: []
+budget:
+  max_tokens: ${contract.maxTokens}
+  max_cost_usd: ${contract.maxCostUSD}
+  max_duration_seconds: ${contract.durationSeconds}
+  max_concurrency: 1
+  max_children: 0
+approval_rules: ${yamlApprovals(contract.approvals)}
+retry:
+  max_attempts: 1
+  backoff_seconds: 0
+checkpoint:
+  enabled: false
+  interval_seconds: 0
+  resume_on_start: false
+`;
+}
+const demoCommands = String.raw`.\scripts\demo-pay-ready.cmd
+
+# Manual version:
+docker build -f examples\pay-ready\Dockerfile -t agentos/pay-ready-demo:local .
+New-Item -ItemType Directory -Force .\work\pay-ready-workspace\internal, .\work\pay-ready-workspace\web
+.\bin\agentos.exe validate .\examples\pay-ready\agent-process.yaml
+.\bin\agentos.exe run .\examples\pay-ready\agent-process.yaml
+.\bin\agentos.exe approvals
+.\bin\agentos.exe approve <approval-id> "reviewed backend-only write"
+.\bin\agentos.exe inspect <process-id>
+.\bin\agentos.exe logs <process-id>
+.\bin\agentos.exe replay <process-id>
+.\bin\agentos.exe audit <process-id> .\outputs\pay-ready-audit.json`;
+
 const elements = {
   authPanel: document.querySelector("#auth-panel"),
   authForm: document.querySelector("#auth-form"),
@@ -23,6 +162,9 @@ const elements = {
   approvalEmpty: document.querySelector("#approval-empty"),
   approvalCount: document.querySelector("#approval-count"),
   launchToggle: document.querySelector("#launch-toggle"),
+  fillDemoManifest: document.querySelector("#fill-demo-manifest"),
+  copyDemoCommands: document.querySelector("#copy-demo-commands"),
+  humanTaskInput: document.querySelector("#human-task-input"),
   launchPanel: document.querySelector("#launch-panel"),
   launchForm: document.querySelector("#launch-form"),
   launchCancel: document.querySelector("#launch-cancel"),
@@ -69,6 +211,46 @@ function clear(node) {
 
 function setHidden(node, hidden) {
   node.classList.toggle("hidden", hidden);
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function smoothScrollIntoView(node) {
+  if (!node) {
+    return;
+  }
+  node.scrollIntoView({behavior: prefersReducedMotion() ? "auto" : "smooth", block: "center"});
+}
+
+function pulseNode(node) {
+  if (!node || prefersReducedMotion()) {
+    return;
+  }
+  node.classList.remove("panel-pulse");
+  void node.offsetWidth;
+  node.classList.add("panel-pulse");
+}
+
+function loadDemoManifest() {
+  const task = elements.humanTaskInput ? elements.humanTaskInput.value.trim() : defaultDemoTask;
+  elements.manifestInput.value = buildDemoManifest(task).trim();
+  setHidden(elements.launchPanel, false);
+  smoothScrollIntoView(elements.launchPanel);
+  elements.manifestInput.focus({preventScroll: true});
+  pulseNode(elements.launchPanel);
+  const contract = compileIntent(task);
+  showToast(`${contract.note} Review the generated contract, then create the process.`);
+}
+
+async function copyDemoCommands() {
+  try {
+    await window.navigator.clipboard.writeText(demoCommands);
+    showToast("CLI demo commands copied.");
+  } catch {
+    showToast("Copy failed. The demo commands are still visible in the dashboard.", true);
+  }
 }
 
 function showToast(message, isError = false) {
@@ -151,7 +333,7 @@ function formatTime(value) {
 }
 
 function statePill(processState) {
-  return element("span", `state-pill state-${processState}`, processState.replace("_", " "));
+  return element("span", `state-pill state-${processState}`, formatProcessState(processState));
 }
 
 function renderStats(processes, approvals) {
@@ -235,7 +417,7 @@ function renderApprovals(approvals) {
     copy.append(
       element("strong", "", approval.action),
       element("p", "", approval.resource || "No resource"),
-      element("code", "", `process ${approval.process_id} · digest ${approval.action_digest.slice(0, 12)}`),
+      element("code", "", `process ${approval.process_id} - digest ${approval.action_digest.slice(0, 12)}`),
     );
     const actions = element("div", "approval-actions");
     const approve = element("button", "button button-primary", "Approve");
@@ -306,6 +488,71 @@ function renderCapabilities(process) {
   );
 }
 
+function eventSummary(event) {
+  if (event.type === "worker.stdout") {
+    const workerType = event.data && event.data.type ? event.data.type : "output";
+    if (workerType === "ready") {
+      return {
+        title: "Worker became ready",
+        body: "The container started and announced the protocol capabilities it supports.",
+      };
+    }
+    if (workerType === "task_started") {
+      return {
+        title: "Agent task started",
+        body: "The worker accepted the task. AgentOS recorded this before any result came back.",
+      };
+    }
+    if (workerType === "result") {
+      return {
+        title: "Agent returned a result",
+        body: "The worker completed the task. AgentOS captured the result event and redacts raw output in audit exports.",
+      };
+    }
+    return {
+      title: "Worker emitted output",
+      body: "The container wrote a protocol frame. AgentOS stored it as part of the process history.",
+    };
+  }
+  const summaries = {
+    "process.created": {
+      title: "Process created",
+      body: "AgentOS assigned this agent run a durable process record and wrote the first event.",
+    },
+    "process.queued": {
+      title: "Process queued",
+      body: "The scheduler accepted the process and waited for worker capacity.",
+    },
+    "process.running": {
+      title: "Process running",
+      body: "The daemon launched the container worker under the manifest policy.",
+    },
+    "process.waiting_approval": {
+      title: "Waiting for human approval",
+      body: "A consequential action is paused until a separate approver credential allows it.",
+    },
+    "process.suspended": {
+      title: "Process suspended",
+      body: "The operator paused the process without deleting its durable state.",
+    },
+    "process.succeeded": {
+      title: "Process succeeded",
+      body: "The worker reached a terminal success state. Replay should rebuild this same state from events.",
+    },
+    "process.failed": {
+      title: "Process failed",
+      body: "The run ended in failure, with the event trail preserved for debugging.",
+    },
+    "process.cancelled": {
+      title: "Process cancelled",
+      body: "The operator stopped the process and descendants should stop too.",
+    },
+  };
+  return summaries[event.type] || {
+    title: event.type,
+    body: "AgentOS stored this event in the append-only process history.",
+  };
+}
 function renderEvents(events) {
   clear(elements.eventList);
   elements.eventCount.textContent = `${events.length} events`;
@@ -314,10 +561,18 @@ function renderEvents(events) {
     const item = element("li", "event-item");
     item.append(element("span", "event-marker"));
     const copy = element("div", "event-copy");
-    copy.append(element("strong", "", event.type));
+    const summary = eventSummary(event);
+    copy.append(
+      element("strong", "", summary.title),
+      element("p", "event-description", summary.body),
+      element("code", "event-type", event.type),
+    );
     if (event.data && Object.keys(event.data).length > 0) {
-      const details = element("pre");
-      details.textContent = JSON.stringify(event.data, null, 2);
+      const details = element("details", "event-raw");
+      const rawSummary = element("summary", "", "Raw event data");
+      const raw = element("pre");
+      raw.textContent = JSON.stringify(event.data, null, 2);
+      details.append(rawSummary, raw);
       copy.append(details);
     }
     item.append(copy, element("time", "event-time", formatTime(event.created_at)));
@@ -345,11 +600,12 @@ async function selectProcess(id) {
     elements.detailID.textContent = process.id;
     elements.detailTask.textContent = process.manifest.task;
     elements.detailState.className = `state-pill state-${process.state}`;
-    elements.detailState.textContent = process.state.replace("_", " ");
+    elements.detailState.textContent = formatProcessState(process.state);
     renderBudget(process);
     renderCapabilities(process);
     renderEvents(events);
     setProcessActions(process);
+    pulseNode(elements.detailContent);
   } catch (error) {
     showToast(error.message, true);
   }
@@ -452,6 +708,8 @@ elements.authForm.addEventListener("submit", async (event) => {
 
 elements.refreshButton.addEventListener("click", refreshAll);
 elements.launchToggle.addEventListener("click", () => setHidden(elements.launchPanel, false));
+elements.fillDemoManifest.addEventListener("click", loadDemoManifest);
+elements.copyDemoCommands.addEventListener("click", copyDemoCommands);
 elements.launchCancel.addEventListener("click", () => setHidden(elements.launchPanel, true));
 elements.suspendButton.addEventListener("click", () => transition("suspend"));
 elements.resumeButton.addEventListener("click", () => transition("resume"));
@@ -463,7 +721,7 @@ elements.launchForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const manifest = elements.manifestInput.value.trim();
   if (!manifest) {
-    showToast("Enter a YAML manifest first.", true);
+    showToast("Generate or enter a run contract first.", true);
     return;
   }
   try {

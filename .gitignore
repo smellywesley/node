@@ -3,8 +3,11 @@
 /work/
 /data/learning/
 .gstack/
-.Codex/
-.codex/
+.Codex/*
+.codex/*
+!.Codex/
+!.Codex/commands/
+!.Codex/commands/*.md
 .agents/
 **/__pycache__/
 *.py[cod]
@@ -20,3 +23,4 @@
 .DS_Store
 Thumbs.db
 outputs/*.png
+outputs/*audit*.json

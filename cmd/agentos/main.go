@@ -59,6 +59,8 @@ func run(args []string) error {
 		return dashboard(cfg, args[1:])
 	case "doctor":
 		return doctor(cfg, args[1:])
+	case "rotate-token":
+		return rotateToken(cfg, args[1:])
 	case "validate":
 		return validateManifestCommand(args[1:])
 	case "version":
@@ -142,6 +144,31 @@ func daemonHealthy(cfg config) error {
 	if response.StatusCode != http.StatusOK {
 		return fmt.Errorf("health endpoint returned %s", response.Status)
 	}
+	return nil
+}
+
+func rotateToken(cfg config, args []string) error {
+	flags := flag.NewFlagSet("rotate-token", flag.ContinueOnError)
+	force := flags.Bool("force", false, "rotate while daemon is running; restart daemon before using the new token")
+	if err := flags.Parse(args); err != nil {
+		return err
+	}
+	if flags.NArg() != 0 {
+		return errors.New("usage: agentos rotate-token [--force]")
+	}
+	if !*force {
+		if err := daemonHealthy(cfg); err == nil {
+			return errors.New("daemon is running; stop it before rotating the operator token, or use --force and restart the daemon before reconnecting")
+		}
+	}
+	if err := state.EnsureDir(cfg.home); err != nil {
+		return err
+	}
+	if _, err := agentapi.RotateToken(filepath.Join(cfg.home, "token")); err != nil {
+		return err
+	}
+	fmt.Printf("operator token rotated at %s\n", filepath.Join(cfg.home, "token"))
+	fmt.Println("restart any running daemon and reconnect dashboards before using the new token")
 	return nil
 }
 
@@ -380,6 +407,7 @@ commands:
   serve [--addr 127.0.0.1:7467] [--concurrency 2]
   dashboard [--print-url]
   doctor
+  rotate-token [--force]
   validate <manifest.yaml>
   version
   run <manifest.yaml>

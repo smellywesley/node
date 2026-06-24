@@ -3,15 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AgentOS Control Plane</title>
+  <title>AgentOS Demo Control Room</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
+  <div class="background-grid" aria-hidden="true"></div>
   <div class="shell">
     <header class="topbar">
-      <div>
-        <p class="eyebrow">LOCAL CONTROL PLANE</p>
-        <h1>AgentOS</h1>
+      <div class="brand-lockup">
+        <span class="brand-mark" aria-hidden="true">AO</span>
+        <div>
+          <p class="eyebrow">LOCAL AGENT CONTROL ROOM</p>
+          <h1>AgentOS</h1>
+          <p class="tagline">Run AI agents like managed workers: bounded, supervised, replayable, and safe enough to show to a team.</p>
+        </div>
       </div>
       <div class="health-wrap">
         <span id="health-dot" class="health-dot"></span>
@@ -22,54 +27,133 @@
 
     <section id="auth-panel" class="auth-panel hidden" aria-labelledby="auth-title">
       <div>
-        <p class="eyebrow">OPERATOR AUTHENTICATION</p>
-        <h2 id="auth-title">Connect this tab</h2>
-        <p>Launch with <code>agentos dashboard</code>, or enter the operator token from <code>AGENTOS_HOME\token</code>.</p>
+        <p class="eyebrow">PRIVATE LOCAL DEMO</p>
+        <h2 id="auth-title">Connect this browser tab</h2>
+        <p>This dashboard can start, stop, and inspect local agent runs. The operator token proves you are allowed to control the daemon on this machine.</p>
       </div>
       <form id="auth-form" class="auth-form">
         <label for="operator-token">Operator token</label>
         <input id="operator-token" type="password" autocomplete="off" spellcheck="false" required>
-        <button class="button button-primary" type="submit">Connect</button>
+        <button class="button button-primary" type="submit">Open control room</button>
       </form>
     </section>
 
     <main id="control-plane" class="hidden">
-      <section class="stats" aria-label="Agent process summary">
+      <section class="story-hero reveal-card" aria-labelledby="story-title">
+        <div class="story-copy">
+          <p class="eyebrow">WHAT THIS PRODUCT DOES</p>
+          <h2 id="story-title">It turns an AI agent from a loose chatbot into a controlled worker.</h2>
+          <p>Give the agent a job. AgentOS gives it a process ID, permissions, budgets, approval gates, event history, replay, and an audit bundle.</p>
+          <div class="hero-actions" aria-label="Primary demo actions">
+            <a class="button button-primary" href="#demo-title">Show me the demo</a>
+            <a class="button button-secondary" href="#processes-title">Inspect live runs</a>
+          </div>
+          <div class="trust-strip" aria-label="AgentOS guarantees">
+            <span>Permissioned</span>
+            <span>Budgeted</span>
+            <span>Replayable</span>
+          </div>
+        </div>
+
+        <aside class="demo-stage" aria-label="AgentOS operating loop preview">
+          <div class="stage-orb" aria-hidden="true">AI</div>
+          <div class="stage-line stage-line-one" aria-hidden="true"></div>
+          <div class="stage-line stage-line-two" aria-hidden="true"></div>
+          <article class="stage-card stage-card-mission">
+            <span>01</span>
+            <strong>Mission</strong>
+            <p>Fix the repo, write tests, or inspect a bug.</p>
+          </article>
+          <article class="stage-card stage-card-policy">
+            <span>02</span>
+            <strong>Policy</strong>
+            <p>Only declared files, tools, network, and secrets are allowed.</p>
+          </article>
+          <article class="stage-card stage-card-proof">
+            <span>03</span>
+            <strong>Proof</strong>
+            <p>Every state change becomes replayable evidence.</p>
+          </article>
+        </aside>
+      </section>
+
+      <section class="stats reveal-card" aria-label="Agent process summary">
         <article class="stat-card">
-          <span class="stat-label">Total processes</span>
+          <span class="stat-label">Agent runs</span>
           <strong id="stat-total">0</strong>
+          <small>Total jobs supervised</small>
         </article>
         <article class="stat-card">
-          <span class="stat-label">Active</span>
+          <span class="stat-label">Running now</span>
           <strong id="stat-active">0</strong>
+          <small>Currently active</small>
         </article>
         <article class="stat-card">
-          <span class="stat-label">Awaiting approval</span>
+          <span class="stat-label">Need approval</span>
           <strong id="stat-approval">0</strong>
+          <small>Waiting for a human</small>
         </article>
         <article class="stat-card">
-          <span class="stat-label">Accounted tokens</span>
+          <span class="stat-label">Tokens used</span>
           <strong id="stat-tokens">0</strong>
+          <small>Accounted locally</small>
         </article>
         <article class="stat-card">
-          <span class="stat-label">Accounted cost</span>
+          <span class="stat-label">Cost tracked</span>
           <strong id="stat-cost">$0.0000</strong>
+          <small>Budget visibility</small>
         </article>
       </section>
 
-      <section class="workspace">
+      <section class="demo-guide reveal-card" aria-labelledby="demo-title">
+        <div class="demo-copy">
+          <p class="eyebrow">GUIDED LOCAL DEMO</p>
+          <h2 id="demo-title">Describe one agent job and watch AgentOS turn it into a safety contract.</h2>
+          <p>You should not have to hand-write YAML for normal use. The human-facing flow is: describe the job, let AgentOS generate the contract, then inspect the proof.</p>
+        </div>
+        <div class="demo-steps" aria-label="Demo steps">
+          <article class="demo-card is-active">
+            <span class="demo-index">1</span>
+            <strong>Prepare</strong>
+            <span>Type the job in your own words.</span>
+          </article>
+          <article class="demo-card">
+            <span class="demo-index">2</span>
+            <strong>Create</strong>
+            <span>AgentOS generates a strict run contract.</span>
+          </article>
+          <article class="demo-card">
+            <span class="demo-index">3</span>
+            <strong>Prove</strong>
+            <span>Create the run, replay state, export audit.</span>
+          </article>
+        </div>
+        <div class="intent-builder" aria-label="Human request compiler">
+          <label for="human-task-input">Describe the agent job</label>
+          <textarea id="human-task-input" rows="4" spellcheck="true">Fix the code on the backend. Do not touch anything else.</textarea>
+          <p>The contract below should turn "backend only" into explicit permissions: read the repo, write only backend paths, no network, no secrets, and approval for file writes.</p>
+        </div>
+        <div class="demo-actions">
+          <button id="fill-demo-manifest" class="button button-primary" type="button">Generate safety contract</button>
+          <button id="copy-demo-commands" class="button button-secondary" type="button">Copy CLI version</button>
+        </div>
+      </section>
+
+      <section class="workspace reveal-card">
         <div class="primary-column">
-          <article class="panel">
+          <article class="panel" id="processes-title">
             <div class="panel-heading">
               <div>
-                <p class="eyebrow">PROCESS TABLE</p>
-                <h2>Managed agents</h2>
+                <p class="eyebrow">LIVE WORKERS</p>
+                <h2>Agent runs</h2>
+                <p class="panel-subtitle">Each row is a managed agent process, not just a prompt response.</p>
               </div>
-              <button id="launch-toggle" class="button button-primary" type="button">Run manifest</button>
+              <button id="launch-toggle" class="button button-primary" type="button">Create run</button>
             </div>
             <div id="launch-panel" class="launch-panel hidden">
               <form id="launch-form">
-                <label for="manifest-input">Agent manifest (YAML)</label>
+                <label for="manifest-input">Generated safety contract</label>
+                <p class="manifest-explainer">This is not a prompt. It is the contract AgentOS enforces: allowed paths, denied paths, token/cost ceiling, approvals, retry, and checkpoint policy.</p>
                 <textarea id="manifest-input" rows="18" spellcheck="false" placeholder="name: my-agent&#10;image: ..."></textarea>
                 <div class="form-actions">
                   <button class="button button-primary" type="submit">Create process</button>
@@ -81,8 +165,8 @@
               <table>
                 <thead>
                   <tr>
-                    <th>Process</th>
-                    <th>State</th>
+                    <th>Run</th>
+                    <th>Status</th>
                     <th>Attempt</th>
                     <th>Tokens</th>
                     <th>Cost</th>
@@ -92,8 +176,8 @@
                 <tbody id="process-rows"></tbody>
               </table>
               <div id="process-empty" class="empty-state hidden">
-                <strong>No managed processes yet.</strong>
-                <span>Run a manifest to create the first durable agent process.</span>
+                <strong>No agent runs yet.</strong>
+                <span>Describe a job, generate the safety contract, create the process, then select the row to inspect the proof.</span>
               </div>
             </div>
           </article>
@@ -101,29 +185,30 @@
           <article class="panel">
             <div class="panel-heading">
               <div>
-                <p class="eyebrow">HUMAN GATE</p>
-                <h2>Pending approvals</h2>
+                <p class="eyebrow">HUMAN CONTROL</p>
+                <h2>Approval gates</h2>
+                <p class="panel-subtitle">Sensitive actions pause here instead of silently executing.</p>
               </div>
               <span id="approval-count" class="count-pill">0 pending</span>
             </div>
             <div id="approval-list" class="approval-list"></div>
             <div id="approval-empty" class="empty-state">
               <strong>No actions are waiting.</strong>
-              <span>Consequential actions appear here before the daemon allows them.</span>
+              <span>If an agent asks to do something consequential, it pauses here until a human approves.</span>
             </div>
           </article>
         </div>
 
         <aside class="panel detail-panel">
           <div id="detail-empty" class="detail-empty">
-            <p class="eyebrow">PROCESS INSPECTOR</p>
-            <h2>Select a process</h2>
-            <p>Inspect its declared authority, budget consumption, lifecycle events, and deterministic replay.</p>
+            <p class="eyebrow">PROOF PANEL</p>
+            <h2>Select an agent run</h2>
+            <p>This is where AgentOS becomes different from a normal chatbot: you can see the rules, the budget, the timeline, and the replayable proof.</p>
           </div>
           <div id="detail-content" class="hidden">
             <div class="panel-heading detail-heading">
               <div>
-                <p class="eyebrow">PROCESS INSPECTOR</p>
+                <p class="eyebrow">PROOF PANEL</p>
                 <h2 id="detail-name"></h2>
                 <code id="detail-id"></code>
               </div>
@@ -131,27 +216,38 @@
             </div>
             <p id="detail-task" class="task"></p>
 
+            <div class="proof-summary" aria-label="Why this run is inspectable">
+              <span>State is durable</span>
+              <span>Actions are logged</span>
+              <span>Replay disables side effects</span>
+            </div>
+
             <div class="action-row">
               <button id="suspend-button" class="button button-secondary" type="button">Suspend</button>
               <button id="resume-button" class="button button-secondary" type="button">Resume</button>
               <button id="cancel-button" class="button button-danger" type="button">Cancel</button>
-              <button id="replay-button" class="button button-secondary" type="button">Replay</button>
+              <button id="replay-button" class="button button-secondary" type="button">Replay proof</button>
               <button id="audit-button" class="button button-secondary" type="button">Export audit</button>
             </div>
 
             <section class="detail-section">
-              <h3>Budget</h3>
+              <h3>Budget guardrails</h3>
+              <p class="section-note">Before a run starts, AgentOS knows how much time, money, and child work it is allowed to spend.</p>
               <div id="budget-grid" class="budget-grid"></div>
             </section>
 
             <section class="detail-section">
-              <h3>Declared authority</h3>
+              <h3>Declared permissions</h3>
+              <p class="section-note">This is the permission envelope. Empty means the sample run had no host file, network, secret, or tool access.</p>
               <div id="capability-list" class="capability-list"></div>
             </section>
 
             <section class="detail-section">
               <div class="section-heading">
-                <h3>Event timeline</h3>
+                <div>
+                  <h3>What happened</h3>
+                  <p class="section-note">Readable proof first. Raw backend data is available inside each event.</p>
+                </div>
                 <span id="event-count"></span>
               </div>
               <ol id="event-list" class="event-list"></ol>

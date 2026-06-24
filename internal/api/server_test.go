@@ -99,7 +99,7 @@ func TestDashboardAssetsArePublicAndHardened(t *testing.T) {
 		contentType string
 		contains    string
 	}{
-		{path: "/", contentType: "text/html", contains: "AgentOS Control Plane"},
+		{path: "/", contentType: "text/html", contains: "AgentOS Demo Control Room"},
 		{path: "/app.js", contentType: "text/javascript", contains: "agentos.operatorToken"},
 		{path: "/styles.css", contentType: "text/css", contains: "--accent"},
 	} {

@@ -371,18 +371,26 @@ func EnsureToken(path string) (string, error) {
 	if !os.IsNotExist(err) {
 		return "", err
 	}
-	if err = os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
+	return writeToken(path)
+}
+
+func RotateToken(path string) (string, error) {
+	return writeToken(path)
+}
+
+func writeToken(path string) (string, error) {
+	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		return "", err
 	}
 	random := make([]byte, 32)
-	if _, err = rand.Read(random); err != nil {
+	if _, err := rand.Read(random); err != nil {
 		return "", err
 	}
 	token := hex.EncodeToString(random)
-	if err = os.WriteFile(path, []byte(token+"\n"), 0o600); err != nil {
+	if err := os.WriteFile(path, []byte(token+"\n"), 0o600); err != nil {
 		return "", err
 	}
-	if err = secureTokenPath(path); err != nil {
+	if err := secureTokenPath(path); err != nil {
 		return "", err
 	}
 	return token, nil

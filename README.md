@@ -1,4 +1,4 @@
-﻿# AgentOS
+# AgentOS
 
 AgentOS is a local-first process supervisor for AI coding agents. It does not
 replace Linux or Windows. It adds durable lifecycle, policy, approvals, budgets,
@@ -43,7 +43,7 @@ Get-FileHash .\bin\agentos.exe
 .\scripts\start-localhost.cmd
 ```
 
-`agentos doctor` checks loopback binding, state directory safety, approval-token readiness, and Docker availability. Treat `dashboard --print-url` output as a secret because it contains a credential-bearing URL fragment.
+`agentos doctor` checks loopback binding, state directory safety, approval-token readiness, and Docker availability. Treat `dashboard --print-url` output as a secret because it contains a credential-bearing URL fragment. If an operator token is exposed, stop the daemon and run `agentos rotate-token` before reconnecting dashboards.
 
 For the localhost control plane, build and open the dashboard in one command:
 
@@ -60,6 +60,27 @@ daemon with:
 ```powershell
 .\scripts\stop-localhost.cmd
 ```
+
+## Pay-ready local proof
+
+The fastest way to see why AgentOS matters is the pay-ready demo:
+
+```powershell
+.\scripts\demo-pay-ready.cmd
+```
+
+It builds a local worker, starts an isolated daemon, runs the task "Fix the code on the backend. Do not touch anything else.", pauses for an approval-gated backend write, denies a forbidden frontend write, records nonzero token/cost usage, replays the process state, and exports `outputs\pay-ready-audit.json`.
+
+This is still a local proof. The provider-backed OpenAI/Agents SDK coding run and GitHub PR flow remain the next commercial-readiness gates.
+
+For the provider-backed SDK proof, set an explicit key and run:
+
+```powershell
+$env:OPENAI_API_KEY = "sk-..."
+.\scripts\demo-live-agents-sdk.cmd
+```
+
+That demo spends API credit, so it exits before running if `OPENAI_API_KEY` is absent.
 
 Build from source:
 
@@ -122,6 +143,7 @@ prints a credential-bearing URL; treat its output as a secret.
 ```text
 agentos serve
 agentos dashboard [--print-url]
+agentos rotate-token [--force]
 agentos run <manifest.yaml>
 agentos ps
 agentos inspect <process-id>
@@ -178,10 +200,11 @@ servers, and handoffs are disabled in v1.
 
 ```powershell
 .\scripts\test.cmd
+.\scripts\security-audit.cmd
 .\scripts\package.cmd
 ```
 
-Release readiness lives in `docs\release-readiness.md`; deployment and scaling live in `docs\deployment-and-scaling.md`; uninstall/reset guidance lives in `docs\uninstall-and-reset.md`.
+Release readiness lives in `docs\release-readiness.md`; deployment and scaling live in `docs\deployment-and-scaling.md`; uninstall/reset guidance lives in `docs\uninstall-and-reset.md`. Run `scripts\security-audit.cmd` before publishing or demoing from a shared branch.
 
 Architecture decisions and session memory live under `data/`. Use the commands
 in `.Codex/commands/` to reconstruct and close persistent work sessions.

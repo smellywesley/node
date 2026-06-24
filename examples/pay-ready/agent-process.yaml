@@ -1,0 +1,43 @@
+name: pay-ready-demo
+image: agentos/pay-ready-demo:local
+model: demo-metered-model
+task: |-
+  Fix the code on the backend. Do not touch anything else.
+pricing:
+  input_usd_per_million: 1
+  output_usd_per_million: 3
+implementation:
+  adapter: jsonlines-tools
+  command:
+    - python
+    - /app/agent.py
+  env: {}
+mounts:
+  - source: work/pay-ready-workspace
+    target: /workspace
+    read_only: true
+capabilities:
+  tools:
+    - fs.write
+  filesystem_read:
+    - /workspace
+  filesystem_write:
+    - /workspace/internal
+  network_destinations: []
+  secrets: []
+budget:
+  max_tokens: 4000
+  max_cost_usd: 0.02
+  max_duration_seconds: 60
+  max_concurrency: 1
+  max_children: 0
+approval_rules:
+  - action: fs.write
+    match: /workspace/internal
+retry:
+  max_attempts: 1
+  backoff_seconds: 0
+checkpoint:
+  enabled: false
+  interval_seconds: 0
+  resume_on_start: false

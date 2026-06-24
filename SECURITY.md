@@ -1,4 +1,4 @@
-﻿# Security Policy
+# Security Policy
 
 ## Supported Status
 
@@ -18,5 +18,9 @@ Do not paste secrets, prompts, private source, or raw audit bundles into public 
 
 - Do not mount the Docker socket into workers.
 - Do not run untrusted agents with broad writable mounts.
-- Treat `agentos dashboard --print-url` output as secret.
+- Treat `agentos dashboard --print-url` output as secret. If it is exposed, stop the daemon, run `agentos rotate-token`, restart the daemon, and reconnect all dashboards.
 - The hosted or multi-tenant control plane is not part of v1.
+
+## Security Audit Command
+
+Run `scripts\security-audit.cmd` before public demos or publication. It fails if tracked files include runtime state, release archives, database files, token files, private-key blocks, common provider tokens, or credential-bearing AgentOS dashboard URLs.

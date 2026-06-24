@@ -36,15 +36,18 @@ manages durable, permissioned, containerized agent processes.
 - Generated `add.go`: compiled with `go test`
 - Extracted packaged daemon and CLI: `version`, `doctor`, `validate`, localhost start/stop passed
 - Windows state ACL smoke: state dir, token, and SQLite DB were current-user-only
+- Security audit: passed with zero forbidden tracked paths and zero high-confidence secret findings
+- Dashboard demo guide: served from localhost with guided smoke path and prefilled manifest
+- Live smoke process after token rotation: `01fb054b-02c9-4505-90bd-a817c9804b43` succeeded and replayed to `succeeded`
 
 ## Distribution
 
 - Archive: `dist/agentos-v1-windows-amd64.zip`
-- SHA-256: `5973d4925d6785fe19f4d48e11de90435ec68da71d4aef463a65fcc97ba10dee`
-- Archive entries: 115
+- SHA-256: `C3141AB56F5BB19F242853195EBA8380F078F21B43A4AD4AEE8FE7EC2ECAC230`
+- Archive entries: 119
 - Forbidden work, database, token, output, dist, git, gstack, cache, and bytecode entries: 0
 - Offline SDK image: `dist/agentos-agents-sdk-coding-local.tar.gz`
-- Image SHA-256: `7f863ac748d0b0b1cd605bd533c62fe9dfbd5c0d7add04e2dfd21de7a93b7416`
+- Image SHA-256: `C3141AB56F5BB19F242853195EBA8380F078F21B43A4AD4AEE8FE7EC2ECAC230`
 - Local image load time: 4.1 seconds
 
 ## Residual Boundaries

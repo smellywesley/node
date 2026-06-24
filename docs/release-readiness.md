@@ -1,4 +1,4 @@
-﻿# AgentOS Release Readiness
+# AgentOS Release Readiness
 
 Updated: 2026-06-23
 
@@ -10,6 +10,7 @@ AgentOS can be shared as a local-first Windows developer preview when the releas
 
 - `go test ./cmd/... ./internal/...` passes.
 - `go vet ./cmd/... ./internal/...` passes.
+- `scripts\security-audit.cmd` passes with zero forbidden tracked paths and zero high-confidence secret findings.
 - `agentos doctor` reports no FAIL items on a clean machine.
 - `agentos validate examples\agents-sdk-coding\agent-process.yaml` passes static manifest validation.
 - Extracted package starts the localhost dashboard without Go installed.
@@ -34,3 +35,16 @@ AgentOS can be shared as a local-first Windows developer preview when the releas
 - Add a `version` smoke check to CI/release.
 
 
+
+## Current Demo Evidence
+
+Verified on 2026-06-23:
+
+- `scripts\test.cmd` passed.
+- `go vet ./cmd/... ./internal/...` passed.
+- `scripts\security-audit.cmd` passed.
+- Localhost daemon is healthy on `127.0.0.1:7479`.
+- Dashboard serves the guided demo path `See the agent process OS in one run`.
+- Smoke process `01fb054b-02c9-4505-90bd-a817c9804b43` reached `succeeded` and replayed to `succeeded`.
+- Release archive `dist\agentos-v1-windows-amd64.zip` has 119 entries and zero forbidden entries.
+- Release archive SHA-256: `C3141AB56F5BB19F242853195EBA8380F078F21B43A4AD4AEE8FE7EC2ECAC230`.

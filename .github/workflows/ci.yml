@@ -23,6 +23,9 @@ jobs:
         with:
           python-version: "3.11"
       - run: go test ./...
+      - name: Security audit
+        shell: pwsh
+        run: ./scripts/SecurityAudit.ps1
       - run: python -m unittest discover -s adapters/agents-sdk/tests
         env:
           PYTHONPATH: adapters/agents-sdk/src

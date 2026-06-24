@@ -1,0 +1,49 @@
+name: openai-agents-live-coding
+image: agentos/openai-agents-live-coding:local
+model: gpt-4.1-mini
+task: |-
+  Create a small reviewed Go package containing an Add function.
+  Return only the Go source file content.
+pricing:
+  input_usd_per_million: 0.40
+  output_usd_per_million: 1.60
+implementation:
+  adapter: openai-agents-sdk
+  command:
+    - --heartbeat-seconds
+    - "5"
+  env:
+    AGENTOS_AGENT_FACTORY: live_coding_agent:create_agent
+    AGENTOS_RESULT_ARTIFACT: /workspace/reviewed/live_add.go
+    OPENAI_AGENTS_DISABLE_TRACING: "1"
+mounts:
+  - source: work/agents-sdk-live-workspace
+    target: /workspace
+    read_only: true
+capabilities:
+  tools:
+    - fs.write
+  filesystem_read:
+    - /workspace
+  filesystem_write:
+    - /workspace/reviewed
+  network_destinations:
+    - api.openai.com
+  secrets:
+    - OPENAI_API_KEY
+budget:
+  max_tokens: 4000
+  max_cost_usd: 0.05
+  max_duration_seconds: 300
+  max_concurrency: 1
+  max_children: 0
+approval_rules:
+  - action: fs.write
+    match: /workspace/reviewed
+retry:
+  max_attempts: 1
+  backoff_seconds: 0
+checkpoint:
+  enabled: false
+  interval_seconds: 0
+  resume_on_start: false

@@ -1,4 +1,4 @@
-﻿param(
+param(
     [string]$Version = "v1"
 )
 
@@ -29,7 +29,7 @@ $files = @(
     "SECURITY.md"
 )
 $directories = @(
-    ".Codex",
+    ".Codex/commands",
     "adapters",
     "agents",
     "cmd",
@@ -64,6 +64,7 @@ Copy-Item -LiteralPath (Join-Path $root "bin/agentos.exe") -Destination (Join-Pa
 $forbidden = Get-ChildItem -LiteralPath $stage -Recurse -Force | Where-Object {
     $relative = $_.FullName.Substring($stage.Length).TrimStart('\', '/').Replace('\', '/')
     $relative -match '(^|/)(work|dist|outputs|\.git|\.gstack|\.gocache)(/|$)' -or
+    ($relative -match '(^|/)\.Codex(/|$)' -and $relative -notmatch '(^|/)\.Codex($|/commands(/|$))') -or
     $relative -match '(^|/)(__pycache__)(/|$)' -or
     $relative -match '(^|/)(token|approver-token)$' -or
     $relative -match '(agentos\.db|agentos\.db-wal|agentos\.db-shm|daemon\.(out|err|pid)|\.pyc)$'
