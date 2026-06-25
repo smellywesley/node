@@ -185,6 +185,10 @@ const elements = {
   replayButton: document.querySelector("#replay-button"),
   auditButton: document.querySelector("#audit-button"),
   toast: document.querySelector("#toast"),
+  billingProviderDemo: document.querySelector("#billing-provider-demo"),
+  billingProviderStatus: document.querySelector("#billing-provider-status"),
+  pilotAccessDemo: document.querySelector("#pilot-access-demo"),
+  billingRequirementsDemo: document.querySelector("#billing-requirements-demo"),
   statTotal: document.querySelector("#stat-total"),
   statActive: document.querySelector("#stat-active"),
   statApproval: document.querySelector("#stat-approval"),
@@ -233,9 +237,16 @@ function pulseNode(node) {
   node.classList.add("panel-pulse");
 }
 
+function syncDemoManifest() {
+  if (!elements.manifestInput || !elements.humanTaskInput) {
+    return;
+  }
+  const task = elements.humanTaskInput.value.trim() || defaultDemoTask;
+  elements.manifestInput.value = buildDemoManifest(task).trim();
+}
 function loadDemoManifest() {
   const task = elements.humanTaskInput ? elements.humanTaskInput.value.trim() : defaultDemoTask;
-  elements.manifestInput.value = buildDemoManifest(task).trim();
+  syncDemoManifest();
   setHidden(elements.launchPanel, false);
   smoothScrollIntoView(elements.launchPanel);
   elements.manifestInput.focus({preventScroll: true});
@@ -251,6 +262,20 @@ async function copyDemoCommands() {
   } catch {
     showToast("Copy failed. The demo commands are still visible in the dashboard.", true);
   }
+}
+
+function showBillingProviderDemo() {
+  if (elements.billingProviderStatus) {
+    elements.billingProviderStatus.textContent = "Provider connection is intentionally mocked in this local demo. In production, redirect to a provider-hosted checkout and store only provider customer IDs, invoices, and reconciled usage ledger IDs. NODE should not process or store card data.";
+  }
+  showToast("Billing connector preview only. No bank credentials are collected or stored by the NODE local demo.");
+}
+function showPilotRoadmap() {
+  showToast("Pilot access is a roadmap workflow: project setup, roles, spend caps, billing ledger, and support bundle before paid customers.");
+}
+
+function showBillingRequirements() {
+  showToast("Billing requirements: append-only ledger, pricing snapshots, tenant roles, provider-hosted checkout, invoices, and enforced spend caps.");
 }
 
 function showToast(message, isError = false) {
@@ -709,7 +734,17 @@ elements.authForm.addEventListener("submit", async (event) => {
 elements.refreshButton.addEventListener("click", refreshAll);
 elements.launchToggle.addEventListener("click", () => setHidden(elements.launchPanel, false));
 elements.fillDemoManifest.addEventListener("click", loadDemoManifest);
+elements.humanTaskInput.addEventListener("input", syncDemoManifest);
 elements.copyDemoCommands.addEventListener("click", copyDemoCommands);
+if (elements.billingProviderDemo) {
+  elements.billingProviderDemo.addEventListener("click", showBillingProviderDemo);
+}
+if (elements.pilotAccessDemo) {
+  elements.pilotAccessDemo.addEventListener("click", showPilotRoadmap);
+}
+if (elements.billingRequirementsDemo) {
+  elements.billingRequirementsDemo.addEventListener("click", showBillingRequirements);
+}
 elements.launchCancel.addEventListener("click", () => setHidden(elements.launchPanel, true));
 elements.suspendButton.addEventListener("click", () => transition("suspend"));
 elements.resumeButton.addEventListener("click", () => transition("resume"));
@@ -740,6 +775,7 @@ elements.launchForm.addEventListener("submit", async (event) => {
   }
 });
 
+syncDemoManifest();
 loadToken();
 refreshAll();
 state.refreshTimer = window.setInterval(refreshAll, 2500);

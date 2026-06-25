@@ -121,7 +121,7 @@ func dashboard(cfg config, args []string) error {
 	target := dashboardURL(
 		cfg.address,
 		strings.TrimSpace(string(tokenRaw)),
-		strings.TrimSpace(os.Getenv("AGENTOS_APPROVER_TOKEN")),
+		"",
 	)
 	if *printURL {
 		fmt.Println(target)
@@ -175,9 +175,6 @@ func rotateToken(cfg config, args []string) error {
 func dashboardURL(address, token, approverToken string) string {
 	target := url.URL{Scheme: "http", Host: address, Path: "/"}
 	credentials := url.Values{"token": []string{token}}
-	if approverToken != "" {
-		credentials.Set("approver_token", approverToken)
-	}
 	target.Fragment = credentials.Encode()
 	return target.String()
 }

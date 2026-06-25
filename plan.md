@@ -239,7 +239,7 @@ Do not build hosted SaaS, marketplace features, general multi-agent chat, or com
 - [ ] Add billing/metering ledger before managed usage billing: customer/project/process usage rows, pricing snapshots, spend caps, exports.
 - [ ] Add GitHub-oriented artifact flow: branch/diff/test result/audit bundle.
 - [x] Add one-command pay-ready demo script and release-zip path.
-- [ ] Add dashboard before/after explanation for skeptical buyers.
+- [x] Add dashboard before/after explanation for skeptical buyers.
 
 - [x] Add `agentos rotate-token [--force]` without printing the new token.
 - [x] Add tracked-file security audit and CI gate.

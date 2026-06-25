@@ -24,8 +24,11 @@ func TestDashboardURLKeepsCredentialOutOfQuery(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if values.Get("token") != "0123456789abcdef" || values.Get("approver_token") != "fedcba9876543210" {
+	if values.Get("token") != "0123456789abcdef" {
 		t.Fatalf("unexpected fragment: %q", parsed.Fragment)
+	}
+	if values.Has("approver_token") {
+		t.Fatalf("approver credential should not be preloaded into dashboard URL: %q", parsed.Fragment)
 	}
 	beforeFragment := strings.Split(target, "#")[0]
 	if strings.Contains(beforeFragment, "0123456789abcdef") || strings.Contains(beforeFragment, "fedcba9876543210") {
