@@ -1,6 +1,7 @@
-# AgentOS
+# NODE
 
-AgentOS is a local-first process supervisor for AI coding agents. It does not
+NODE is an agentic OS for enterprise teams. Its local runtime, AgentOS, is a
+process supervisor for AI coding agents. It does not
 replace Linux or Windows. It adds durable lifecycle, policy, approvals, budgets,
 container isolation, recovery, replay, and auditability around probabilistic
 agent workloads.
@@ -234,3 +235,10 @@ The default reviewed export is `outputs\agentos-instincts.md`.
 
 The matching Codex commands are `/instinct-status`, `/evolve`,
 `/instinct-export`, `/instinct-import`, `/promote`, and `/projects`.
+
+## License
+
+This repository currently uses an all-rights-reserved source-available license. It
+is public for evaluation and deployment review, but no open-source license is
+granted yet. Do not use NODE or AgentOS in production, redistribute it, or
+sublicense it without explicit permission from the project owner.
