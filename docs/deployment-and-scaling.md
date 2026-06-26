@@ -1,4 +1,4 @@
-﻿# AgentOS Deployment And Scaling Plan
+# AgentOS Deployment And Scaling Plan
 
 Updated: 2026-06-23
 
@@ -22,6 +22,26 @@ Do not publish a public alpha until the active source tree, packaged archive, an
 3. Add or keep regression tests for broad state-home rejection and parent ACL preservation.
 4. Run Go tests and vet against `cmd` and `internal` packages.
 5. Rebuild the Windows archive from the corrected source only.
+
+## Phase 0.5: Public Marketing Site
+
+Goal: deploy NODE's public landing and pricing site without exposing the agent control plane.
+
+What can go live now:
+
+- `deploy/public-site` as a static site on Cloudflare Pages, Netlify, or Vercel;
+- `netlify.toml`, `vercel.json`, and `deploy/public-site/_headers` security headers;
+- pricing and positioning for Free Local, Pro, and Enterprise;
+- contact links after replacing `hello@your-domain.com` with a real owned email.
+
+What must stay private for now:
+
+- `agentos serve` and the localhost dashboard;
+- operator and approver tokens;
+- SQLite state, audit bundles, local workspaces, and runner endpoints;
+- Stripe secret keys and webhook secrets.
+
+The daemon intentionally rejects non-loopback binds. Do not change that for a public demo. A hosted control plane needs tenant auth, RBAC, rate limits, project isolation, runner isolation, support logging, and a production incident path before public exposure.
 
 ## Phase 1: Local Developer Preview
 
