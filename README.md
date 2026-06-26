@@ -238,7 +238,4 @@ The matching Codex commands are `/instinct-status`, `/evolve`,
 
 ## License
 
-This repository currently uses an all-rights-reserved source-available license. It
-is public for evaluation and deployment review, but no open-source license is
-granted yet. Do not use NODE or AgentOS in production, redistribute it, or
-sublicense it without explicit permission from the project owner.
+NODE is released under the MIT License. See `LICENSE` for details.
