@@ -198,7 +198,7 @@ servers, and handoffs are disabled in v1.
 
 ## Public live site
 
-The public website package lives in `deploy/public-site`. It is a static marketing and pricing site for NODE, safe for Cloudflare Pages, Netlify, or Vercel because it ships no operator tokens, daemon endpoints, Stripe secrets, SQLite state, or audit bundles.
+The public website package lives in `deploy/public-site`. It is a static marketing and pricing site for NODE, safe for Cloudflare Pages, Netlify, Render, or Vercel because it ships no operator tokens, daemon endpoints, Stripe secrets, SQLite state, or audit bundles.
 
 Use it for the first live deployment while keeping the AgentOS daemon on loopback. See `deploy/public-site/README.md` and `docs/deployment-and-scaling.md` for the deployment boundary.
 

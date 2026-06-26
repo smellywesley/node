@@ -24,6 +24,13 @@ It intentionally does not include:
 2. Set publish directory to `deploy/public-site`.
 3. No build command is required.
 
+## Render
+
+1. Create a Render Static Site from the repo, or use the root `render.yaml` Blueprint.
+2. Set build command to `true`.
+3. Set publish directory to `deploy/public-site`.
+4. Keep this as a static site only. Do not create a public web service for `agentos serve`.
+
 ## Vercel
 
 1. Create a Vercel project from the repo.

@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: node-agentic-os-public-site
+    runtime: static
+    buildCommand: "true"
+    staticPublishPath: ./deploy/public-site
+    previews:
+      generation: automatic
+    buildFilter:
+      paths:
+        - deploy/public-site/**
+        - render.yaml
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: no-referrer
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=()
+      - path: /*
+        name: Content-Security-Policy
+        value: default-src 'self'; style-src 'self'; img-src 'self' data:; script-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'

@@ -29,8 +29,8 @@ Goal: deploy NODE's public landing and pricing site without exposing the agent c
 
 What can go live now:
 
-- `deploy/public-site` as a static site on Cloudflare Pages, Netlify, or Vercel;
-- `netlify.toml`, `vercel.json`, and `deploy/public-site/_headers` security headers;
+- `deploy/public-site` as a static site on Cloudflare Pages, Netlify, Render, or Vercel;
+- `netlify.toml`, `vercel.json`, `render.yaml`, and `deploy/public-site/_headers` security headers;
 - pricing and positioning for Free Local, Pro, and Enterprise;
 - contact links after replacing `hello@your-domain.com` with a real owned email.
 
