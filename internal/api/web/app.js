@@ -185,9 +185,11 @@ const elements = {
   replayButton: document.querySelector("#replay-button"),
   auditButton: document.querySelector("#audit-button"),
   toast: document.querySelector("#toast"),
-  billingProviderDemo: document.querySelector("#billing-provider-demo"),
   billingProviderStatus: document.querySelector("#billing-provider-status"),
-  pilotAccessDemo: document.querySelector("#pilot-access-demo"),
+  billingPortalDemo: document.querySelector("#billing-portal-demo"),
+  proMonthlyCheckout: document.querySelector("#pro-monthly-checkout"),
+  proYearlyCheckout: document.querySelector("#pro-yearly-checkout"),
+  enterpriseContactDemo: document.querySelector("#enterprise-contact-demo"),
   billingRequirementsDemo: document.querySelector("#billing-requirements-demo"),
   statTotal: document.querySelector("#stat-total"),
   statActive: document.querySelector("#stat-active"),
@@ -264,18 +266,61 @@ async function copyDemoCommands() {
   }
 }
 
-function showBillingProviderDemo() {
-  if (elements.billingProviderStatus) {
-    elements.billingProviderStatus.textContent = "Provider connection is intentionally mocked in this local demo. In production, redirect to a provider-hosted checkout and store only provider customer IDs, invoices, and reconciled usage ledger IDs. NODE should not process or store card data.";
-  }
-  showToast("Billing connector preview only. No bank credentials are collected or stored by the NODE local demo.");
+function checkoutEmail() {
+  const email = window.prompt("Billing email for Stripe Checkout:") || "";
+  return email.trim();
 }
-function showPilotRoadmap() {
-  showToast("Pilot access is a roadmap workflow: project setup, roles, spend caps, billing ledger, and support bundle before paid customers.");
+
+async function startProCheckout(interval) {
+  if (!state.operatorToken) {
+    showToast("Open the local console first, then start checkout.", true);
+    smoothScrollIntoView(elements.authPanel);
+    return;
+  }
+  const email = checkoutEmail();
+  if (!email) {
+    return;
+  }
+  try {
+    const session = await api("/v1/billing/checkout", {
+      method: "POST",
+      body: JSON.stringify({email, interval}),
+    });
+    window.location.assign(session.url);
+  } catch (error) {
+    showToast(error.message, true);
+  }
+}
+
+async function openBillingPortal() {
+  if (!state.operatorToken) {
+    showToast("Open the local console first to manage billing.", true);
+    smoothScrollIntoView(elements.authPanel);
+    return;
+  }
+  try {
+    const session = await api("/v1/billing/portal", {method: "POST", body: JSON.stringify({})});
+    window.location.assign(session.url);
+  } catch (error) {
+    showToast(error.message, true);
+  }
+}
+
+async function refreshBillingStatus() {
+  if (!state.operatorToken || !elements.billingProviderStatus) {
+    return;
+  }
+  try {
+    const status = await api("/v1/billing/status");
+    const configured = status.checkout_configured ? "Stripe checkout is configured" : "Stripe checkout needs server env keys";
+    elements.billingProviderStatus.textContent = `${configured}. Current plan: ${status.plan || "free"}; status: ${status.status || "not_subscribed"}. NODE stores subscription IDs and status only, never card or bank data.`;
+  } catch (error) {
+    elements.billingProviderStatus.textContent = error.message;
+  }
 }
 
 function showBillingRequirements() {
-  showToast("Billing requirements: append-only ledger, pricing snapshots, tenant roles, provider-hosted checkout, invoices, and enforced spend caps.");
+  showToast("Payment safety: Stripe-hosted Checkout, signed webhooks, idempotent event records, no card storage, and managed usage locked until tenant billing controls exist.");
 }
 
 function showToast(message, isError = false) {
@@ -704,6 +749,7 @@ async function refreshAll() {
     renderStats(processes, approvals);
     renderProcesses(processes);
     renderApprovals(approvals);
+    await refreshBillingStatus();
     if (state.selectedProcessID && processes.some((process) => process.id === state.selectedProcessID)) {
       await selectProcess(state.selectedProcessID);
     } else if (processes.length > 0 && !state.selectedProcessID) {
@@ -736,11 +782,17 @@ elements.launchToggle.addEventListener("click", () => setHidden(elements.launchP
 elements.fillDemoManifest.addEventListener("click", loadDemoManifest);
 elements.humanTaskInput.addEventListener("input", syncDemoManifest);
 elements.copyDemoCommands.addEventListener("click", copyDemoCommands);
-if (elements.billingProviderDemo) {
-  elements.billingProviderDemo.addEventListener("click", showBillingProviderDemo);
+if (elements.billingPortalDemo) {
+  elements.billingPortalDemo.addEventListener("click", openBillingPortal);
 }
-if (elements.pilotAccessDemo) {
-  elements.pilotAccessDemo.addEventListener("click", showPilotRoadmap);
+if (elements.proMonthlyCheckout) {
+  elements.proMonthlyCheckout.addEventListener("click", () => startProCheckout("monthly"));
+}
+if (elements.proYearlyCheckout) {
+  elements.proYearlyCheckout.addEventListener("click", () => startProCheckout("yearly"));
+}
+if (elements.enterpriseContactDemo) {
+  elements.enterpriseContactDemo.addEventListener("click", () => showToast("Enterprise is annual-contract first: private deployment, security review, support SLA, and SSO/RBAC roadmap."));
 }
 if (elements.billingRequirementsDemo) {
   elements.billingRequirementsDemo.addEventListener("click", showBillingRequirements);

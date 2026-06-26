@@ -39,6 +39,8 @@ $forbiddenPaths = @(
 
 $secretPatterns = @(
     @{ Name = 'OpenAI API key'; Pattern = 'sk-proj-[A-Za-z0-9_-]{20,}|sk-[A-Za-z0-9]{20,}' },
+    @{ Name = 'Stripe API key'; Pattern = 'sk_(test|live)_[A-Za-z0-9_]{24,}' },
+    @{ Name = 'Stripe webhook secret'; Pattern = 'whsec_[A-Za-z0-9_]{24,}' },
     @{ Name = 'GitHub token'; Pattern = 'github_pat_[A-Za-z0-9_]{20,}|gh[pousr]_[A-Za-z0-9_]{20,}' },
     @{ Name = 'Slack token'; Pattern = 'xox[baprs]-[A-Za-z0-9-]{20,}' },
     @{ Name = 'AWS access key'; Pattern = 'AKIA[0-9A-Z]{16}' },

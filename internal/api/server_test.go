@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/agentos/agentos/internal/billing"
 	"github.com/agentos/agentos/internal/core"
 	"github.com/agentos/agentos/internal/model"
 	"github.com/agentos/agentos/internal/runner"
@@ -173,5 +174,92 @@ func TestAuditExportIncludesRedactedControlRecords(t *testing.T) {
 		if strings.Contains(body, secret) {
 			t.Fatalf("audit body leaked %q: %s", secret, body)
 		}
+	}
+}
+
+type apiFakeStripe struct {
+	checkout billing.StripeCheckoutRequest
+}
+
+func (f *apiFakeStripe) CreateCheckoutSession(_ context.Context, request billing.StripeCheckoutRequest) (billing.StripeCheckoutSession, error) {
+	f.checkout = request
+	return billing.StripeCheckoutSession{ID: "cs_test", URL: "https://checkout.stripe.com/c/session"}, nil
+}
+
+func (f *apiFakeStripe) CreatePortalSession(_ context.Context, request billing.StripePortalRequest) (billing.StripePortalSession, error) {
+	return billing.StripePortalSession{ID: "bps_test", URL: "https://billing.stripe.com/session"}, nil
+}
+
+func TestBillingAPIRequiresAuthAndCreatesCheckout(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "api.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	service := core.New(db, immediateRunner{}, 1)
+	defer service.Close()
+	stripe := &apiFakeStripe{}
+	billingService := billing.NewWithClient(db, billing.Config{
+		SecretKey: "stripe-secret", PriceProMonthly: "price_month", PriceProYearly: "price_year", PublicURL: "http://127.0.0.1:7479",
+	}, stripe)
+	handler := NewWithBilling(service, "secret-token", "approver-token", billingService)
+
+	req := httptest.NewRequest(http.MethodGet, "/v1/billing/status", nil)
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, req)
+	if response.Code != http.StatusUnauthorized {
+		t.Fatalf("unauthenticated billing status=%d", response.Code)
+	}
+
+	req = httptest.NewRequest(http.MethodPost, "/v1/billing/portal", strings.NewReader(`{}`))
+	req.Header.Set("Authorization", "Bearer secret-token")
+	response = httptest.NewRecorder()
+	handler.ServeHTTP(response, req)
+	if response.Code != http.StatusConflict {
+		t.Fatalf("portal without customer status=%d body=%s", response.Code, response.Body.String())
+	}
+
+	req = httptest.NewRequest(http.MethodPost, "/v1/billing/checkout", strings.NewReader(`{"email":"buyer@example.com","interval":"monthly"}`))
+	req.Header.Set("Authorization", "Bearer secret-token")
+	response = httptest.NewRecorder()
+	handler.ServeHTTP(response, req)
+	if response.Code != http.StatusOK {
+		t.Fatalf("checkout status=%d body=%s", response.Code, response.Body.String())
+	}
+	body := response.Body.String()
+	if !strings.Contains(body, "checkout.stripe.com") || strings.Contains(body, "stripe-secret") {
+		t.Fatalf("unexpected checkout body: %s", body)
+	}
+	if stripe.checkout.PriceID != "price_month" {
+		t.Fatalf("checkout request=%+v", stripe.checkout)
+	}
+}
+
+func TestBillingWebhookUsesStripeSignatureNotOperatorToken(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "api.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	service := core.New(db, immediateRunner{}, 1)
+	defer service.Close()
+	billingService := billing.NewWithClient(db, billing.Config{WebhookSecret: "webhook-secret"}, &apiFakeStripe{})
+	handler := NewWithBilling(service, "secret-token", "approver-token", billingService)
+	payload := []byte(`{"id":"evt_api","type":"checkout.session.completed","data":{"object":{"customer":"cus_api","customer_email":"buyer@example.com","subscription":"sub_api"}}}`)
+	now := time.Now().UTC()
+	req := httptest.NewRequest(http.MethodPost, "/v1/billing/webhook", strings.NewReader(string(payload)))
+	req.Header.Set("Stripe-Signature", billing.TestSignatureHeader(payload, "webhook-secret", now))
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, req)
+	if response.Code != http.StatusOK {
+		t.Fatalf("webhook status=%d body=%s", response.Code, response.Body.String())
+	}
+
+	req = httptest.NewRequest(http.MethodGet, "/v1/billing/status", nil)
+	req.Header.Set("Authorization", "Bearer secret-token")
+	response = httptest.NewRecorder()
+	handler.ServeHTTP(response, req)
+	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), "sub_api") {
+		t.Fatalf("billing status=%d body=%s", response.Code, response.Body.String())
 	}
 }

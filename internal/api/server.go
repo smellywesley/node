@@ -16,6 +16,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
+	"github.com/agentos/agentos/internal/billing"
 	"github.com/agentos/agentos/internal/core"
 	"github.com/agentos/agentos/internal/model"
 )
@@ -31,13 +32,19 @@ var dashboardCSS []byte
 
 type Server struct {
 	service      *core.Service
+	billing      *billing.Service
 	operatorHash string
 	approverHash string
 }
 
 func New(service *core.Service, operatorToken, approverToken string) http.Handler {
+	return NewWithBilling(service, operatorToken, approverToken, billing.New(service.Store(), billing.ConfigFromEnv()))
+}
+
+func NewWithBilling(service *core.Service, operatorToken, approverToken string, billingService *billing.Service) http.Handler {
 	s := &Server{
 		service:      service,
+		billing:      billingService,
 		operatorHash: core.HashToken(operatorToken),
 		approverHash: core.HashToken(approverToken),
 	}
@@ -46,6 +53,11 @@ func New(service *core.Service, operatorToken, approverToken string) http.Handle
 	mux.HandleFunc("GET /app.js", s.dashboardAsset("text/javascript; charset=utf-8", dashboardJS))
 	mux.HandleFunc("GET /styles.css", s.dashboardAsset("text/css; charset=utf-8", dashboardCSS))
 	mux.HandleFunc("GET /v1/health", s.health)
+	mux.HandleFunc("GET /v1/pricing", s.pricing)
+	mux.HandleFunc("GET /v1/billing/status", s.billingStatus)
+	mux.HandleFunc("POST /v1/billing/checkout", s.createCheckout)
+	mux.HandleFunc("POST /v1/billing/portal", s.createPortal)
+	mux.HandleFunc("POST /v1/billing/webhook", s.billingWebhook)
 	mux.HandleFunc("POST /v1/processes", s.createProcess)
 	mux.HandleFunc("GET /v1/processes", s.listProcesses)
 	mux.HandleFunc("GET /v1/processes/{id}", s.getProcess)
@@ -73,12 +85,17 @@ func (s *Server) secure(next http.Handler) http.Handler {
 		if isDashboardPath(r.URL.Path) {
 			w.Header().Set("Content-Security-Policy",
 				"default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; "+
-					"img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'")
+					"img-src 'self' data: https://*.stripe.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action https://checkout.stripe.com")
 			next.ServeHTTP(w, r)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
 		if r.URL.Path == "/v1/health" {
+			next.ServeHTTP(w, r)
+			return
+		}
+		if r.URL.Path == "/v1/billing/webhook" {
+			r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -138,6 +155,55 @@ func (s *Server) health(w http.ResponseWriter, _ *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 }
 
+func (s *Server) pricing(w http.ResponseWriter, _ *http.Request) {
+	writeJSON(w, http.StatusOK, s.billing.Pricing())
+}
+
+func (s *Server) billingStatus(w http.ResponseWriter, r *http.Request) {
+	status, err := s.billing.Status(r.Context())
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, billing.RedactSecrets(err.Error()))
+		return
+	}
+	writeJSON(w, http.StatusOK, status)
+}
+
+func (s *Server) createCheckout(w http.ResponseWriter, r *http.Request) {
+	var request billing.CheckoutRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	session, err := s.billing.CreateCheckout(r.Context(), request)
+	if err != nil {
+		writeError(w, http.StatusUnprocessableEntity, billing.RedactSecrets(err.Error()))
+		return
+	}
+	writeJSON(w, http.StatusOK, session)
+}
+
+func (s *Server) createPortal(w http.ResponseWriter, r *http.Request) {
+	session, err := s.billing.CreatePortal(r.Context())
+	if err != nil {
+		writeError(w, http.StatusConflict, billing.RedactSecrets(err.Error()))
+		return
+	}
+	writeJSON(w, http.StatusOK, session)
+}
+
+func (s *Server) billingWebhook(w http.ResponseWriter, r *http.Request) {
+	payload, err := billing.DecodeWebhookBody(r.Body)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	created, err := s.billing.HandleWebhook(r.Context(), payload, r.Header.Get("Stripe-Signature"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, billing.RedactSecrets(err.Error()))
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"received": true, "created": created})
+}
 func (s *Server) createProcess(w http.ResponseWriter, r *http.Request) {
 	raw, err := io.ReadAll(r.Body)
 	if err != nil {

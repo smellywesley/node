@@ -170,3 +170,35 @@ func TestLatestCheckpointUsesNewestAppendOnlyEvent(t *testing.T) {
 		t.Fatalf("checkpoint=%s", checkpoint)
 	}
 }
+
+func TestBillingTablesPersistSubscriptionStatusAndEvents(t *testing.T) {
+	s, err := Open(filepath.Join(t.TempDir(), "billing.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	ctx := context.Background()
+	customer, err := s.UpsertBillingCustomer(ctx, model.BillingCustomer{ID: "cust-local", Email: "buyer@example.com", StripeCustomerID: "cus_123", CreatedAt: time.Now().UTC(), UpdatedAt: time.Now().UTC()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	period := time.Now().UTC().Add(30 * 24 * time.Hour)
+	if err = s.UpsertBillingSubscription(ctx, model.BillingSubscription{CustomerID: customer.ID, StripeSubscriptionID: "sub_123", Plan: "pro", Status: "active", CurrentPeriodEnd: &period, UpdatedAt: time.Now().UTC()}); err != nil {
+		t.Fatal(err)
+	}
+	status, err := s.BillingStatus(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if status.Plan != "pro" || status.Status != "active" || status.StripeCustomerID != "cus_123" {
+		t.Fatalf("status=%+v", status)
+	}
+	created, err := s.CreateBillingEvent(ctx, model.BillingEvent{ID: "evt_123", Type: "checkout.session.completed", PayloadHash: "hash", Status: "received", ProcessedAt: time.Now().UTC()})
+	if err != nil || !created {
+		t.Fatalf("created=%v err=%v", created, err)
+	}
+	created, err = s.CreateBillingEvent(ctx, model.BillingEvent{ID: "evt_123", Type: "checkout.session.completed", PayloadHash: "hash", Status: "received", ProcessedAt: time.Now().UTC()})
+	if err != nil || created {
+		t.Fatalf("duplicate created=%v err=%v", created, err)
+	}
+}

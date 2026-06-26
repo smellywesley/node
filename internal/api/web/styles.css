@@ -2060,3 +2060,64 @@ tbody tr.selected {
     grid-template-columns: 1fr;
   }
 }
+
+/* BILLING PLAN CARDS */
+.pricing-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.pricing-card {
+  display: grid;
+  align-content: space-between;
+  min-height: 300px;
+  padding: 22px;
+  border: 1px solid rgba(24, 42, 72, 0.1);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 20px 64px rgba(39, 76, 119, 0.1);
+}
+
+.pricing-card-featured {
+  background: linear-gradient(135deg, rgba(84, 244, 184, 0.68), rgba(148, 221, 255, 0.58));
+}
+
+.pricing-card span {
+  color: #667085;
+  font-size: 0.66rem;
+  font-weight: 950;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.pricing-card h3 {
+  margin: 18px 0 0;
+  color: #101828;
+  font-size: clamp(1.8rem, 3vw, 3.1rem);
+  letter-spacing: -0.06em;
+}
+
+.pricing-card h3 small {
+  display: block;
+  margin-top: 6px;
+  color: #475467;
+  font-size: 0.86rem;
+  letter-spacing: 0;
+}
+
+.pricing-card p {
+  color: #475467;
+  line-height: 1.65;
+}
+
+.pricing-actions {
+  display: grid;
+  gap: 10px;
+}
+
+@media (max-width: 980px) {
+  .pricing-cards {
+    grid-template-columns: 1fr;
+  }
+}

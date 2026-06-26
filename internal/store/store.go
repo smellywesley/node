@@ -103,6 +103,34 @@ CREATE TABLE IF NOT EXISTS tool_calls (
 	updated_at TEXT NOT NULL,
 	PRIMARY KEY(process_id, idempotency_key)
 );
+
+CREATE TABLE IF NOT EXISTS customers (
+	id TEXT PRIMARY KEY,
+	email TEXT NOT NULL UNIQUE,
+	stripe_customer_id TEXT NOT NULL DEFAULT '',
+	created_at TEXT NOT NULL,
+	updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_customers_stripe_id ON customers(stripe_customer_id);
+
+CREATE TABLE IF NOT EXISTS subscriptions (
+	stripe_subscription_id TEXT PRIMARY KEY,
+	customer_id TEXT NOT NULL REFERENCES customers(id),
+	plan TEXT NOT NULL,
+	status TEXT NOT NULL,
+	current_period_end TEXT,
+	cancel_at_period_end INTEGER NOT NULL DEFAULT 0,
+	updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_customer ON subscriptions(customer_id);
+
+CREATE TABLE IF NOT EXISTS billing_events (
+	id TEXT PRIMARY KEY,
+	type TEXT NOT NULL,
+	payload_hash TEXT NOT NULL,
+	status TEXT NOT NULL,
+	processed_at TEXT NOT NULL
+);
 `
 	if _, err := s.db.ExecContext(ctx, schema); err != nil {
 		return err
@@ -900,4 +928,157 @@ func nullable(value string) any {
 func formatTime(t time.Time) string { return t.UTC().Format(time.RFC3339Nano) }
 func parseTime(v string) (time.Time, error) {
 	return time.Parse(time.RFC3339Nano, v)
+}
+
+func (s *Store) UpsertBillingCustomer(ctx context.Context, customer model.BillingCustomer) (model.BillingCustomer, error) {
+	now := time.Now().UTC()
+	if customer.UpdatedAt.IsZero() {
+		customer.UpdatedAt = now
+	}
+	if customer.CreatedAt.IsZero() {
+		customer.CreatedAt = customer.UpdatedAt
+	}
+	if strings.TrimSpace(customer.ID) == "" {
+		return model.BillingCustomer{}, errors.New("billing customer id is required")
+	}
+	if strings.TrimSpace(customer.Email) == "" {
+		return model.BillingCustomer{}, errors.New("billing customer email is required")
+	}
+	_, err := s.db.ExecContext(ctx, `
+		INSERT INTO customers(id,email,stripe_customer_id,created_at,updated_at)
+		VALUES(?,?,?,?,?)
+		ON CONFLICT(email) DO UPDATE SET
+			stripe_customer_id=CASE WHEN excluded.stripe_customer_id != '' THEN excluded.stripe_customer_id ELSE customers.stripe_customer_id END,
+			updated_at=excluded.updated_at`,
+		customer.ID, customer.Email, customer.StripeCustomerID, formatTime(customer.CreatedAt), formatTime(customer.UpdatedAt))
+	if err != nil {
+		return model.BillingCustomer{}, err
+	}
+	return s.BillingCustomerByEmail(ctx, customer.Email)
+}
+
+func (s *Store) BillingCustomerByEmail(ctx context.Context, email string) (model.BillingCustomer, error) {
+	row := s.db.QueryRowContext(ctx, `SELECT id,email,stripe_customer_id,created_at,updated_at FROM customers WHERE email=?`, email)
+	return scanBillingCustomer(row)
+}
+
+func (s *Store) BillingCustomerByStripeID(ctx context.Context, stripeID string) (model.BillingCustomer, error) {
+	row := s.db.QueryRowContext(ctx, `SELECT id,email,stripe_customer_id,created_at,updated_at FROM customers WHERE stripe_customer_id=?`, stripeID)
+	return scanBillingCustomer(row)
+}
+
+func scanBillingCustomer(row scanner) (model.BillingCustomer, error) {
+	var customer model.BillingCustomer
+	var created, updated string
+	err := row.Scan(&customer.ID, &customer.Email, &customer.StripeCustomerID, &created, &updated)
+	if err != nil {
+		return customer, err
+	}
+	customer.CreatedAt, err = parseTime(created)
+	if err != nil {
+		return customer, err
+	}
+	customer.UpdatedAt, err = parseTime(updated)
+	return customer, err
+}
+
+func (s *Store) UpsertBillingSubscription(ctx context.Context, subscription model.BillingSubscription) error {
+	if subscription.StripeSubscriptionID == "" {
+		return errors.New("stripe subscription id is required")
+	}
+	if subscription.CustomerID == "" {
+		return errors.New("billing subscription customer id is required")
+	}
+	if subscription.Plan == "" {
+		subscription.Plan = "pro"
+	}
+	if subscription.Status == "" {
+		subscription.Status = "unknown"
+	}
+	if subscription.UpdatedAt.IsZero() {
+		subscription.UpdatedAt = time.Now().UTC()
+	}
+	var period any
+	if subscription.CurrentPeriodEnd != nil {
+		period = formatTime(*subscription.CurrentPeriodEnd)
+	}
+	cancel := 0
+	if subscription.CancelAtPeriodEnd {
+		cancel = 1
+	}
+	_, err := s.db.ExecContext(ctx, `
+		INSERT INTO subscriptions(stripe_subscription_id,customer_id,plan,status,current_period_end,cancel_at_period_end,updated_at)
+		VALUES(?,?,?,?,?,?,?)
+		ON CONFLICT(stripe_subscription_id) DO UPDATE SET
+			customer_id=excluded.customer_id,
+			plan=excluded.plan,
+			status=excluded.status,
+			current_period_end=excluded.current_period_end,
+			cancel_at_period_end=excluded.cancel_at_period_end,
+			updated_at=excluded.updated_at`,
+		subscription.StripeSubscriptionID, subscription.CustomerID, subscription.Plan, subscription.Status, period, cancel, formatTime(subscription.UpdatedAt))
+	return err
+}
+
+func (s *Store) BillingStatus(ctx context.Context) (model.BillingStatus, error) {
+	row := s.db.QueryRowContext(ctx, `
+		SELECT c.id,c.email,c.stripe_customer_id,s.stripe_subscription_id,s.plan,s.status,
+		       COALESCE(s.current_period_end,''),s.cancel_at_period_end,s.updated_at
+		FROM subscriptions s JOIN customers c ON c.id=s.customer_id
+		ORDER BY s.updated_at DESC LIMIT 1`)
+	var status model.BillingStatus
+	var period, updated string
+	var cancel int
+	err := row.Scan(&status.CustomerID, &status.Email, &status.StripeCustomerID, &status.StripeSubscriptionID,
+		&status.Plan, &status.Status, &period, &cancel, &updated)
+	if errors.Is(err, sql.ErrNoRows) {
+		status.Plan = "free"
+		status.Status = "not_subscribed"
+		status.UpdatedAt = time.Now().UTC()
+		return status, nil
+	}
+	if err != nil {
+		return status, err
+	}
+	if period != "" {
+		parsed, parseErr := parseTime(period)
+		if parseErr != nil {
+			return status, parseErr
+		}
+		status.CurrentPeriodEnd = &parsed
+	}
+	status.CancelAtPeriodEnd = cancel == 1
+	status.UpdatedAt, err = parseTime(updated)
+	return status, err
+}
+
+func (s *Store) CreateBillingEvent(ctx context.Context, event model.BillingEvent) (bool, error) {
+	if event.ProcessedAt.IsZero() {
+		event.ProcessedAt = time.Now().UTC()
+	}
+	result, err := s.db.ExecContext(ctx, `
+		INSERT OR IGNORE INTO billing_events(id,type,payload_hash,status,processed_at)
+		VALUES(?,?,?,?,?)`, event.ID, event.Type, event.PayloadHash, event.Status, formatTime(event.ProcessedAt))
+	if err != nil {
+		return false, err
+	}
+	changed, err := result.RowsAffected()
+	return changed == 1, err
+}
+
+func (s *Store) MarkBillingEvent(ctx context.Context, id, status string) error {
+	_, err := s.db.ExecContext(ctx, `UPDATE billing_events SET status=?,processed_at=? WHERE id=?`, status, formatTime(time.Now().UTC()), id)
+	return err
+}
+
+func (s *Store) BillingEvent(ctx context.Context, id string) (model.BillingEvent, error) {
+	var event model.BillingEvent
+	var processed string
+	err := s.db.QueryRowContext(ctx, `SELECT id,type,payload_hash,status,processed_at FROM billing_events WHERE id=?`, id).
+		Scan(&event.ID, &event.Type, &event.PayloadHash, &event.Status, &processed)
+	if err != nil {
+		return event, err
+	}
+	event.ProcessedAt, err = parseTime(processed)
+	return event, err
 }

@@ -1,7 +1,7 @@
 # Billing And Metering Plan
 
-Updated: 2026-06-24
-Status: engineering plan
+Updated: 2026-06-26
+Status: subscription checkout implemented; managed usage ledger still planned
 
 ## Bottom Line
 
@@ -20,6 +20,18 @@ AgentOS customer billing layer
 
 The dashboard's current `usage.tokens` and `usage.cost_usd` are good operational accounting. They are not yet a complete billing system.
 
+
+## Implemented Subscription Slice
+
+NODE now supports a first paid-release path for BYOK subscriptions without handling card data directly:
+
+- `GET /v1/pricing` returns Free Local, Pro, and Enterprise plan metadata.
+- `POST /v1/billing/checkout` creates a Stripe-hosted Checkout Session for Pro monthly or yearly.
+- `POST /v1/billing/portal` creates a Stripe-hosted customer portal session after a customer is linked.
+- `GET /v1/billing/status` returns local subscription status.
+- `POST /v1/billing/webhook` verifies Stripe signatures, records event ids idempotently, and stores only customer/subscription ids plus status.
+
+Local tables added for this slice: `customers`, `subscriptions`, and `billing_events`. These are subscription-state tables, not the future managed-usage billing ledger. NODE must still not charge for managed model usage until `billable_usage`, tenant isolation, spend caps, and reconciliation exports exist.
 ## Pricing Modes
 
 ### Mode 1 - BYOK Alpha
@@ -126,8 +138,9 @@ Rules:
 4. Add `agentos usage --from --to --customer --project --json` for exports.
 5. Add project/customer IDs to manifests or project profiles.
 6. Add hard customer spend caps and prepaid credit checks.
-7. Add Stripe only after local ledger and reconciliation are correct.
-8. Add hosted/team billing only after tenant isolation and role controls exist.
+7. Stripe-hosted subscription checkout is acceptable before managed usage because Pro is BYOK and NODE does not store card data.
+8. Add managed usage billing only after local ledger and reconciliation are correct.
+9. Add hosted/team billing only after tenant isolation and role controls exist.
 
 ## What Customers Should Pay For
 

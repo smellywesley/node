@@ -198,64 +198,79 @@
       <div class="billing-main">
         <div class="billing-header">
           <div>
-            <p class="eyebrow">BILLING PREVIEW, NOT LIVE CHARGING</p>
-            <h2 id="billing-title">A future billing page for usage-governed agent runs.</h2>
-            <p>Today this is a product preview. Production billing needs an append-only billing ledger, pricing snapshots, spend caps, tenant roles, and a compliant payment provider handoff.</p>
+            <p class="eyebrow">REAL PLANS, HOSTED PAYMENT</p>
+            <h2 id="billing-title">Pay for the control plane. Bring your own model keys.</h2>
+            <p>NODE uses Stripe-hosted Checkout for Pro subscriptions. Card and bank details are entered on Stripe, not stored by NODE. Managed model usage stays locked until tenant isolation, spend caps, and a billable usage ledger exist.</p>
           </div>
-          <button id="billing-provider-demo" class="button button-secondary" type="button">Preview provider handoff</button>
+          <button id="billing-portal-demo" class="button button-secondary" type="button">Manage billing</button>
         </div>
 
-        <div class="plan-row">
-          <div class="plan-icon" aria-hidden="true">ND</div>
-          <div>
-            <strong>Design Partner Pilot</strong>
-            <p>BYOK-first alpha with local estimated provider cost. Managed billing comes only after ledger reconciliation and enforced spend caps.</p>
-          </div>
-          <button id="pilot-access-demo" class="button button-secondary" type="button">Pilot access roadmap</button>
+        <div class="pricing-cards" aria-label="NODE pricing plans">
+          <article class="pricing-card">
+            <span>Free Local</span>
+            <h3>$0</h3>
+            <p>For local evaluation and demos. BYOK, replay, basic audit export, no team history.</p>
+            <button class="button button-secondary" type="button" disabled>Current local mode</button>
+          </article>
+          <article class="pricing-card pricing-card-featured">
+            <span>Pro</span>
+            <h3>$99 <small>/ operator / month</small></h3>
+            <p>For builders who need governed agent runs: audit bundles, replay, policy templates, and GitHub artifact workflow when ready. BYOK only.</p>
+            <div class="pricing-actions">
+              <button id="pro-monthly-checkout" class="button button-primary" type="button">Start Pro monthly</button>
+              <button id="pro-yearly-checkout" class="button button-secondary" type="button">Save with $948/year</button>
+            </div>
+          </article>
+          <article class="pricing-card">
+            <span>Enterprise</span>
+            <h3>From $30k <small>/ year</small></h3>
+            <p>Private deployment, longer audit retention, security review, SSO/RBAC roadmap, and support SLA for serious enterprise pilots.</p>
+            <button id="enterprise-contact-demo" class="button button-secondary" type="button">Request enterprise pilot</button>
+          </article>
         </div>
 
         <div class="billing-section">
           <div>
-            <h3>Payment</h3>
-            <p id="billing-provider-status">Demo mode: no bank account or card is connected. Production should redirect to a provider-hosted checkout and store only provider customer IDs plus reconciled ledger records.</p>
+            <h3>Subscription status</h3>
+            <p id="billing-provider-status">Connect the local console to view subscription status. Payment data stays with Stripe; NODE stores only customer, subscription, and event IDs.</p>
           </div>
-          <button id="billing-requirements-demo" class="button button-secondary" type="button">View requirements</button>
+          <button id="billing-requirements-demo" class="button button-secondary" type="button">Security requirements</button>
         </div>
 
         <div class="billing-grid">
           <article class="usage-card">
-            <span class="stat-label">Example model tokens</span>
-            <strong>184,240</strong>
-            <small>Sample local usage signal</small>
+            <span class="stat-label">Pro subscription</span>
+            <strong>$99/mo</strong>
+            <small>Per operator, BYOK</small>
           </article>
           <article class="usage-card">
-            <span class="stat-label">Estimated provider cost</span>
-            <strong>$12.84</strong>
-            <small>Not an invoice</small>
+            <span class="stat-label">Annual Pro</span>
+            <strong>$948/yr</strong>
+            <small>20% effective discount</small>
           </article>
           <article class="usage-card">
-            <span class="stat-label">Billing status</span>
-            <strong>Preview</strong>
-            <small>Ledger required before charging</small>
+            <span class="stat-label">Managed usage</span>
+            <strong>Locked</strong>
+            <small>Requires billing ledger first</small>
           </article>
         </div>
 
         <div class="invoice-table">
           <div class="invoice-head">
-            <h3>Future invoices</h3>
-            <span>Illustrative only for the local demo</span>
+            <h3>Payment architecture</h3>
+            <span>Hosted checkout, signed webhooks, idempotent local records</span>
           </div>
           <table>
-            <thead><tr><th>Date</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Layer</th><th>Handled by</th><th>Stored in NODE</th><th>Risk control</th></tr></thead>
             <tbody>
-              <tr><td>Jun 23, 2026</td><td>Not billed</td><td>Preview</td><td><a href="#demo-title">Review audit</a></td></tr>
-              <tr><td>May 31, 2026</td><td>Not billed</td><td>Roadmap</td><td><a href="#billing-title">View plan</a></td></tr>
+              <tr><td>Card/bank details</td><td>Stripe Checkout</td><td>No</td><td>Provider-hosted page</td></tr>
+              <tr><td>Subscription state</td><td>Stripe Billing + NODE</td><td>IDs and status only</td><td>Signed webhooks</td></tr>
+              <tr><td>Model usage</td><td>Customer provider key</td><td>Operational totals</td><td>BYOK until ledger exists</td></tr>
             </tbody>
           </table>
         </div>
       </div>
     </section>
-
     <section id="auth-panel" class="auth-panel auth-card hidden" aria-labelledby="auth-title">
       <div>
         <p class="eyebrow">PRIVATE LOCAL DEMO</p>

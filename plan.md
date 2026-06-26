@@ -236,6 +236,7 @@ Do not build hosted SaaS, marketplace features, general multi-agent chat, or com
 
 - [x] Ship local pay-ready enforcement demo: approval-gated backend write, denied frontend write, nonzero usage/cost, replay, audit export.
 - [ ] Add provider-backed OpenAI/Agents SDK coding run with live token/cost tracking. Scaffold exists in `examples/agents-sdk-live-coding`; live verification requires an explicit `OPENAI_API_KEY`.
+- [x] Add Stripe-hosted Pro subscription checkout and portal path for BYOK subscriptions; no card data stored by NODE.
 - [ ] Add billing/metering ledger before managed usage billing: customer/project/process usage rows, pricing snapshots, spend caps, exports.
 - [ ] Add GitHub-oriented artifact flow: branch/diff/test result/audit bundle.
 - [x] Add one-command pay-ready demo script and release-zip path.

@@ -37,6 +37,8 @@ type Service struct {
 	active      sync.Map
 }
 
+func (s *Service) Store() *store.Store { return s.store }
+
 func New(store *store.Store, processRunner runner.Runner, concurrency int) *Service {
 	if concurrency < 1 {
 		concurrency = 1
