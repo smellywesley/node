@@ -1,6 +1,9 @@
 package main
 
 import (
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -50,5 +53,108 @@ func TestValidateStateHomeRejectsBroadRoots(t *testing.T) {
 	volumeRoot := filepath.VolumeName(userHome) + string(os.PathSeparator)
 	if err = validateStateHome(volumeRoot); err == nil {
 		t.Fatal("filesystem root was accepted as AGENTOS_HOME")
+	}
+}
+
+func TestSupportBundleUsesRedactedAuditEndpointOnly(t *testing.T) {
+	token := "0123456789abcdef0123456789abcdef"
+	home := t.TempDir()
+	if err := os.WriteFile(filepath.Join(home, "token"), []byte(token), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	rawEndpointCalled := false
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/v1/health":
+			_, _ = w.Write([]byte(`{"status":"ok"}`))
+		case "/v1/processes/proc-1/audit":
+			if got := r.Header.Get("Authorization"); got != "Bearer "+token {
+				t.Fatalf("unexpected authorization header: %q", got)
+			}
+			_, _ = w.Write([]byte(`{"process":{"task":"[redacted]"},"events":[{"type":"tool.denied","payload":"[redacted]"}]}`))
+		default:
+			rawEndpointCalled = true
+			_, _ = w.Write([]byte(`{"leak":"raw-process-event-or-replay"}`))
+		}
+	}))
+	defer server.Close()
+	serverURL, err := url.Parse(server.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	outputPath := filepath.Join(t.TempDir(), "support.json")
+	if err = supportBundle(config{home: home, address: serverURL.Host}, []string{"support-bundle", "proc-1", outputPath}); err != nil {
+		t.Fatal(err)
+	}
+	if rawEndpointCalled {
+		t.Fatal("support bundle called a raw process/event/replay endpoint")
+	}
+	raw, err := os.ReadFile(outputPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(raw), "raw-process-event-or-replay") {
+		t.Fatalf("support bundle included raw endpoint data: %s", string(raw))
+	}
+	var bundle map[string]any
+	if err = json.Unmarshal(raw, &bundle); err != nil {
+		t.Fatal(err)
+	}
+	if bundle["redacted"] != true {
+		t.Fatalf("support bundle was not marked redacted: %#v", bundle["redacted"])
+	}
+	if _, ok := bundle["audit"]; !ok {
+		t.Fatalf("support bundle missing redacted audit export: %#v", bundle)
+	}
+	if _, ok := bundle["events"]; ok {
+		t.Fatalf("support bundle should not include raw events: %#v", bundle)
+	}
+	if _, ok := bundle["replay"]; ok {
+		t.Fatalf("support bundle should not include raw replay: %#v", bundle)
+	}
+}
+
+func TestSupportBundleFailsWhenRedactedAuditFails(t *testing.T) {
+	token := "0123456789abcdef0123456789abcdef"
+	home := t.TempDir()
+	if err := os.WriteFile(filepath.Join(home, "token"), []byte(token), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/v1/health":
+			_, _ = w.Write([]byte(`{"status":"ok"}`))
+		case "/v1/processes/proc-1/audit":
+			http.Error(w, `{"error":"audit unavailable"}`, http.StatusInternalServerError)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+	serverURL, err := url.Parse(server.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	outputPath := filepath.Join(t.TempDir(), "support.json")
+	err = supportBundle(config{home: home, address: serverURL.Host}, []string{"support-bundle", "proc-1", outputPath})
+	if err == nil {
+		t.Fatal("support bundle succeeded without a redacted audit export")
+	}
+	if !strings.Contains(err.Error(), "support bundle incomplete") || !strings.Contains(err.Error(), "audit") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if _, statErr := os.Stat(outputPath); !os.IsNotExist(statErr) {
+		t.Fatalf("support bundle wrote incomplete output, stat err: %v", statErr)
+	}
+}
+
+func TestSupportGuidanceExplainsDockerRescue(t *testing.T) {
+	guidance := supportGuidance(diagnostic{Name: "docker", Status: "WARN", Detail: "not found"})
+	for _, want := range []string{"problem:", "cause:", "fix:", "Docker Desktop", "doctor --support"} {
+		if !strings.Contains(guidance, want) {
+			t.Fatalf("guidance %q missing %q", guidance, want)
+		}
 	}
 }

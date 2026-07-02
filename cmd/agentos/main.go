@@ -88,6 +88,8 @@ func run(args []string) error {
 		return oneID(cfg, args, http.MethodGet, "/v1/processes/%s/replay")
 	case "audit":
 		return audit(cfg, args)
+	case "support-bundle":
+		return supportBundle(cfg, args)
 	case "suspend", "resume", "cancel":
 		if len(args) != 2 {
 			return fmt.Errorf("usage: agentos %s <process-id>", args[0])
@@ -364,6 +366,87 @@ func approval(cfg config, args []string) error {
 		map[string]string{"reason": reason}, true)
 }
 
+func supportBundle(cfg config, args []string) error {
+	if len(args) < 2 || len(args) > 3 {
+		return errors.New("usage: agentos support-bundle <process-id> [output.json]")
+	}
+	processID := args[1]
+	outputPath := fmt.Sprintf("agentos-support-%s.json", processID)
+	if len(args) == 3 {
+		outputPath = args[2]
+	}
+	health, healthErr := getJSON(cfg, "/v1/health", false)
+	auditBundle, auditErr := getJSON(cfg, fmt.Sprintf("/v1/processes/%s/audit", processID), true)
+	if healthErr != nil || auditErr != nil {
+		return fmt.Errorf("support bundle incomplete: health: %s; audit: %s", errorString(healthErr), errorString(auditErr))
+	}
+	bundle := map[string]any{
+		"schema_version": "agentos-support-bundle/v1",
+		"generated_at":   time.Now().UTC().Format(time.RFC3339),
+		"process_id":     processID,
+		"redacted":       true,
+		"daemon": map[string]any{
+			"address": cfg.address,
+			"health":  health,
+		},
+		"audit": auditBundle,
+		"notes": []string{
+			"Support bundles intentionally collect daemon health plus the redacted audit export only.",
+			"Raw process, event, replay, token, and runtime-state endpoints are excluded by default.",
+		},
+		"errors": map[string]string{
+			"health": errorString(healthErr),
+			"audit":  errorString(auditErr),
+		},
+	}
+	formatted, err := json.MarshalIndent(bundle, "", "  ")
+	if err != nil {
+		return err
+	}
+	if err = os.WriteFile(outputPath, append(formatted, '\n'), 0o600); err != nil {
+		return err
+	}
+	fmt.Printf("support bundle written to %s\n", outputPath)
+	return nil
+}
+
+func getJSON(cfg config, path string, auth bool) (any, error) {
+	req, err := http.NewRequest(http.MethodGet, "http://"+cfg.address+path, nil)
+	if err != nil {
+		return nil, err
+	}
+	if auth {
+		tokenRaw, tokenErr := os.ReadFile(filepath.Join(cfg.home, "token"))
+		if tokenErr != nil {
+			return nil, fmt.Errorf("read daemon token; is `agentos serve` running? %w", tokenErr)
+		}
+		req.Header.Set("Authorization", "Bearer "+strings.TrimSpace(string(tokenRaw)))
+	}
+	resp, err := (&http.Client{Timeout: 35 * time.Second}).Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	raw, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("%s: %s", resp.Status, strings.TrimSpace(string(raw)))
+	}
+	var decoded any
+	if err = json.Unmarshal(raw, &decoded); err != nil {
+		return nil, err
+	}
+	return decoded, nil
+}
+
+func errorString(err error) string {
+	if err == nil {
+		return ""
+	}
+	return err.Error()
+}
 func audit(cfg config, args []string) error {
 	if len(args) < 2 || len(args) > 3 {
 		return errors.New("usage: agentos audit <process-id> [output.json]")
@@ -403,7 +486,7 @@ func usage() error {
 commands:
   serve [--addr 127.0.0.1:7467] [--concurrency 2]
   dashboard [--print-url]
-  doctor
+  doctor [--support]
   rotate-token [--force]
   validate <manifest.yaml>
   version
@@ -415,5 +498,6 @@ commands:
   approve|deny <approval-id> [reason]
   logs <process-id>
   replay <process-id>
-  audit <process-id> [output.json]`)
+  audit <process-id> [output.json]
+  support-bundle <process-id> [output.json]`)
 }

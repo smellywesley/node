@@ -4,50 +4,157 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NODE - Agentic OS For Enterprise</title>
-  <meta name="description" content="NODE is an agentic operating layer for enterprises: permissioned, budgeted, approved, replayable, and audit-ready AI agent runs.">
+  <meta name="description" content="NODE is an agentic operating layer for enterprises: intent-to-policy contracts, permissioned runs, budgets, approvals, replay, and audit-ready AI agent proof.">
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <main>
     <section class="hero" aria-labelledby="hero-title">
-      <div class="glass-scene" aria-hidden="true">
-        <span class="orb orb-one"></span>
-        <span class="orb orb-two"></span>
-        <span class="panel panel-one"></span>
-        <span class="panel panel-two"></span>
-      </div>
       <nav class="nav" aria-label="Primary">
         <a class="brand" href="#hero-title">NODE</a>
         <div>
-          <a href="#problem">Problem</a>
+          <a href="#what-we-do">What We Do</a>
+          <a href="#intent">Intent</a>
+          <a href="#policy">Policy</a>
           <a href="#plans">Pricing</a>
           <a href="#security">Security</a>
         </div>
       </nav>
       <div class="hero-copy">
         <p class="eyebrow">AGENTIC OS FOR ENTERPRISE</p>
-        <h1 id="hero-title">Run AI agents like controlled workers, not loose chatbots.</h1>
-        <p>NODE gives every agent run a process ID, permissions, budgets, approvals, replay, and audit proof. Bring your own agents and model keys; NODE governs how they operate.</p>
+        <h1 id="hero-title">Turn AI agents into controlled workers.</h1>
+        <p>NODE gives every agent run a process ID, permissions, budgets, approvals, replay, and audit proof. Your company can bring its own agents and model keys; NODE governs how those agents operate.</p>
         <div class="actions">
-          <a class="button primary" href="#plans">See plans</a>
+          <a class="button primary" href="#intent">See how it works</a>
           <a class="button secondary" href="mailto:hello@your-domain.com?subject=NODE%20Enterprise%20Pilot">Request enterprise pilot</a>
         </div>
+        <dl class="value-metrics" aria-label="NODE value pillars">
+          <div><dt>Bring Your Agents</dt><dd>OpenAI, internal tools, coding agents, or future models.</dd></div>
+          <div><dt>Hard Limits</dt><dd>Files, tools, network, secrets, time, tokens, and estimated cost.</dd></div>
+          <div><dt>Proof</dt><dd>Replayable evidence for engineering, security, finance, and legal review.</dd></div>
+        </dl>
       </div>
     </section>
 
-    <section id="problem" class="section split">
+    <section id="what-we-do" class="section split">
+      <div>
+        <p class="eyebrow">WHAT WE DO</p>
+        <h2>We make AI agents safe to operate.</h2>
+      </div>
+      <p>Most agents are powerful wrappers around models. NODE turns them into managed processes with declared intent, enforceable policy, lifecycle state, cost controls, approval gates, and replayable evidence.</p>
+    </section>
+
+    <section id="problem" class="section problem-panel">
       <div>
         <p class="eyebrow">THE PROBLEM</p>
         <h2>Agents are leaving the chat box and entering company systems.</h2>
+        <p>That is powerful, but dangerous. Once agents can write files, call tools, use secrets, open pull requests, and touch enterprise systems, companies need an operating layer: identity, permissions, budgets, approvals, recovery, and audit history.</p>
       </div>
-      <p>Once agents can write files, call tools, use secrets, open pull requests, and spend model tokens, enterprises need an operating layer: identity, policy, budgets, approvals, recovery, and audit history.</p>
+      <div class="market-cards" aria-label="Problem and solution summary">
+        <article><span>Risk</span><strong>Autonomy without control</strong><p>Prompt instructions are not a security boundary, a budget, or an audit trail.</p></article>
+        <article><span>Need</span><strong>Governed execution</strong><p>Teams need to know what an agent may touch before it starts working.</p></article>
+        <article><span>NODE answer</span><strong>Agent process OS</strong><p>Every run gets policy, budgets, lifecycle, approvals, replay, and an audit bundle.</p></article>
+      </div>
     </section>
 
-    <section class="cards" aria-label="NODE control pillars">
-      <article><span>01</span><h3>Permissioned</h3><p>Declare tools, files, network destinations, and secrets before a run starts.</p></article>
-      <article><span>02</span><h3>Budgeted</h3><p>Set token, cost, duration, concurrency, and child-task ceilings.</p></article>
-      <article><span>03</span><h3>Approved</h3><p>Pause consequential actions for human review instead of trusting prompts.</p></article>
-      <article><span>04</span><h3>Replayable</h3><p>Rebuild process state from events and export redacted audit bundles.</p></article>
+    <section class="cards" aria-label="NODE operating pillars">
+      <article><span>01</span><h3>Intent</h3><p>A human request becomes a reviewed control contract, not just another prompt.</p></article>
+      <article><span>02</span><h3>Policy</h3><p>Tools, files, network, secrets, and spend are bounded before execution.</p></article>
+      <article><span>03</span><h3>Runtime</h3><p>Container workers execute under daemon supervision with durable state.</p></article>
+      <article><span>04</span><h3>Proof</h3><p>Every important action becomes replayable audit history.</p></article>
+    </section>
+
+    <section id="intent" class="section intent-section">
+      <div class="section-centered">
+        <p class="eyebrow">INTENT TO CONTRACT</p>
+        <h2>Say the job in plain English. NODE turns it into operating rules.</h2>
+        <p>Example request: "Fix the backend bug, but do not touch frontend files." NODE translates that intent into explicit permissions, budget limits, and approval rules a daemon can enforce.</p>
+      </div>
+      <div class="contract-grid">
+        <article class="request-card">
+          <span>Human intent</span>
+          <h3>Fix backend only.</h3>
+          <p>The user does not need to write YAML first. The important part is that the final contract is inspectable before the run starts.</p>
+        </article>
+        <article class="contract-card">
+          <span>NODE control contract</span>
+          <pre><code>task: Fix backend bug. Do not touch frontend.
+capabilities:
+  filesystem_read: ["/workspace"]
+  filesystem_write: ["/workspace/internal"]
+  network_destinations: []
+  secrets: []
+budget:
+  max_tokens: 120000
+  max_cost_usd: 5
+approval_rules:
+  - action: fs.write
+    match: /workspace/internal</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section id="policy" class="section stack-band">
+      <div class="stack-copy">
+        <p class="eyebrow">OPERATING MODEL</p>
+        <h2>Not a chatbot wrapper. A process layer for agent work.</h2>
+        <p>NODE keeps policy, approvals, lifecycle, budgets, and audit outside the model. The LLM is replaceable; the managed agent process is the durable unit of control.</p>
+      </div>
+      <div class="stack-grid" aria-label="NODE technology and policy stack">
+        <span>Go daemon</span>
+        <span>SQLite event log</span>
+        <span>OCI containers</span>
+        <span>OpenAI Agents SDK adapter</span>
+        <span>JSONL protocol</span>
+        <span>Policy approvals</span>
+        <span>Budget accounting</span>
+        <span>Audit bundles</span>
+        <span>BYOK billing path</span>
+      </div>
+    </section>
+
+    <section class="section before-after" aria-labelledby="buyer-proof-title">
+      <div class="section-centered">
+        <p class="eyebrow">WHY ENTERPRISES NEED NODE</p>
+        <h2 id="buyer-proof-title">The difference is not the model. It is control.</h2>
+        <p>Companies can keep their own agents. NODE gives the business a safe operating layer around every run.</p>
+      </div>
+      <div class="before-after-grid">
+        <article>
+          <span>Without NODE</span>
+          <h3>Agent actions are hard to trust.</h3>
+          <ul>
+            <li>Permissions live in prompts instead of policy.</li>
+            <li>Cost appears after the run, if at all.</li>
+            <li>Approvals and denials are not durable evidence.</li>
+            <li>Security reviews depend on scattered logs.</li>
+          </ul>
+        </article>
+        <article class="after-card">
+          <span>With NODE</span>
+          <h3>Every run becomes a managed process.</h3>
+          <ul>
+            <li>Explicit file, tool, network, and secret boundaries.</li>
+            <li>Token, cost, time, and child-task budgets.</li>
+            <li>Human approval gates for consequential actions.</li>
+            <li>Replayable timeline and redacted audit bundle.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section demo-proof">
+      <div>
+        <p class="eyebrow">LOCAL DEMO PROOF</p>
+        <h2>What the local console shows live.</h2>
+        <p>The live local console is the operator view. It shows agent runs, approval requests, budgets, declared permissions, event timelines, replay, and audit export.</p>
+      </div>
+      <div class="proof-steps" aria-label="Local demo proof steps">
+        <article><span>1</span><strong>Create run</strong><p>Load a manifest or draft one from a human task.</p></article>
+        <article><span>2</span><strong>Enforce policy</strong><p>Allow declared backend work and block forbidden paths.</p></article>
+        <article><span>3</span><strong>Approve actions</strong><p>Pause consequential writes until a human approves.</p></article>
+        <article><span>4</span><strong>Replay proof</strong><p>Rebuild state from events without repeating side effects.</p></article>
+      </div>
     </section>
 
     <section id="plans" class="section centered">

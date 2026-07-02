@@ -373,7 +373,7 @@ func (s *Server) audit(w http.ResponseWriter, r *http.Request) {
 	process = sanitizeProcess(process, true)
 	for i := range events {
 		switch events[i].Type {
-		case "worker.stdout", "worker.stderr", "process.checkpoint", "tool.completed", "tool.failed", "tool.outcome_unknown":
+		case "worker.stdout", "worker.stderr", "process.checkpoint", "process.execution_error", "tool.completed", "tool.failed", "tool.outcome_unknown":
 			events[i].Data = json.RawMessage(`{"redacted":true}`)
 		}
 	}

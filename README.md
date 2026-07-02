@@ -30,6 +30,27 @@ Developer -> CLI -> authenticated local API -> daemon -> policy -> container
 - OpenAI Agents SDK JSON-lines adapter with streamed usage accounting
 - Persistent Agentic OS kernel, specialists, commands, and file memory
 
+## Start Here
+
+Pick one track:
+
+1. **Public site deploy**: deploy `deploy/public-site` as a static Render site. This publishes the NODE story and pricing only; it does not expose the local daemon, tokens, SQLite state, audit bundles, or worker endpoints.
+2. **Local runtime demo**: build the CLI, run `doctor --support`, then run the pay-ready proof. Docker Desktop must be running for containerized agent runs.
+
+```powershell
+.\scripts\build.cmd
+.\bin\agentos.exe doctor --support
+.\scripts\demo-pay-ready.cmd
+```
+
+The pay-ready proof is the official local buyer story: allowed backend write, denied forbidden write, approval gate, nonzero usage/cost, replay, and redacted audit export.
+For local review evidence after the pay-ready demo, use:
+
+```powershell
+.\scripts\demo-github-artifact.cmd
+```
+
+It creates a local branch, captures diff/test evidence, and links the run audit bundle without pushing anything to GitHub.
 ## Quick start
 
 Requirements: Docker Desktop or another Docker-compatible engine for running agent containers. The localhost dashboard itself works without Docker.

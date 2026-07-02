@@ -1,6 +1,6 @@
 # AgentOS Release Readiness
 
-Updated: 2026-06-23
+Updated: 2026-07-01
 
 ## Current Alpha Gate
 
@@ -18,6 +18,25 @@ AgentOS can be shared as a local-first Windows developer preview when the releas
 - Archive contains no runtime state, caches, credentials, `.git`, `.gstack`, `outputs`, or nested `dist` content.
 - Release workflow publishes the packaged zip plus checksum, not only a standalone binary.
 
+
+## Next Public/Demo Push Checklist
+
+Run these before the next public push or Render deploy:
+
+```powershell
+git diff --check
+.\scripts\security-audit.cmd
+.\scripts\test.cmd
+.\scripts\build.cmd
+.\bin\agentos.exe doctor --support
+.\bin\agentos.exe validate .\examples\pay-ready\agent-process.yaml
+```
+
+Docker-off path: `doctor --support` and `demo-pay-ready.cmd` must explain the problem, cause, and fix instead of failing silently.
+
+Docker-on path: `scripts\demo-pay-ready.cmd` must complete the allowed write, denied forbidden write, approval, usage/cost, replay, and redacted audit export checks.
+
+Support path: after a real run, `agentos support-bundle <process-id> <output.json>` must export daemon health plus the redacted audit bundle only. It must not include raw event, replay, token, SQLite, or runtime-state payloads.
 ## Current Evidence
 
 - Package path: `dist\agentos-v1-windows-amd64.zip`
@@ -30,7 +49,7 @@ AgentOS can be shared as a local-first Windows developer preview when the releas
 ## Remaining Work
 
 - Run the offline coding-agent container example with Docker running.
-- Decide the real public license before external publication.
+- Keep the MIT public posture intentional before external publication.
 - Add signed release artifacts if distributing beyond local testing.
 - Add a `version` smoke check to CI/release.
 

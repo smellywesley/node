@@ -1,9 +1,9 @@
-# AgentOS Demo-Ready Public Alpha Plan
+# NODE DevEx And Pay-Ready Forward Plan
 
 <!-- Autoplan restore point: .gstack/autoplan/restore-2026-06-23-demo-ready.md -->
 
-Updated: 2026-06-23
-Status: in progress
+Updated: 2026-07-01
+Status: pay-ready local proof in progress
 Owner: local developer preview
 
 ## Guiding Light
@@ -19,7 +19,23 @@ Developer -> CLI/Dashboard -> authenticated local API -> daemon -> policy -> con
 
 ## Current State
 
-No `plan.md` existed at the start of this autoplan pass, so this file is now the canonical plan. The repo already contains a working Go daemon, CLI, SQLite event store, Docker worker execution, approval flow, budget enforcement, replay, audit export, OpenAI Agents SDK adapter, offline coding example, release scripts, and localhost dashboard. Current hardening work adds token rotation, tracked-file secret scanning, demo-readiness gates, and public-release guardrails.
+NODE is credible as a local-first developer preview, but it is not yet pay-ready or hosted-SaaS-ready. The repo already contains a working Go daemon, CLI, SQLite event store, Docker worker execution, approval flow, budget enforcement, replay, audit export, OpenAI Agents SDK adapter, offline/live coding examples, release scripts, localhost dashboard, Stripe subscription/BYOK billing slice, static Render public-site package, README/license/GitHub setup, and the `examples\pay-ready` proof scaffold.
+
+Completed items now preserved in the plan:
+
+- Public static-site package under `deploy/public-site` for Render.
+- Stripe Checkout/Billing subscription slice with BYOK as the commercial posture.
+- Pay-ready local demo script and manifest scaffold.
+- README Start Here path, MIT license, and GitHub repository setup.
+- Docker readiness rescue path for local demos.
+- `agentos doctor --support` and `agentos support-bundle` DevEx targets.
+- Local GitHub artifact script for branch/diff/test/audit evidence.
+
+The next canonical P0 target remains narrow and buyer-grade:
+
+```text
+real agent run -> policy enforcement -> forbidden action blocked -> approval -> nonzero cost -> artifact -> audit bundle
+```
 
 ## CEO Review
 
@@ -58,6 +74,13 @@ The strongest premise is correct: most agent products collapse into an LLM call 
 ### Not In Scope
 
 Hosted multi-tenant control plane, general agent marketplace, arbitrary agent societies, shared global memory, browser automation marketplace, custom kernel, distributed consensus, and host-process execution are outside the demo-ready public alpha.
+### July 2026 Forward Constraints
+
+- Do not expose `agentos serve` publicly; Render remains static-site-only.
+- Do not sell managed model usage until tenant isolation, project IDs, roles, spend caps, billable usage ledger, pagination, metrics, and support runbooks exist.
+- Keep the first paid posture as subscription plus BYOK.
+- Treat Docker as a visible prerequisite for local agent runs, not a hidden assumption.
+- Public pushes and Render deploys must follow passing local checks and a human-triggered deploy.
 
 ### Error And Rescue Registry
 

@@ -28,12 +28,42 @@ function Assert-UnderRoot([string]$RootPath, [string]$ChildPath) {
     }
 }
 
+
+function Assert-DockerReady {
+    $docker = Get-Command docker -ErrorAction SilentlyContinue
+    if (-not $docker) {
+        Write-Host "problem: Docker is not installed or not on PATH."
+        Write-Host "cause: AgentOS runs agent workers in OCI-compatible containers."
+        Write-Host "fix: Install Docker Desktop, start it, then rerun this demo. Dashboard-only flows still work without Docker."
+        exit 2
+    }
+    $previousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        $dockerOutput = & docker version --format '{{.Server.Version}}' 2>&1
+        $dockerExitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
+    if ($dockerExitCode -ne 0) {
+        Write-Host "problem: Docker is installed but the engine is not reachable."
+        Write-Host "cause: Docker Desktop is stopped, still starting, or using an unavailable engine pipe."
+        Write-Host "fix: Start Docker Desktop, wait until it says running, then rerun .\bin\agentos.exe doctor --support."
+        if ($dockerOutput) {
+            Write-Host "detail: $dockerOutput"
+        }
+        exit 2
+    }
+}
 function Invoke-AgentOS {
     & $agentos @args
     if ($LASTEXITCODE -ne 0) {
         throw "agentos command failed: $($args -join ' ')"
     }
 }
+
+Assert-DockerReady
 
 Write-Step "building AgentOS binary"
 & (Join-Path $PSScriptRoot "Build.ps1")

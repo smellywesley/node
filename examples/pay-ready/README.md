@@ -20,6 +20,16 @@ Run the complete local proof:
 
 The script builds the worker image, starts an isolated local daemon, creates the process, approves the backend write, waits for completion, replays state, exports `outputs\pay-ready-audit.json`, and verifies that the forbidden frontend file was not created.
 
+
+Docker readiness is part of the proof. If Docker Desktop is missing or stopped, the official script prints problem/cause/fix guidance and points back to `agentos doctor --support` instead of hiding the prerequisite.
+
+To create local review evidence after the proof script is stable, run:
+
+```powershell
+.\scripts\demo-github-artifact.cmd
+```
+
+That workflow creates a local branch, captures a diff, records test output, and writes a small report that points to the audit bundle. It is local-first evidence, not a GitHub push.
 Manual flow:
 
 ```powershell

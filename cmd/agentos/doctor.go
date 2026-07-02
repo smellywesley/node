@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"net"
 	"os"
@@ -25,8 +26,13 @@ type diagnostic struct {
 }
 
 func doctor(cfg config, args []string) error {
-	if len(args) != 0 {
-		return errors.New("usage: agentos doctor")
+	flags := flag.NewFlagSet("doctor", flag.ContinueOnError)
+	support := flags.Bool("support", false, "print problem/cause/fix guidance for warnings and failures")
+	if err := flags.Parse(args); err != nil {
+		return err
+	}
+	if flags.NArg() != 0 {
+		return errors.New("usage: agentos doctor [--support]")
 	}
 	checks := []diagnostic{
 		checkAddress(cfg.address),
@@ -37,6 +43,9 @@ func doctor(cfg config, args []string) error {
 	failed := false
 	for _, check := range checks {
 		fmt.Printf("%-18s %-6s %s\n", check.Name, check.Status, check.Detail)
+		if *support && check.Status != "PASS" {
+			fmt.Println(supportGuidance(check))
+		}
 		if check.Status == "FAIL" {
 			failed = true
 		}
@@ -45,6 +54,21 @@ func doctor(cfg config, args []string) error {
 		return errors.New("doctor found release-blocking local configuration issues")
 	}
 	return nil
+}
+
+func supportGuidance(check diagnostic) string {
+	switch check.Name {
+	case "loopback address":
+		return "  problem: daemon address is unsafe or malformed\n  cause: AgentOS v1 only supports loopback local control-plane access\n  fix: set AGENTOS_ADDR=127.0.0.1:7467 and rerun agentos doctor --support"
+	case "state home":
+		return "  problem: state directory is unsafe or not private\n  cause: AGENTOS_HOME must be a dedicated private subdirectory\n  fix: set AGENTOS_HOME to a dedicated folder such as %USERPROFILE%\\.agentos"
+	case "approver token":
+		return "  problem: approval commands are not ready\n  cause: AGENTOS_APPROVER_TOKEN is missing or shorter than 32 characters\n  fix: set AGENTOS_APPROVER_TOKEN to a new long random secret before approve/deny"
+	case "docker":
+		return "  problem: containerized agent runs are not ready\n  cause: Docker is missing or the Docker engine is stopped\n  fix: start Docker Desktop, wait until it reports running, then rerun agentos doctor --support"
+	default:
+		return "  problem: local readiness check did not pass\n  cause: see the detail above\n  fix: resolve the reported condition and rerun agentos doctor --support"
+	}
 }
 
 func checkAddress(address string) diagnostic {

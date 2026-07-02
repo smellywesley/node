@@ -359,7 +359,10 @@ class AdapterRuntime:
                 message("result", task_id=task_id, output=json_safe(output))
             )
         except Exception as exc:
-            LOGGER.exception("task %s failed", task_id)
+            if os.getenv("AGENTOS_DEBUG_ERRORS") == "1":
+                LOGGER.exception("task %s failed", task_id)
+            else:
+                LOGGER.debug("task %s failed: %s", task_id, exc)
             error: dict[str, Any] = {
                 "code": "agent_run_failed",
                 "message": str(exc) or exc.__class__.__name__,

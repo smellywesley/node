@@ -1,7 +1,7 @@
 # AgentOS Pay-Ready Roadmap
 
-Updated: 2026-06-24
-Status: planning artifact
+Updated: 2026-07-01
+Status: implementation plan for pay-ready local proof
 Purpose: Convert the brutally honest commercial gap into a build sequence that can produce paid-user evidence.
 
 ## Brutal Verdict
@@ -158,11 +158,12 @@ Commercial meaning: this is where enterprise pricing becomes plausible.
 
 ### Phase 2 - GitHub Artifact Flow
 
-1. Add repo workspace profile with branch name and test command.
-2. Add controlled Git branch creation inside the workspace policy.
-3. Add test-result capture as process events.
-4. Add audit bundle export that includes branch, diff summary, tests, approvals, denials, and usage.
-5. Add README walkthrough: run agent -> approve write -> inspect diff -> export audit.
+1. Add local artifact script for branch, diff, test output, and audit bundle. Status: scaffolded in `scripts\demo-github-artifact.cmd`.
+2. Add repo workspace profile with branch name and test command. Status: pending productized profile model.
+3. Add controlled Git branch creation inside the workspace policy. Status: pending deeper policy integration; current script keeps it local and explicit.
+4. Add test-result capture as process events. Status: pending daemon-native event capture; current script writes `outputs\github-artifact-test.txt`.
+5. Add audit bundle export that includes branch, diff summary, tests, approvals, denials, and usage. Status: partially covered by report JSON plus audit file references.
+6. Add README walkthrough: run agent -> approve write -> inspect diff -> export audit. Status: started in README and pay-ready example docs.
 
 ### Phase 3 - Local Team Beta
 

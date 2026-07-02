@@ -153,6 +153,9 @@ func TestAuditExportIncludesRedactedControlRecords(t *testing.T) {
 	if err = db.CreateApproval(context.Background(), approval, "hash-1", "v1"); err != nil {
 		t.Fatal(err)
 	}
+	if err = db.AppendEvent(context.Background(), process.ID, "process.execution_error", map[string]any{"error": "raw runtime secret"}); err != nil {
+		t.Fatal(err)
+	}
 	service := core.New(db, immediateRunner{}, 1)
 	defer service.Close()
 	handler := New(service, "secret-token", "approver-token")
@@ -170,7 +173,7 @@ func TestAuditExportIncludesRedactedControlRecords(t *testing.T) {
 			t.Fatalf("audit body missing %s: %s", expected, body)
 		}
 	}
-	for _, secret := range []string{"sensitive task", `"secret":"value"`} {
+	for _, secret := range []string{"sensitive task", `"secret":"value"`, "raw runtime secret"} {
 		if strings.Contains(body, secret) {
 			t.Fatalf("audit body leaked %q: %s", secret, body)
 		}
