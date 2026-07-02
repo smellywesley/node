@@ -1,9 +1,9 @@
 # NODE Handoff
 
-Updated: 2026-07-01
+Updated: 2026-07-02
 Project path: `C:\Users\NewName\Documents\Codex\2026-06-10\i-want-to-buildent-an-operating`
 Repository: `smellywesley/node`
-Current priority: pay-ready local proof, not hosted SaaS.
+Current priority: premium public-site proof plus pay-ready local proof, not hosted SaaS.
 
 ## Product Direction
 
@@ -16,6 +16,9 @@ Do not expose `agentos serve` publicly yet. Render should only host the static p
 Implemented in the latest working tree:
 
 - Public-site narrative/pricing/security improvements under `deploy/public-site`.
+- Node/Vite static public-site build with a React Motion hero under `deploy/public-site/src/motion-app.jsx`.
+- Glass/3D pointer-reactive hero cards, reduced-motion fallback, and same-origin-only script CSP.
+- Render Blueprint now builds the public site with `cd deploy/public-site && npm ci && npm run build` and publishes `deploy/public-site/dist`.
 - Canonical plan refresh in `plan.md`.
 - README Start Here section for public-site deploy vs local runtime demo.
 - `agentos doctor --support` with problem/cause/fix guidance.
@@ -39,7 +42,14 @@ cmd /c scripts\test.cmd
 cmd /c scripts\build.cmd
 .\bin\agentos.exe doctor --support
 .\bin\agentos.exe validate .\examples\pay-ready\agent-process.yaml
+cd deploy\public-site; npm run build
 ```
+
+Latest public-site browser QA also passed locally against Vite preview:
+
+- Desktop screenshot: `outputs\public-site-framer-desktop.png`
+- Mobile screenshot: `outputs\public-site-framer-mobile.png`
+- Browser console/page errors: none detected on desktop or mobile.
 
 Important caveat: Docker Desktop was not running. `doctor --support` completed with warnings for missing `AGENTOS_APPROVER_TOKEN` and Docker engine unavailable. Manifest validation passed structurally but warned that the Docker image could not be checked because Docker was off.
 
@@ -52,10 +62,10 @@ Not proven yet:
 - Full Docker-on `scripts\demo-pay-ready.cmd` run.
 - Full real OpenAI/Agents SDK run with an actual key.
 - Real branch/diff/test/audit artifact from a Docker-on coding run.
-- Render redeploy sanity check after pushing latest static site changes.
-- Commit and push of the current local changes.
+- Render redeploy sanity check after pushed public-site commit `c844b5d`.
+- Real Stripe Checkout/Payment Links connection for the pricing cards.
 
-Do not claim pay-ready hosted SaaS. The project is currently a credible local-first developer preview with a stronger pay-ready proof path.
+Do not claim pay-ready hosted SaaS. The project is currently a credible local-first developer preview with a premium static public site and a stronger pay-ready proof path.
 
 ## Next Commands
 
@@ -73,7 +83,7 @@ For GitHub-style local review evidence after the tree is clean/committed:
 .\scripts\demo-github-artifact.cmd
 ```
 
-Before committing or pushing:
+Before future commits or pushes:
 
 ```powershell
 git status -sb
@@ -83,19 +93,21 @@ cmd /c scripts\test.cmd
 cmd /c scripts\build.cmd
 ```
 
-Suggested commit message:
+Last pushed public-site commit:
 
 ```text
-feat: improve pay-ready devex proof path
+c844b5d feat: add framer motion public site build
 ```
 
-Push manually from the user terminal after review:
+Render should auto-deploy from `main`. If it does not, trigger a manual deploy for the static public site and verify:
 
 ```powershell
-git push origin main
+cd /d C:\Users\NewName\Documents\Codex\2026-06-10\i-want-to-buildent-an-operating
+git rev-parse HEAD
+git rev-parse origin/main
 ```
 
-Then trigger Render manual deploy for the static public site.
+Expected value for both commands after the Motion public-site push: `c844b5d8bc062818dc29181e1b714982012df574`.
 
 ## Safety Notes
 
