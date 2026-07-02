@@ -1,27 +1,40 @@
 import React, { useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
-import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "motion/react";
+import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform, useVelocity } from "motion/react";
+import { branchLights, heavyEase, huds, panels, signalRunners } from "./hyperframes.js";
 
-const heavyEase = [0.32, 0.72, 0, 1];
-const huds = [
-  { className: "policy-card", label: "Policy", title: "Forbidden path denied", copy: "The agent asks to touch frontend files. NODE blocks it before the write lands.", rotateY: -22, rotateX: 8, z: 150 },
-  { className: "approval-card", label: "Approval", title: "Human gate opened", copy: "Consequential writes pause with digest, capability, and cost context.", rotateY: -16, rotateX: 10, z: 190 },
-  { className: "spend-card", label: "Spend", title: "$5.00 run cap", copy: "Token, time, child-task, and tool budgets stay outside the model.", rotateY: 18, rotateX: 8, z: 130 },
-  { className: "audit-card", label: "Audit", title: "Replay bundle ready", copy: "Every approval, denial, usage tick, and artifact is exportable proof.", rotateY: -12, rotateX: 7, z: 210 },
+const ghostLogs = [
+  "{ pid: proc_7f2a, policy: backend-only }",
+  "deny fs.write /frontend/App.jsx",
+  "budget.usd.remaining = 4.62",
+  "approval.wait human_gate",
+  "audit.bundle redacted=true",
+  "replay.event policy.denied",
 ];
-const panels = [
-  { label: "01 / The problem", title: "Agents now touch real systems.", copy: "Prompts are not a security boundary once an agent can write files, call tools, use secrets, or open pull requests." },
-  { label: "02 / The control plane", title: "NODE makes the run inspectable.", copy: "Every run gets identity, lifecycle, policy, budget, approval gates, recovery, replay, and audit history." },
-  { label: "03 / The buyer proof", title: "Trust becomes an artifact.", copy: "The customer sees denied actions, approved work, token cost, test result, branch diff, and redacted audit bundle." },
-];
-const branchLights = [
-  { className: "dot-a", delay: 0 },
-  { className: "dot-b", delay: 0.45 },
-  { className: "dot-c", delay: 0.9 },
-  { className: "dot-d", delay: 1.35 },
-  { className: "dot-e", delay: 1.8 },
-  { className: "dot-f", delay: 2.25 },
-];
+
+function MotionBackdrop() {
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll();
+  const xA = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-8%", "18%"]);
+  const yA = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-6%", "14%"]);
+  const xB = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["12%", "-14%"]);
+  const yB = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["10%", "-10%"]);
+
+  return (
+    <div className="volumetric-backdrop" aria-hidden="true">
+      <motion.div className="spotlight spotlight-a" style={{ x: xA, y: yA }} />
+      <motion.div className="spotlight spotlight-b" style={{ x: xB, y: yB }} />
+      <div className="ghost-terminal">
+        {[0, 1, 2].map((column) => (
+          <div className="ghost-column" key={column}>
+            {ghostLogs.map((line) => <span key={`${column}-${line}`}>{line}</span>)}
+            {ghostLogs.map((line) => <span key={`${column}-repeat-${line}`}>{line}</span>)}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function MotionHero() {
   const reduce = useReducedMotion();
@@ -35,6 +48,11 @@ function MotionHero() {
   const rotateX = useTransform(smoothY, [-0.5, 0.5], reduce ? [0, 0] : [9, -9]);
   const glowX = useTransform(smoothX, [-0.5, 0.5], ["22%", "78%"]);
   const glowY = useTransform(smoothY, [-0.5, 0.5], ["20%", "72%"]);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const scrollSpeed = useVelocity(scrollYProgress);
+  const beamPath = useTransform(scrollYProgress, [0.05, 0.94], [0, 1]);
+  const beamOpacity = useTransform(scrollYProgress, [0, 0.12, 0.88, 1], [0, 1, 0.92, 0.18]);
+  const beamPower = useTransform(scrollSpeed, [-1, 0, 1], [0.68, 0.86, 1]);
 
   useEffect(() => {
     const element = ref.current;
@@ -79,13 +97,26 @@ function MotionHero() {
       transition={{ duration: 0.72, ease: heavyEase }}
     >
       <motion.div className="cursor-sensor-glow" style={{ left: glowX, top: glowY }} />
+      <svg className="scroll-guide-beam" viewBox="0 0 100 120" aria-hidden="true">
+        <motion.path
+          d="M52 46 C52 62 50 78 50 120"
+          pathLength={beamPath}
+          style={{ opacity: beamOpacity }}
+        />
+        <motion.path
+          className="scroll-guide-core"
+          d="M52 46 C52 62 50 78 50 120"
+          pathLength={beamPath}
+          style={{ opacity: beamPower }}
+        />
+      </svg>
       <div className="signal-plane">
         <motion.div className="signal-line line-a" animate={reduce ? {} : { opacity: [0.38, 0.88, 0.38], x: [-6, 8, -6] }} transition={{ ...floatTransition, duration: 4.2 }} />
         <motion.div className="signal-line line-b" animate={reduce ? {} : { opacity: [0.22, 0.74, 0.22], x: [8, -10, 8] }} transition={{ ...floatTransition, duration: 5.4 }} />
         <motion.div className="signal-line line-c" animate={reduce ? {} : { opacity: [0.28, 0.8, 0.28], y: [8, -8, 8] }} transition={{ ...floatTransition, duration: 6.2 }} />
-        <span className="signal-runner runner-a" />
-        <span className="signal-runner runner-b" />
-        <span className="signal-runner runner-c" />
+        {signalRunners.map((runner) => (
+          <span className={`signal-runner ${runner.className}`} key={runner.className} />
+        ))}
         {branchLights.map((light) => (
           <motion.span
             className={`branch-light ${light.className}`}
@@ -166,7 +197,7 @@ function installSiteMotion() {
     });
   }
 
-  const revealTargets = document.querySelectorAll(".section, .cards article, .plans article, .market-cards article, .proof-steps article");
+  const revealTargets = document.querySelectorAll(".section, .cards-section, .cards article, .plans article, .market-cards article, .proof-steps article");
   for (const target of revealTargets) target.classList.add("reveal-ready");
   const observer = new IntersectionObserver((entries) => {
     for (const entry of entries) {
@@ -177,7 +208,39 @@ function installSiteMotion() {
     }
   }, { threshold: 0.18 });
   for (const target of revealTargets) observer.observe(target);
+
+  const intentSection = document.querySelector("#intent");
+  if (intentSection) {
+    const intentObserver = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        document.body.classList.toggle("contract-processing", entry.isIntersecting);
+      }
+    }, { threshold: 0.32 });
+    intentObserver.observe(intentSection);
+  }
+
+  const magneticTargets = document.querySelectorAll(".button, .market-cards article, .cards article, .request-card, .contract-card");
+  for (const target of magneticTargets) {
+    target.classList.add("magnetic-ready");
+    target.addEventListener("pointermove", (event) => {
+      if (reduce) return;
+      const rect = target.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / rect.width - 0.5;
+      const y = (event.clientY - rect.top) / rect.height - 0.5;
+      target.style.setProperty("--mx", (x * 10).toFixed(2));
+      target.style.setProperty("--my", (y * 10).toFixed(2));
+    });
+    target.addEventListener("pointerleave", () => {
+      target.style.setProperty("--mx", "0");
+      target.style.setProperty("--my", "0");
+    });
+  }
 }
+
+const backdropRoot = document.createElement("div");
+backdropRoot.className = "motion-backdrop-root";
+document.body.prepend(backdropRoot);
+createRoot(backdropRoot).render(<MotionBackdrop />);
 
 const hero = document.querySelector(".hero-visual");
 if (hero) {

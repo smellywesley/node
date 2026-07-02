@@ -73,20 +73,43 @@ audit: redacted bundle</code></pre>
       <div>
         <p class="eyebrow">THE PROBLEM</p>
         <h2>Agents are leaving the chat box and entering company systems.</h2>
-        <p>That is powerful, but dangerous. Once agents can write files, call tools, use secrets, open pull requests, and touch enterprise systems, companies need an operating layer: identity, permissions, budgets, approvals, recovery, and audit history.</p>
+        <p>That is powerful, but for Enterprise Security, DevOps, and Platform teams, it breaks the old control model. Once agents can write files, call tools, use secrets, open pull requests, and touch enterprise systems, companies need an operating layer: identity, permissions, budgets, approvals, recovery, and audit history.</p>
       </div>
+      <div class="market-proof" aria-label="Market proof for governed agent operations">
+        <article><span>33%</span><strong>Enterprise software changes shape</strong><p>Gartner projects one-third of enterprise software will include agentic AI by 2028.</p></article>
+        <article><span>15%</span><strong>Autonomous decisions arrive</strong><p>Gartner also projects 15% of day-to-day work decisions will be made autonomously by 2028.</p></article>
+        <article><span>20%</span><strong>Shadow AI is already a breach path</strong><p>IBM's 2025 breach study found 20% of surveyed organizations had breaches involving shadow AI, adding USD 670k on average for high-shadow-AI organizations.</p></article>
+        <article><span>77%</span><strong>Governance is behind adoption</strong><p>An IBM CIO/CTO survey found 77% said AI adoption is outpacing current governance capabilities.</p></article>
+      </div>
+      <p class="source-note">Market signals from <a href="https://www.itpro.com/technology/artificial-intelligence/practical-ai-the-age-of-agentic-ai" target="_blank" rel="noreferrer">Gartner forecasts reported by ITPro</a>, <a href="https://www.itpro.com/security/data-breaches/ai-breaches-arent-just-a-scare-story-any-more-theyre-happening-in-real-life" target="_blank" rel="noreferrer">IBM's 2025 breach research reported by ITPro</a>, and <a href="https://www.itpro.com/technology/artificial-intelligence/cios-and-ctos-are-making-high-stakes-decisions-with-incomplete-information-ibm-survey-reveals" target="_blank" rel="noreferrer">IBM CIO/CTO survey coverage</a>.</p>
       <div class="market-cards" aria-label="Problem and solution summary">
-        <article><span>Risk</span><strong>Autonomy without control</strong><p>Prompt instructions are not a security boundary, a budget, or an audit trail.</p></article>
-        <article><span>Need</span><strong>Governed execution</strong><p>Teams need to know what an agent may touch before it starts working.</p></article>
-        <article><span>NODE answer</span><strong>Agent process OS</strong><p>Every run gets policy, budgets, lifecycle, approvals, replay, and an audit bundle.</p></article>
+        <article>
+          <svg class="line-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4 28 26H4L16 4Z"/><path d="M16 12v6"/><path d="M16 23h.01"/></svg>
+          <span>Risk</span><strong>Autonomy without control</strong><p>Prompt instructions are not a security boundary, a budget, or an audit trail.</p>
+        </article>
+        <article>
+          <svg class="line-icon" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="10"/><path d="M16 3v5M16 24v5M3 16h5M24 16h5"/><path d="M12 16h8"/></svg>
+          <span>Need</span><strong>Governed execution</strong><p>Teams need to know what an agent may touch before it starts working.</p>
+        </article>
+        <article>
+          <svg class="line-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="8" y="8" width="16" height="16" rx="4"/><path d="M16 3v5M16 24v5M3 16h5M24 16h5"/><path d="M12 16h8"/></svg>
+          <span>NODE answer</span><strong>Agent process OS</strong><p>Every run gets policy, budgets, lifecycle, approvals, replay, and an audit bundle.</p>
+        </article>
       </div>
     </section>
 
-    <section class="cards" aria-label="NODE operating pillars">
-      <article><span>01</span><h3>Intent</h3><p>A human request becomes a reviewed control contract, not just another prompt.</p></article>
-      <article><span>02</span><h3>Policy</h3><p>Tools, files, network, secrets, and spend are bounded before execution.</p></article>
-      <article><span>03</span><h3>Runtime</h3><p>Container workers execute under daemon supervision with durable state.</p></article>
-      <article><span>04</span><h3>Proof</h3><p>Every important action becomes replayable audit history.</p></article>
+    <section class="cards-section" aria-labelledby="control-pillars-title">
+      <div class="section-centered">
+        <p class="eyebrow">THE FOUR PILLARS OF CONTROL</p>
+        <h2 id="control-pillars-title">How NODE secures agent work.</h2>
+        <p>The buyer story moves from intent to policy, through runtime supervision, and ends with replayable proof.</p>
+      </div>
+      <div class="cards" aria-label="NODE operating pillars">
+        <article><svg class="line-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M6 9h20M6 16h14M6 23h10"/><path d="M23 21l3 3 4-6"/></svg><span>01</span><h3>Intent</h3><p>A human request becomes a reviewed control contract, not just another prompt.</p></article>
+        <article><svg class="line-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4 26 8v8c0 6-4.5 10-10 12C10.5 26 6 22 6 16V8l10-4Z"/><path d="M12 16l3 3 6-7"/></svg><span>02</span><h3>Policy</h3><p>Tools, files, network, secrets, and spend are bounded before execution.</p></article>
+        <article><svg class="line-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="6" y="7" width="20" height="7" rx="2"/><rect x="6" y="18" width="20" height="7" rx="2"/><path d="M11 10.5h.01M11 21.5h.01M16 10.5h10M16 21.5h10"/></svg><span>03</span><h3>Runtime</h3><p>Container workers execute under daemon supervision with durable state.</p></article>
+        <article><svg class="line-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M9 5h12l4 4v18H9V5Z"/><path d="M21 5v5h5"/><path d="M13 15h8M13 20h8M13 25h5"/></svg><span>04</span><h3>Proof</h3><p>Every important action becomes replayable audit history.</p></article>
+      </div>
     </section>
 
     <section id="intent" class="section intent-section">
@@ -95,12 +118,13 @@ audit: redacted bundle</code></pre>
         <h2>Say the job in plain English. NODE turns it into operating rules.</h2>
         <p>Example request: "Fix the backend bug, but do not touch frontend files." NODE translates that intent into explicit permissions, budget limits, and approval rules a daemon can enforce.</p>
       </div>
-      <div class="contract-grid">
+      <div class="contract-grid cinematic-contract">
         <article class="request-card">
           <span>Human intent</span>
           <h3>Fix backend only.</h3>
           <p>The user does not need to write YAML first. The important part is that the final contract is inspectable before the run starts.</p>
         </article>
+        <div class="contract-connector" aria-hidden="true"><span></span></div>
         <article class="contract-card">
           <span>NODE control contract</span>
           <pre><code>task: Fix backend bug. Do not touch frontend.

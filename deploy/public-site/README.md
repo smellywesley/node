@@ -64,6 +64,17 @@ Leave a checkout value empty to keep the email fallback. Leave `contactEmail` em
 
 The hero uses a self-hosted React/Motion bundle built by Vite. The page remains readable without JavaScript, and the Content Security Policy allows only same-origin scripts.
 
+The live hero and the renderable video story share `src/hyperframes.js`. This keeps HUD copy, branch-light timing, signal-runner beats, and Remotion frame beats in one place.
+
+Remotion commands:
+
+```bash
+npm run motion:compositions
+npm run motion:render
+```
+
+`motion:render` outputs `out/node-signal-plane.mp4`, a branded proof/replay visual that can be used for demos, launch videos, or social cuts without adding video weight to the live page bundle.
+
 ## Important
 
 Do not expose `agentos serve` directly on the public internet. The daemon is a local control plane and intentionally rejects non-loopback binds. A hosted app version needs tenant auth, RBAC, rate limits, audit retention policy, support bundles, and a separate runner isolation model.

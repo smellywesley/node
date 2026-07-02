@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
+    "motion:compositions": "remotion compositions src/remotion/index.jsx",
+    "motion:render": "remotion render src/remotion/index.jsx NodeSignalPlane out/node-signal-plane.mp4",
     "preview": "vite preview --host 127.0.0.1"
   },
   "dependencies": {
@@ -13,5 +15,8 @@
     "react-dom": "^19.0.0",
     "vite": "^6.0.7"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@remotion/cli": "^4.0.484",
+    "remotion": "^4.0.484"
+  }
 }
