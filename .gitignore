@@ -1,5 +1,7 @@
 /bin/
 /dist/
+/deploy/public-site/dist/
+/deploy/public-site/node_modules/
 /work/
 /data/learning/
 .gstack/

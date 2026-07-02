@@ -1,6 +1,6 @@
 # NODE Public Site Deployment
 
-This directory is safe to deploy publicly. It is a static marketing and pricing site only.
+This directory is safe to deploy publicly. It is a Node-built static marketing and pricing site only.
 
 It intentionally does not include:
 
@@ -27,8 +27,8 @@ It intentionally does not include:
 ## Render
 
 1. Create a Render Static Site from the repo, or use the root `render.yaml` Blueprint.
-2. Set build command to `true`.
-3. Set publish directory to `deploy/public-site`.
+2. Set build command to `cd deploy/public-site && npm ci && npm run build`.
+3. Set publish directory to `deploy/public-site/dist`.
 4. Keep this as a static site only. Do not create a public web service for `agentos serve`.
 
 ## Vercel
@@ -44,6 +44,10 @@ It intentionally does not include:
 - If Stripe Payment Links exist, replace the Pro CTA with the hosted Payment Link.
 - If Stripe Checkout is linked through an app backend, keep the checkout endpoint server-side and keep STRIPE_SECRET_KEY server-side.
 - Keep the local dashboard URL and operator token out of public docs, issue trackers, and screenshots.
+
+## Motion Layer
+
+The hero uses a self-hosted React/Motion bundle built by Vite. The page remains readable without JavaScript, and the Content Security Policy allows only same-origin scripts.
 
 ## Important
 

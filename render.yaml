@@ -2,8 +2,8 @@ services:
   - type: web
     name: node-agentic-os-public-site
     runtime: static
-    buildCommand: "true"
-    staticPublishPath: ./deploy/public-site
+    buildCommand: "cd deploy/public-site && npm ci && npm run build"
+    staticPublishPath: ./deploy/public-site/dist
     previews:
       generation: automatic
     buildFilter:
@@ -25,4 +25,4 @@ services:
         value: camera=(), microphone=(), geolocation=()
       - path: /*
         name: Content-Security-Policy
-        value: default-src 'self'; style-src 'self'; img-src 'self' data:; script-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'
+        value: default-src 'self'; style-src 'self'; img-src 'self' data:; script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'
