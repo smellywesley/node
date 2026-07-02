@@ -14,15 +14,15 @@ It intentionally does not include:
 ## Cloudflare Pages
 
 1. Create a Cloudflare Pages project.
-2. Set build command to empty / none.
-3. Set output directory to `deploy/public-site`.
+2. Set build command to `cd deploy/public-site && npm ci && npm run build`.
+3. Set output directory to `deploy/public-site/dist`.
 4. Deploy.
 
 ## Netlify
 
 1. Create a Netlify site from the repo.
-2. Set publish directory to `deploy/public-site`.
-3. No build command is required.
+2. Set build command to `cd deploy/public-site && npm ci && npm run build`.
+3. Set publish directory to `deploy/public-site/dist`.
 
 ## Render
 
@@ -34,16 +34,31 @@ It intentionally does not include:
 ## Vercel
 
 1. Create a Vercel project from the repo.
-2. Set output directory to `deploy/public-site`.
-3. No framework preset is required.
+2. Set build command to `cd deploy/public-site && npm ci && npm run build`.
+3. Set output directory to `deploy/public-site/dist`.
 
 ## Before going live
 
-- Replace hello@your-domain.com in index.html with the real sales or founder email.
+- Add the real sales or founder email to `public/payment-links.js` as `contactEmail`.
 - Connect the production domain in the hosting provider.
-- If Stripe Payment Links exist, replace the Pro CTA with the hosted Payment Link.
+- If Stripe Payment Links exist, add the hosted `https://buy.stripe.com/...` URL to `public/payment-links.js`.
 - If Stripe Checkout is linked through an app backend, keep the checkout endpoint server-side and keep STRIPE_SECRET_KEY server-side.
 - Keep the local dashboard URL and operator token out of public docs, issue trackers, and screenshots.
+
+## Payment Links
+
+The static site reads provider-hosted checkout URLs from `public/payment-links.js`:
+
+```js
+window.NODE_PAYMENT_LINKS = {
+  pro: "https://buy.stripe.com/...",
+  enterprise: "",
+  contactEmail: "sales@example.com",
+  allowedHosts: ["buy.stripe.com"]
+};
+```
+
+Leave a checkout value empty to keep the email fallback. Leave `contactEmail` empty only if the public site should avoid outbound lead capture until a real inbox is ready. Do not add Stripe secret keys, webhook secrets, operator tokens, raw checkout session JSON, or internal billing API URLs to this file.
 
 ## Motion Layer
 

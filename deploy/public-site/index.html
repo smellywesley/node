@@ -6,6 +6,8 @@
   <title>NODE - Agentic OS For Enterprise</title>
   <meta name="description" content="NODE is an agentic operating layer for enterprises: intent-to-policy contracts, permissioned runs, budgets, approvals, replay, and audit-ready AI agent proof.">
   <link rel="stylesheet" href="/styles.css">
+  <script src="/payment-links.js"></script>
+  <script type="module" src="/src/checkout-links.js"></script>
   <script type="module" src="/src/motion-app.jsx"></script>
 </head>
 <body>
@@ -28,7 +30,7 @@
           <p>NODE gives every agent run a process ID, permissions, budgets, approvals, replay, and audit proof. Your company can bring its own agents and model keys; NODE governs how those agents operate.</p>
           <div class="actions">
             <a class="button primary" href="#plans">View paid plans</a>
-            <a class="button secondary" href="mailto:hello@your-domain.com?subject=NODE%20Enterprise%20Pilot">Request enterprise pilot</a>
+            <a class="button secondary" data-contact-link data-contact-subject="NODE Enterprise Pilot" data-contact-body="I want to discuss an Enterprise pilot for NODE." data-fallback-href="#plans" href="#plans">Request enterprise pilot</a>
           </div>
           <dl class="value-metrics" aria-label="NODE value pillars">
             <div><dt>Bring Your Agents</dt><dd>OpenAI, internal tools, coding agents, or future models.</dd></div>
@@ -36,7 +38,7 @@
             <div><dt>Proof</dt><dd>Replayable evidence for engineering, security, finance, and legal review.</dd></div>
           </dl>
         </div>
-        <div class="hero-visual" aria-label="NODE controlled agent run preview">
+        <div class="hero-visual" aria-hidden="true">
           <div class="glass-orbit orbit-a"></div>
           <div class="glass-orbit orbit-b"></div>
           <article class="process-console">
@@ -199,7 +201,7 @@ approval_rules:
             <li>BYOK subscription posture</li>
             <li>Local proof and support bundle</li>
           </ul>
-          <a class="button primary" href="mailto:hello@your-domain.com?subject=NODE%20Pro%20Checkout%20Request&body=I%20want%20Pro%20checkout%20access%20for%20NODE.%20Please%20send%20the%20hosted%20checkout%20link.">Request Pro checkout</a>
+          <a class="button primary" data-checkout-plan="pro" data-live-label="Start Pro checkout" data-contact-subject="NODE Pro Checkout Request" data-contact-body="I want Pro checkout access for NODE. Please send the hosted checkout link." data-fallback-href="#plans" href="#plans">Request Pro checkout</a>
         </article>
         <article>
           <span>Enterprise</span>
@@ -210,10 +212,10 @@ approval_rules:
             <li>Security and audit review</li>
             <li>Deployment planning session</li>
           </ul>
-          <a class="button secondary" href="mailto:hello@your-domain.com?subject=NODE%20Enterprise%20Pilot&body=I%20want%20to%20discuss%20an%20Enterprise%20pilot%20for%20NODE.">Book pilot call</a>
+          <a class="button secondary" data-checkout-plan="enterprise" data-live-label="Book pilot call" data-contact-subject="NODE Enterprise Pilot" data-contact-body="I want to discuss an Enterprise pilot for NODE." data-fallback-href="#plans" href="#plans">Book pilot call</a>
         </article>
       </div>
-      <p class="payment-note">Public payment links can be added here once Stripe Payment Links or a hosted billing API is configured. Until then, NODE keeps checkout server-side and never ships Stripe secrets in the static site.</p>
+      <p class="payment-note">Checkout is wired for provider-hosted payment links. Add the live Stripe Payment Link in <code>payment-links.js</code>; until then, NODE falls back to the pilot request flow and never ships Stripe secrets in the static site.</p>
     </section>
 
     <section id="security" class="section split security">

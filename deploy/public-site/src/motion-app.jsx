@@ -7,6 +7,7 @@ const ease = [0.22, 1, 0.36, 1];
 function MotionHero() {
   const reduce = useReducedMotion();
   const ref = useRef(null);
+  const rectRef = useRef(null);
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
   const smoothX = useSpring(pointerX, { stiffness: 90, damping: 22, mass: 0.35 });
@@ -17,8 +18,12 @@ function MotionHero() {
   useEffect(() => {
     const element = ref.current;
     if (!element || reduce) return;
+    function updateRect() {
+      rectRef.current = element.getBoundingClientRect();
+    }
     function handlePointerMove(event) {
-      const rect = element.getBoundingClientRect();
+      const rect = rectRef.current;
+      if (!rect) return;
       pointerX.set((event.clientX - rect.left) / rect.width - 0.5);
       pointerY.set((event.clientY - rect.top) / rect.height - 0.5);
     }
@@ -26,11 +31,16 @@ function MotionHero() {
       pointerX.set(0);
       pointerY.set(0);
     }
+    updateRect();
+    element.addEventListener("pointerenter", updateRect);
     element.addEventListener("pointermove", handlePointerMove);
     element.addEventListener("pointerleave", resetPointer);
+    window.addEventListener("resize", updateRect);
     return () => {
+      element.removeEventListener("pointerenter", updateRect);
       element.removeEventListener("pointermove", handlePointerMove);
       element.removeEventListener("pointerleave", resetPointer);
+      window.removeEventListener("resize", updateRect);
     };
   }, [pointerX, pointerY, reduce]);
 
@@ -47,10 +57,11 @@ function MotionHero() {
       animate={reduce ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.55, ease }}
     >
-      <motion.div className="glass-orbit orbit-a" animate={reduce ? {} : { y: [-6, 12, -6], rotateZ: [-18, -13, -18] }} transition={floatTransition} />
-      <motion.div className="glass-orbit orbit-b" animate={reduce ? {} : { y: [8, -10, 8], rotateZ: [17, 12, 17] }} transition={{ ...floatTransition, duration: 5.6 }} />
+      <motion.div className="glass-orbit orbit-a" style={{ rotateX: 64 }} animate={reduce ? {} : { y: [-6, 12, -6], rotateZ: [-18, -13, -18] }} transition={floatTransition} />
+      <motion.div className="glass-orbit orbit-b" style={{ rotateX: 64 }} animate={reduce ? {} : { y: [8, -10, 8], rotateZ: [17, 12, 17] }} transition={{ ...floatTransition, duration: 5.6 }} />
       <motion.article
         className="process-console"
+        style={{ rotateX: 8, z: 72 }}
         initial={reduce ? false : { opacity: 0, y: 24, rotateY: -24 }}
         animate={reduce ? { opacity: 1 } : { opacity: 1, y: [0, -12, 0], rotateY: -15 }}
         transition={reduce ? { duration: 0.01 } : { opacity: { duration: 0.4 }, y: { duration: 5.8, repeat: Infinity, ease: "easeInOut" }, rotateY: { duration: 0.6, ease } }}
@@ -66,17 +77,18 @@ approval: human gate
 audit: redacted bundle`}</code></pre>
         <div className="run-line"><span></span><p>Replayable evidence captured</p></div>
       </motion.article>
-      <FloatingCard className="policy-card" label="Policy" title="frontend denied" copy="Forbidden paths are blocked before side effects land." delay={0.05} reduce={reduce} />
-      <FloatingCard className="audit-card" label="Audit" title="support ready" copy="Health, approvals, denials, usage, and replay." delay={0.18} reduce={reduce} />
-      <FloatingCard className="spend-card" label="Spend" title="BYOK" copy="No managed model credits in the first paid release." delay={0.3} reduce={reduce} />
+      <FloatingCard className="policy-card" label="Policy" title="frontend denied" copy="Forbidden paths are blocked before side effects land." delay={0.05} reduce={reduce} rotateY={-22} rotateX={8} z={120} />
+      <FloatingCard className="audit-card" label="Audit" title="support ready" copy="Health, approvals, denials, usage, and replay." delay={0.18} reduce={reduce} rotateY={-18} rotateX={10} z={150} />
+      <FloatingCard className="spend-card" label="Spend" title="BYOK" copy="No managed model credits in the first paid release." delay={0.3} reduce={reduce} rotateY={18} rotateX={8} z={100} />
     </motion.div>
   );
 }
 
-function FloatingCard({ className, label, title, copy, delay, reduce }) {
+function FloatingCard({ className, label, title, copy, delay, reduce, rotateY, rotateX, z }) {
   return (
     <motion.article
       className={`floating-card ${className}`}
+      style={{ rotateY, rotateX, z }}
       initial={reduce ? false : { opacity: 0, y: 22, scale: 0.96 }}
       animate={reduce ? { opacity: 1 } : { opacity: 1, y: [0, -14, 0], scale: 1 }}
       whileHover={reduce ? undefined : { y: -18, scale: 1.035, transition: { duration: 0.22, ease } }}
