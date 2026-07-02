@@ -41,7 +41,8 @@ It intentionally does not include:
 
 - Replace hello@your-domain.com in index.html with the real sales or founder email.
 - Connect the production domain in the hosting provider.
-- If Stripe Checkout is later linked from this page, use publishable keys only in browser code and keep STRIPE_SECRET_KEY server-side.
+- If Stripe Payment Links exist, replace the Pro CTA with the hosted Payment Link.
+- If Stripe Checkout is linked through an app backend, keep the checkout endpoint server-side and keep STRIPE_SECRET_KEY server-side.
 - Keep the local dashboard URL and operator token out of public docs, issue trackers, and screenshots.
 
 ## Important

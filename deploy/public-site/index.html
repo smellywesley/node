@@ -20,19 +20,40 @@
           <a href="#security">Security</a>
         </div>
       </nav>
-      <div class="hero-copy">
-        <p class="eyebrow">AGENTIC OS FOR ENTERPRISE</p>
-        <h1 id="hero-title">Turn AI agents into controlled workers.</h1>
-        <p>NODE gives every agent run a process ID, permissions, budgets, approvals, replay, and audit proof. Your company can bring its own agents and model keys; NODE governs how those agents operate.</p>
-        <div class="actions">
-          <a class="button primary" href="#intent">See how it works</a>
-          <a class="button secondary" href="mailto:hello@your-domain.com?subject=NODE%20Enterprise%20Pilot">Request enterprise pilot</a>
+      <div class="hero-stage">
+        <div class="hero-copy">
+          <p class="eyebrow">AGENTIC OS FOR ENTERPRISE</p>
+          <h1 id="hero-title">Turn AI agents into controlled workers.</h1>
+          <p>NODE gives every agent run a process ID, permissions, budgets, approvals, replay, and audit proof. Your company can bring its own agents and model keys; NODE governs how those agents operate.</p>
+          <div class="actions">
+            <a class="button primary" href="#plans">View paid plans</a>
+            <a class="button secondary" href="mailto:hello@your-domain.com?subject=NODE%20Enterprise%20Pilot">Request enterprise pilot</a>
+          </div>
+          <dl class="value-metrics" aria-label="NODE value pillars">
+            <div><dt>Bring Your Agents</dt><dd>OpenAI, internal tools, coding agents, or future models.</dd></div>
+            <div><dt>Hard Limits</dt><dd>Files, tools, network, secrets, time, tokens, and estimated cost.</dd></div>
+            <div><dt>Proof</dt><dd>Replayable evidence for engineering, security, finance, and legal review.</dd></div>
+          </dl>
         </div>
-        <dl class="value-metrics" aria-label="NODE value pillars">
-          <div><dt>Bring Your Agents</dt><dd>OpenAI, internal tools, coding agents, or future models.</dd></div>
-          <div><dt>Hard Limits</dt><dd>Files, tools, network, secrets, time, tokens, and estimated cost.</dd></div>
-          <div><dt>Proof</dt><dd>Replayable evidence for engineering, security, finance, and legal review.</dd></div>
-        </dl>
+        <div class="hero-visual" aria-label="NODE controlled agent run preview">
+          <div class="glass-orbit orbit-a"></div>
+          <div class="glass-orbit orbit-b"></div>
+          <article class="process-console">
+            <div class="console-topline">
+              <span>process.run</span>
+              <strong>approved</strong>
+            </div>
+            <pre><code>id: proc_7f2a
+policy: backend-write-only
+budget: $5.00 max
+approval: human gate
+audit: redacted bundle</code></pre>
+            <div class="run-line"><span></span><p>Replayable evidence captured</p></div>
+          </article>
+          <article class="floating-card policy-card"><span>Policy</span><strong>frontend denied</strong><p>Forbidden paths are blocked before side effects land.</p></article>
+          <article class="floating-card audit-card"><span>Audit</span><strong>support ready</strong><p>Health, approvals, denials, usage, and replay.</p></article>
+          <article class="floating-card spend-card"><span>Spend</span><strong>BYOK</strong><p>No managed model credits in the first paid release.</p></article>
+        </div>
       </div>
     </section>
 
@@ -171,16 +192,27 @@ approval_rules:
         <article class="featured">
           <span>Pro</span>
           <h3>$99 <small>/ operator / month</small></h3>
-          <p>Audit bundles, replay, policy templates, and GitHub artifact workflow when ready. No model credits included.</p>
-          <a class="button primary" href="mailto:hello@your-domain.com?subject=NODE%20Pro%20Access">Start Pro</a>
+          <p>Audit bundles, replay, policy templates, and GitHub artifact workflow. No model credits included.</p>
+          <ul class="plan-list">
+            <li>Stripe-hosted checkout path</li>
+            <li>BYOK subscription posture</li>
+            <li>Local proof and support bundle</li>
+          </ul>
+          <a class="button primary" href="mailto:hello@your-domain.com?subject=NODE%20Pro%20Checkout%20Request&body=I%20want%20Pro%20checkout%20access%20for%20NODE.%20Please%20send%20the%20hosted%20checkout%20link.">Request Pro checkout</a>
         </article>
         <article>
           <span>Enterprise</span>
           <h3>From $30k <small>/ year</small></h3>
           <p>Private deployment, longer retention, security review, support SLA, and SSO/RBAC roadmap.</p>
-          <a class="button secondary" href="mailto:hello@your-domain.com?subject=NODE%20Enterprise%20Pilot">Contact sales</a>
+          <ul class="plan-list">
+            <li>Design partner onboarding</li>
+            <li>Security and audit review</li>
+            <li>Deployment planning session</li>
+          </ul>
+          <a class="button secondary" href="mailto:hello@your-domain.com?subject=NODE%20Enterprise%20Pilot&body=I%20want%20to%20discuss%20an%20Enterprise%20pilot%20for%20NODE.">Book pilot call</a>
         </article>
       </div>
+      <p class="payment-note">Public payment links can be added here once Stripe Payment Links or a hosted billing API is configured. Until then, NODE keeps checkout server-side and never ships Stripe secrets in the static site.</p>
     </section>
 
     <section id="security" class="section split security">
