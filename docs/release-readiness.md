@@ -30,12 +30,15 @@ git diff --check
 .\scripts\build.cmd
 .\bin\agentos.exe doctor --support
 .\bin\agentos.exe validate .\examples\pay-ready\agent-process.yaml
+.\scripts\new-pay-ready-proof-packet.cmd
 .\scripts\measure-backend-load.cmd -Count 4 -MaxParallel 2
 ```
 
 Docker-off path: `doctor --support` and `demo-pay-ready.cmd` must explain the problem, cause, and fix instead of failing silently.
 
 Docker-on path: `scripts\demo-pay-ready.cmd` must complete the allowed write, denied forbidden write, approval, usage/cost, replay, and redacted audit export checks.
+
+Proof packet path: `scripts\new-pay-ready-proof-packet.cmd` must write `outputs\pay-ready-proof.md` with all proof checks in `PASS` state before the five-minute buyer proof is recorded.
 
 Backend load path: `scripts\measure-backend-load.cmd` must write `outputs\backend-load-report.json` with all requested smoke processes in `succeeded` state before a paid local-team beta.
 

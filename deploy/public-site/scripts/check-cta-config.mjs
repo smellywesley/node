@@ -5,12 +5,17 @@ import {fileURLToPath} from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
-const configSource = fs.readFileSync(path.join(root, "public", "payment-links.js"), "utf8");
+const configPath = process.argv[2]
+  ? path.resolve(root, process.argv[2])
+  : process.env.NODE_CTA_CONFIG_FILE
+  ? path.resolve(root, process.env.NODE_CTA_CONFIG_FILE)
+  : path.join(root, "public", "payment-links.js");
+const configSource = fs.readFileSync(configPath, "utf8");
 const checkoutSource = fs.readFileSync(path.join(root, "src", "checkout-links.js"), "utf8");
 
 const sandbox = {window: {}};
 vm.createContext(sandbox);
-vm.runInContext(configSource, sandbox, {filename: "payment-links.js"});
+vm.runInContext(configSource, sandbox, {filename: path.basename(configPath)});
 
 const config = sandbox.window.NODE_PAYMENT_LINKS || {};
 const allowedHosts = new Set(config.allowedHosts || ["buy.stripe.com"]);

@@ -78,6 +78,8 @@ npm run test:cta
 npm run build
 ```
 
+For local CI-style verification without a real inbox, run `npm run test:cta:configured`; it uses a fixture Payment Link/contact email and proves the runtime CTA wiring works. The real deploy gate remains `npm run test:cta` against `public/payment-links.js` after `npm run configure:cta`.
+
 Only use public, user-facing values here. Never use `STRIPE_SECRET_KEY`, webhook secrets, raw Checkout Session JSON, operator tokens, or internal app URLs.
 
 ## Motion Layer

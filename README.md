@@ -56,10 +56,11 @@ For local review evidence after the pay-ready demo, use:
 
 ```powershell
 .\scripts\demo-github-artifact.cmd
+.\scripts\new-pay-ready-proof-packet.cmd
 .\scripts\measure-backend-load.cmd -Count 4 -MaxParallel 2
 ```
 
-The GitHub artifact demo creates a local branch, captures diff/test evidence, and links the run audit bundle without pushing anything to GitHub. The backend load script runs bounded concurrent smoke processes and writes `outputs\backend-load-report.json`.
+The GitHub artifact demo creates a local branch, captures diff/test evidence, and links the run audit bundle without pushing anything to GitHub. The proof packet script captures the pay-ready transcript, audit hash, event counts, and recording checklist in `outputs\pay-ready-proof.md`. The backend load script runs bounded concurrent smoke processes and writes `outputs\backend-load-report.json`.
 ## Quick start
 
 Requirements: Docker Desktop or another Docker-compatible engine for running agent containers. The localhost dashboard itself works without Docker.
