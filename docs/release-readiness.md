@@ -32,6 +32,7 @@ git diff --check
 .\bin\agentos.exe validate .\examples\pay-ready\agent-process.yaml
 .\scripts\new-pay-ready-proof-packet.cmd
 .\scripts\measure-backend-load.cmd -Count 4 -MaxParallel 2
+.\scripts\test-pilot-readiness.cmd
 ```
 
 Docker-off path: `doctor --support` and `demo-pay-ready.cmd` must explain the problem, cause, and fix instead of failing silently.
@@ -43,6 +44,8 @@ Proof packet path: `scripts\new-pay-ready-proof-packet.cmd` must write `outputs\
 Backend load path: `scripts\measure-backend-load.cmd` must write `outputs\backend-load-report.json` with all requested smoke processes in `succeeded` state before a paid local-team beta.
 
 Pilot sales path: use `docs\design-partner-pilot-playbook.md` for qualification, outreach, proof-packet follow-up, and non-claims before starting paid design-partner conversations.
+
+Readiness audit path: `scripts\test-pilot-readiness.cmd` prints and optionally writes the current deploy/sales blockers across CTA configuration, Docker, proof packet, backend load, security documentation, CI race coverage, and the design-partner playbook. Use `-FailOnBlockers` only when the pipeline should fail on missing readiness evidence.
 
 Support path: after a real run, `agentos support-bundle <process-id> <output.json>` must export daemon health plus the redacted audit bundle only. It must not include raw event, replay, token, SQLite, or runtime-state payloads.
 ## Current Evidence
