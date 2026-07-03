@@ -77,6 +77,8 @@ Audit export redacts payloads and includes denial/approval/tool records.
 
 Commercial meaning: this is enough to collect serious design-partner feedback. It is not enough for broad self-serve paid launch.
 
+Pilot operating motion lives in `docs\design-partner-pilot-playbook.md`. Use that playbook to qualify 3-5 teams before expanding hosted backend scope.
+
 ### P1 - Payable Local Team Beta
 
 Goal: make a small engineering team willing to pay for local/self-hosted use.

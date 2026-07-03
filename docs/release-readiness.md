@@ -42,6 +42,8 @@ Proof packet path: `scripts\new-pay-ready-proof-packet.cmd` must write `outputs\
 
 Backend load path: `scripts\measure-backend-load.cmd` must write `outputs\backend-load-report.json` with all requested smoke processes in `succeeded` state before a paid local-team beta.
 
+Pilot sales path: use `docs\design-partner-pilot-playbook.md` for qualification, outreach, proof-packet follow-up, and non-claims before starting paid design-partner conversations.
+
 Support path: after a real run, `agentos support-bundle <process-id> <output.json>` must export daemon health plus the redacted audit bundle only. It must not include raw event, replay, token, SQLite, or runtime-state payloads.
 ## Current Evidence
 
