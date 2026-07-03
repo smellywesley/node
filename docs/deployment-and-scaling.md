@@ -31,8 +31,8 @@ What can go live now:
 
 - `deploy/public-site` as a static site on Cloudflare Pages, Netlify, Render, or Vercel;
 - `netlify.toml`, `vercel.json`, `render.yaml`, and `deploy/public-site/_headers` security headers;
-- pricing and positioning for Free Local, Pro, and Enterprise;
-- contact links after replacing `hello@your-domain.com` with a real owned email.
+- paid-pilot positioning for Free Local, Paid Pilot, and Enterprise Preview;
+- contact links after setting `NODE_PUBLIC_CONTACT_EMAIL` or a public hosted Payment Link.
 
 What must stay private for now:
 
@@ -42,6 +42,8 @@ What must stay private for now:
 - Stripe secret keys and webhook secrets.
 
 The daemon intentionally rejects non-loopback binds. Do not change that for a public demo. A hosted control plane needs tenant auth, RBAC, rate limits, project isolation, runner isolation, support logging, and a production incident path before public exposure.
+
+The current local-first threat model lives in `docs/security-threat-model.md`.
 
 ## Phase 1: Local Developer Preview
 

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
+    "configure:cta": "node scripts/write-payment-config.mjs",
     "test:cta": "node scripts/check-cta-config.mjs",
     "motion:compositions": "remotion compositions src/remotion/index.jsx",
     "motion:render": "remotion render src/remotion/index.jsx NodeSignalPlane out/node-signal-plane.mp4",

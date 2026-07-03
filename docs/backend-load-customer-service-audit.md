@@ -54,6 +54,9 @@ NODE is suitable for a local developer preview, but it is not yet ready to serve
 3. Add dashboard/CLI display for queue depth, active workers, terminal failures, and last daemon recovery.
 4. Capture results in `outputs/backend-load-report.json` for release evidence.
 
+Implemented script target: `scripts\measure-backend-load.cmd -Count 4 -MaxParallel 2`.
+The script starts an isolated daemon, runs bounded concurrent protocol-smoke processes, and writes `outputs\backend-load-report.json`. Docker must be running.
+
 ## Support Runbook Recommendations
 
 1. `agentos doctor --support` should verify daemon health, DB open, Docker availability, image availability, token status, disk space, and recent failed events.

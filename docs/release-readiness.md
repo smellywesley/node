@@ -30,11 +30,14 @@ git diff --check
 .\scripts\build.cmd
 .\bin\agentos.exe doctor --support
 .\bin\agentos.exe validate .\examples\pay-ready\agent-process.yaml
+.\scripts\measure-backend-load.cmd -Count 4 -MaxParallel 2
 ```
 
 Docker-off path: `doctor --support` and `demo-pay-ready.cmd` must explain the problem, cause, and fix instead of failing silently.
 
 Docker-on path: `scripts\demo-pay-ready.cmd` must complete the allowed write, denied forbidden write, approval, usage/cost, replay, and redacted audit export checks.
+
+Backend load path: `scripts\measure-backend-load.cmd` must write `outputs\backend-load-report.json` with all requested smoke processes in `succeeded` state before a paid local-team beta.
 
 Support path: after a real run, `agentos support-bundle <process-id> <output.json>` must export daemon health plus the redacted audit bundle only. It must not include raw event, replay, token, SQLite, or runtime-state payloads.
 ## Current Evidence

@@ -56,9 +56,10 @@ For local review evidence after the pay-ready demo, use:
 
 ```powershell
 .\scripts\demo-github-artifact.cmd
+.\scripts\measure-backend-load.cmd -Count 4 -MaxParallel 2
 ```
 
-It creates a local branch, captures diff/test evidence, and links the run audit bundle without pushing anything to GitHub.
+The GitHub artifact demo creates a local branch, captures diff/test evidence, and links the run audit bundle without pushing anything to GitHub. The backend load script runs bounded concurrent smoke processes and writes `outputs\backend-load-report.json`.
 ## Quick start
 
 Requirements: Docker Desktop or another Docker-compatible engine for running agent containers. The localhost dashboard itself works without Docker.
@@ -248,7 +249,7 @@ Use it for the first live deployment while keeping the AgentOS daemon on loopbac
 .\scripts\package.cmd
 ```
 
-Release readiness lives in `docs\release-readiness.md`; deployment and scaling live in `docs\deployment-and-scaling.md`; billing and metering live in `docs\billing-and-metering.md`; uninstall/reset guidance lives in `docs\uninstall-and-reset.md`. Run `scripts\security-audit.cmd` before publishing or demoing from a shared branch.
+Release readiness lives in `docs\release-readiness.md`; deployment and scaling live in `docs\deployment-and-scaling.md`; billing and metering live in `docs\billing-and-metering.md`; the local-first threat model lives in `docs\security-threat-model.md`; uninstall/reset guidance lives in `docs\uninstall-and-reset.md`. Run `scripts\security-audit.cmd` before publishing or demoing from a shared branch.
 
 Architecture decisions and session memory live under `data/`. Use the commands
 in `.Codex/commands/` to reconstruct and close persistent work sessions.

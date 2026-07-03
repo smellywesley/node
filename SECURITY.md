@@ -20,6 +20,7 @@ Do not paste secrets, prompts, private source, or raw audit bundles into public 
 - Do not run untrusted agents with broad writable mounts.
 - Treat `agentos dashboard --print-url` output as secret. If it is exposed, stop the daemon, run `agentos rotate-token`, restart the daemon, and reconnect all dashboards.
 - The hosted or multi-tenant control plane is not part of v1.
+- See `docs/security-threat-model.md` for the current local-first threat model and hosted-readiness blockers.
 
 ## Security Audit Command
 

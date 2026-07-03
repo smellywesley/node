@@ -1,7 +1,9 @@
 window.NODE_PAYMENT_LINKS = {
-  pro: "",
-  enterprise: "",
-  pilot: "",
-  contactEmail: "",
-  allowedHosts: ["buy.stripe.com"]
+  "pro": "",
+  "pilot": "",
+  "enterprise": "",
+  "contactEmail": "",
+  "allowedHosts": [
+    "buy.stripe.com"
+  ]
 };
