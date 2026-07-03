@@ -1059,6 +1059,37 @@ code {
   line-height: 1.7;
 }
 
+.pilot-path {
+  align-items: start;
+}
+
+.pilot-list {
+  display: grid;
+  gap: 12px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pilot-list li {
+  position: relative;
+  padding-left: 28px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.pilot-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: .72em;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--green);
+  box-shadow: 0 0 18px rgba(72, 246, 178, .72);
+}
+
 .security {
   background:
     radial-gradient(circle at 82% 8%, rgba(84, 244, 184, .12), transparent 22rem),

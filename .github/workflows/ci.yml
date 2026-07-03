@@ -23,6 +23,9 @@ jobs:
         with:
           python-version: "3.11"
       - run: go test ./...
+      - name: Race-sensitive lifecycle packages
+        if: matrix.os == 'ubuntu-latest'
+        run: go test -race ./internal/core ./internal/store ./internal/api
       - name: Security audit
         shell: pwsh
         run: ./scripts/SecurityAudit.ps1

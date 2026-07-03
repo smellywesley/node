@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
+    "test:cta": "node scripts/check-cta-config.mjs",
     "motion:compositions": "remotion compositions src/remotion/index.jsx",
     "motion:render": "remotion render src/remotion/index.jsx NodeSignalPlane out/node-signal-plane.mp4",
     "preview": "vite preview --host 127.0.0.1"

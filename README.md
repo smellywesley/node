@@ -34,13 +34,21 @@ Developer -> CLI -> authenticated local API -> daemon -> policy -> container
 
 Pick one track:
 
-1. **Public site deploy**: deploy `deploy/public-site` as a static Render site. This publishes the NODE story and pricing only; it does not expose the local daemon, tokens, SQLite state, audit bundles, or worker endpoints.
-2. **Local runtime demo**: build the CLI, run `doctor --support`, then run the pay-ready proof. Docker Desktop must be running for containerized agent runs.
+1. **Public site deploy**: deploy `deploy/public-site` as a static Render site. This publishes the NODE story and paid-pilot request path only; it does not expose the local daemon, tokens, SQLite state, audit bundles, or worker endpoints.
+2. **Local runtime demo**: build the CLI, run `doctor --support`, then run the pay-ready proof. Docker Desktop or another Docker-compatible engine must be running for containerized agent runs.
 
 ```powershell
 .\scripts\build.cmd
 .\bin\agentos.exe doctor --support
 .\scripts\demo-pay-ready.cmd
+```
+
+On Linux or macOS:
+
+```bash
+./scripts/build.sh
+./bin/agentos doctor --support
+./scripts/demo-pay-ready.sh
 ```
 
 The pay-ready proof is the official local buyer story: allowed backend write, denied forbidden write, approval gate, nonzero usage/cost, replay, and redacted audit export.
@@ -91,6 +99,10 @@ The fastest way to see why AgentOS matters is the pay-ready demo:
 .\scripts\demo-pay-ready.cmd
 ```
 
+```bash
+./scripts/demo-pay-ready.sh
+```
+
 It builds a local worker, starts an isolated daemon, runs the task "Fix the code on the backend. Do not touch anything else.", pauses for an approval-gated backend write, denies a forbidden frontend write, records nonzero token/cost usage, replays the process state, and exports `outputs\pay-ready-audit.json`.
 
 This is still a local proof. The provider-backed OpenAI/Agents SDK coding run and GitHub PR flow remain the next commercial-readiness gates.
@@ -108,6 +120,10 @@ Build from source:
 
 ```powershell
 .\scripts\build.cmd
+```
+
+```bash
+./scripts/build.sh
 ```
 
 Start the daemon:
