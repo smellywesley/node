@@ -45,7 +45,7 @@ Backend load path: `scripts\measure-backend-load.cmd` must write `outputs\backen
 
 Pilot sales path: use `docs\design-partner-pilot-playbook.md` for qualification, outreach, proof-packet follow-up, and non-claims before starting paid design-partner conversations.
 
-Readiness audit path: `scripts\test-pilot-readiness.cmd` prints and optionally writes the current deploy/sales blockers across CTA configuration, Docker, proof packet, backend load, security documentation, CI race coverage, and the design-partner playbook. Use `-FailOnBlockers` only when the pipeline should fail on missing readiness evidence.
+Readiness audit path: `scripts\test-pilot-readiness.cmd` prints and optionally writes the current deploy/sales blockers across CTA configuration, Docker, proof packet, backend load, security documentation, CI race coverage, and the design-partner playbook. It exits nonzero on blockers by default; use `-AllowBlockers` only for report-only local inspection. This is stricter than the Render static-site deploy check: Render can publish the marketing site with empty CTA config, but paid-pilot readiness still requires a real contact email or pilot payment link.
 
 Support path: after a real run, `agentos support-bundle <process-id> <output.json>` must export daemon health plus the redacted audit bundle only. It must not include raw event, replay, token, SQLite, or runtime-state payloads.
 ## Current Evidence

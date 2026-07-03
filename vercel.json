@@ -1,6 +1,6 @@
 {
-  "buildCommand": "",
-  "outputDirectory": "deploy/public-site",
+  "buildCommand": "cd deploy/public-site && npm ci && npm run configure:cta && npm run test:cta:deploy && npm run build",
+  "outputDirectory": "deploy/public-site/dist",
   "headers": [
     {
       "source": "/(.*)",
@@ -9,7 +9,7 @@
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "Referrer-Policy", "value": "no-referrer" },
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; style-src 'self'; img-src 'self' data:; script-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'" }
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; style-src 'self'; img-src 'self' data:; script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'" }
       ]
     }
   ]

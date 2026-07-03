@@ -7,6 +7,7 @@
     "build": "vite build",
     "configure:cta": "node scripts/write-payment-config.mjs",
     "test:cta": "node scripts/check-cta-config.mjs",
+    "test:cta:deploy": "node scripts/check-cta-config.mjs --allow-empty",
     "test:cta:configured": "node scripts/check-cta-config.mjs scripts/fixtures/payment-links.configured.js",
     "motion:compositions": "remotion compositions src/remotion/index.jsx",
     "motion:render": "remotion render src/remotion/index.jsx NodeSignalPlane out/node-signal-plane.mp4",

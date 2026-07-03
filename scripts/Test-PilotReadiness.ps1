@@ -1,6 +1,7 @@
 param(
     [string]$Output = "outputs\pilot-readiness-report.json",
     [switch]$NoWrite,
+    [switch]$AllowBlockers,
     [switch]$FailOnBlockers
 )
 
@@ -86,14 +87,14 @@ function Test-PaymentConfig {
 
     $raw = Get-Content -LiteralPath $paymentPath -Raw
     $hasContactEmail = $raw -match '"contactEmail"\s*:\s*"[^"]+@[^"]+\.[^"]+"'
-    $hasStripeLink = $raw -match '"(pilot|pro|enterprise)"\s*:\s*"https://buy\.stripe\.com/[^"]+"'
+    $hasStripeLink = $raw -match '"pilot"\s*:\s*"https://buy\.stripe\.com/[^"]+"'
     $configured = $hasContactEmail -or $hasStripeLink
     $evidence = "contact_email_configured=$hasContactEmail; stripe_payment_link_configured=$hasStripeLink"
 
     return [pscustomobject]@{
         pass = $configured
         evidence = $evidence
-        fix = "Set NODE_PUBLIC_CONTACT_EMAIL and/or NODE_PUBLIC_PILOT_PAYMENT_LINK, then run npm run configure:cta and npm run test:cta before deploying."
+        fix = "Set NODE_PUBLIC_CONTACT_EMAIL and/or NODE_PUBLIC_PILOT_PAYMENT_LINK, then run npm run configure:cta and npm run test:cta before claiming paid-pilot readiness."
     }
 }
 
@@ -107,10 +108,14 @@ function Test-ProofPacket {
         }
     }
 
-    $passes = Test-FileContains "outputs\pay-ready-proof.md" '^Status:\s+PASS'
+    $passes = Test-FileContains "outputs\pay-ready-proof.md" '^Status:\s+PASS\s*$'
+    $auditExists = Test-Path -LiteralPath (Resolve-RepoPath "outputs\pay-ready-audit.json")
+    $transcriptExists = Test-Path -LiteralPath (Resolve-RepoPath "outputs\pay-ready-proof-transcript.txt")
+    $artifactExists = Test-Path -LiteralPath (Resolve-RepoPath "work\pay-ready-workspace\internal\backend_fix.txt")
+    $passes = $passes -and $auditExists -and $transcriptExists -and $artifactExists
     return [pscustomobject]@{
         pass = $passes
-        evidence = if ($passes) { "Proof packet exists and reports Status: PASS." } else { "Proof packet exists but does not report Status: PASS." }
+        evidence = "status_pass=$passes; audit_exists=$auditExists; transcript_exists=$transcriptExists; approved_artifact_exists=$artifactExists"
         fix = "Rerun .\scripts\new-pay-ready-proof-packet.cmd with Docker running and fix any failed proof checks."
     }
 }
@@ -130,10 +135,12 @@ function Test-BackendLoadReport {
         $requested = [int]$report.requested_runs
         $succeeded = [int]$report.counts.succeeded
         $failed = [int]$report.counts.failed
-        $passes = ($requested -gt 0 -and $succeeded -eq $requested -and $failed -eq 0)
+        $maxParallel = [int]$report.max_parallel
+        $terminal = [int]$report.counts.terminal
+        $passes = ($requested -ge 4 -and $maxParallel -ge 2 -and $terminal -eq $requested -and $succeeded -eq $requested -and $failed -eq 0)
         return [pscustomobject]@{
             pass = $passes
-            evidence = "requested_runs=$requested; succeeded=$succeeded; failed=$failed"
+            evidence = "requested_runs=$requested; max_parallel=$maxParallel; terminal=$terminal; succeeded=$succeeded; failed=$failed"
             fix = "Rerun .\scripts\measure-backend-load.cmd -Count 4 -MaxParallel 2 with Docker running and investigate failed runs."
         }
     } catch {
@@ -149,8 +156,19 @@ $paymentConfig = Test-PaymentConfig
 Add-ReadinessCheck "Public CTA" "Real contact email or Stripe pilot link configured" $paymentConfig.pass $paymentConfig.evidence $paymentConfig.fix
 
 $ctaGuard = (Test-FileContains "deploy\public-site\package.json" '"test:cta"') -and
-    (Test-FileContains "render.yaml" 'configure:cta.*test:cta.*build')
-Add-ReadinessCheck "Public CTA" "Render build blocks unconfigured CTAs" $ctaGuard "package test:cta and Render configure/test/build chain present=$ctaGuard" "Keep npm run configure:cta and npm run test:cta in the Render build command."
+    (Test-FileContains "deploy\public-site\package.json" '"test:cta:deploy"') -and
+    (Test-FileContains "render.yaml" 'runtime:\s+static') -and
+    (Test-FileContains "render.yaml" 'staticPublishPath:\s+\./deploy/public-site/dist') -and
+    (Test-FileContains "render.yaml" 'configure:cta.*test:cta:deploy.*build')
+Add-ReadinessCheck "Public CTA" "Render build uses static deploy-safe CTA check" $ctaGuard "strict and deploy CTA scripts plus Render static dist build present=$ctaGuard" "Keep configure:cta, test:cta:deploy, and build in the Render static-site build command. Use npm run test:cta separately for paid-pilot readiness."
+
+$netlifyParity = (Test-FileContains "netlify.toml" 'publish\s+=\s+"deploy/public-site/dist"') -and
+    (Test-FileContains "netlify.toml" 'configure:cta.*test:cta:deploy.*build')
+Add-ReadinessCheck "Public CTA" "Netlify config does not bypass static build" $netlifyParity "Netlify dist publish and deploy CTA build chain present=$netlifyParity" "Keep Netlify publishing deploy/public-site/dist through the same deploy-safe build chain."
+
+$vercelParity = (Test-FileContains "vercel.json" '"outputDirectory"\s*:\s*"deploy/public-site/dist"') -and
+    (Test-FileContains "vercel.json" 'configure:cta.*test:cta:deploy.*build')
+Add-ReadinessCheck "Public CTA" "Vercel config does not bypass static build" $vercelParity "Vercel dist output and deploy CTA build chain present=$vercelParity" "Keep Vercel publishing deploy/public-site/dist through the same deploy-safe build chain."
 
 $macLinuxScripts = (Test-Path -LiteralPath (Resolve-RepoPath "scripts\build.sh")) -and
     (Test-Path -LiteralPath (Resolve-RepoPath "scripts\demo-pay-ready.sh")) -and
@@ -213,6 +231,6 @@ if (-not $NoWrite) {
     Write-Host "Pilot readiness report written: $outputPath"
 }
 
-if ($FailOnBlockers -and $requiredBlockers.Count -gt 0) {
+if ($requiredBlockers.Count -gt 0 -and -not $AllowBlockers) {
     exit 1
 }

@@ -241,7 +241,7 @@ approval_rules:
             <li>BYOK subscription posture</li>
             <li>5-minute proof and support bundle</li>
           </ul>
-          <a class="button primary" data-checkout-plan="pilot" data-live-label="Start pilot checkout" data-contact-subject="NODE Paid Pilot" data-contact-body="I want to discuss a paid design-partner pilot for NODE." data-fallback-href="#pilot-path" href="#pilot-path">Request paid pilot</a>
+          <a class="button primary" data-checkout-plan="pilot" data-live-label="Request paid pilot" data-contact-subject="NODE Paid Pilot" data-contact-body="I want to discuss a paid design-partner pilot for NODE." data-fallback-href="#pilot-path" href="#pilot-path">Request paid pilot</a>
         </article>
         <article>
           <span>Enterprise Preview</span>
@@ -265,7 +265,7 @@ approval_rules:
       </div>
       <ul>
         <li>No operator token, approver token, Stripe secret, webhook secret, source code, or audit bundle is shipped in this site.</li>
-        <li>Payments use provider-hosted Checkout in the app; NODE stores subscription IDs and status only.</li>
+        <li>Paid pilot CTAs use provider-hosted payment links or founder email. The static site ships no checkout secrets, webhooks, subscription ledger, daemon endpoints, or audit bundles.</li>
         <li>The live agent control plane should not be exposed publicly until tenant auth, RBAC, rate limits, and support bundles exist.</li>
       </ul>
     </section>

@@ -68,6 +68,18 @@ Do not include:
 - broad enterprise rollout;
 - custom agent marketplace work.
 
+## Commercial Ask
+
+Keep the ask concrete and narrow:
+
+- Price: founder-led paid pilot by request; start with a low five-figure services-style pilot when the buyer needs custom policy/workflow support, or a smaller paid proof when they only need evidence review.
+- Payment trigger: payment or signed pilot order before custom integration work begins.
+- Buyer owner: named Platform, DevEx, AppSec, or Security Engineering sponsor.
+- Close step: 25-minute fit check, written pilot scenario, payment link or invoice, then local/private proof session.
+- 30-day review: decide whether the next paid phase is policy templates, GitHub artifact workflow, local team roles, or hosted-readiness planning.
+
+Do not send public self-serve payment links as a substitute for qualification. Use payment links or invoices after the buyer has a real repository-shaped scenario and accepts the local/private boundary.
+
 ## Demo Flow
 
 Before the call:

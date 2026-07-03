@@ -2,7 +2,7 @@ services:
   - type: web
     name: node-agentic-os-public-site
     runtime: static
-    buildCommand: "cd deploy/public-site && npm ci && npm run configure:cta && npm run test:cta && npm run build"
+    buildCommand: "cd deploy/public-site && npm ci && npm run configure:cta && npm run test:cta:deploy && npm run build"
     staticPublishPath: ./deploy/public-site/dist
     previews:
       generation: automatic

@@ -1,5 +1,6 @@
 const paymentLinks = window.NODE_PAYMENT_LINKS || {};
-const allowedHosts = new Set(paymentLinks.allowedHosts || ["buy.stripe.com"]);
+const reviewedPaymentHosts = new Set(["buy.stripe.com"]);
+const allowedHosts = new Set((paymentLinks.allowedHosts || ["buy.stripe.com"]).filter((host) => reviewedPaymentHosts.has(host)));
 const contactEmail = typeof paymentLinks.contactEmail === "string" ? paymentLinks.contactEmail.trim() : "";
 
 function safeExternalUrl(value) {

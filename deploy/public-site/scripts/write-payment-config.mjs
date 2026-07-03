@@ -4,12 +4,19 @@ import {fileURLToPath} from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outputPath = path.join(root, "public", "payment-links.js");
+const reviewedPaymentHosts = new Set(["buy.stripe.com"]);
 
 const env = process.env;
 const allowedHosts = (env.NODE_PUBLIC_PAYMENT_ALLOWED_HOSTS || "buy.stripe.com")
   .split(",")
   .map((host) => host.trim())
   .filter(Boolean);
+
+for (const host of allowedHosts) {
+  if (!reviewedPaymentHosts.has(host)) {
+    throw new Error(`${host} is not a reviewed public payment host`);
+  }
+}
 
 function cleanEmail(value) {
   const email = (value || "").trim();

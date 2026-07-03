@@ -5,8 +5,11 @@ import {fileURLToPath} from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
-const configPath = process.argv[2]
-  ? path.resolve(root, process.argv[2])
+const args = process.argv.slice(2);
+const allowEmpty = args.includes("--allow-empty");
+const configArg = args.find((arg) => !arg.startsWith("--"));
+const configPath = configArg
+  ? path.resolve(root, configArg)
   : process.env.NODE_CTA_CONFIG_FILE
   ? path.resolve(root, process.env.NODE_CTA_CONFIG_FILE)
   : path.join(root, "public", "payment-links.js");
@@ -18,7 +21,9 @@ vm.createContext(sandbox);
 vm.runInContext(configSource, sandbox, {filename: path.basename(configPath)});
 
 const config = sandbox.window.NODE_PAYMENT_LINKS || {};
-const allowedHosts = new Set(config.allowedHosts || ["buy.stripe.com"]);
+const reviewedPaymentHosts = new Set(["buy.stripe.com"]);
+const configuredHosts = config.allowedHosts || ["buy.stripe.com"];
+const allowedHosts = new Set(configuredHosts.filter((host) => reviewedPaymentHosts.has(host)));
 const contactEmail = typeof config.contactEmail === "string" ? config.contactEmail.trim() : "";
 const configuredContact = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail);
 const checkoutPlanPattern = /<a\b[^>]*\bdata-checkout-plan="([^"]+)"[^>]*>/g;
@@ -129,7 +134,14 @@ vm.createContext(runtimeSandbox);
 vm.runInContext(checkoutSource, runtimeSandbox, {filename: "checkout-links.js"});
 
 const failures = [];
+const warnings = [];
 const seenPlans = new Set();
+
+for (const host of configuredHosts) {
+  if (!reviewedPaymentHosts.has(host)) {
+    failures.push(`${host}: unreviewed payment host`);
+  }
+}
 
 for (const match of html.matchAll(checkoutPlanPattern)) {
   const tag = match[0];
@@ -139,7 +151,12 @@ for (const match of html.matchAll(checkoutPlanPattern)) {
   const fallback = attr(tag, fallbackPattern);
 
   if (!liveUrl && !configuredContact) {
-    failures.push(`${plan}: missing allowed Stripe/payment URL and missing real contactEmail`);
+    const message = `${plan}: missing allowed Stripe/payment URL and missing real contactEmail`;
+    if (allowEmpty) {
+      warnings.push(message);
+    } else {
+      failures.push(message);
+    }
   }
 
   if (fallback === "#plans") {
@@ -152,18 +169,33 @@ if (seenPlans.size === 0) {
 }
 
 if (html.match(contactLinkPattern) && !configuredContact) {
-  failures.push("data-contact-link exists but contactEmail is empty or invalid");
+  const message = "data-contact-link exists but contactEmail is empty or invalid";
+  if (allowEmpty) {
+    warnings.push(message);
+  } else {
+    failures.push(message);
+  }
 }
 
 for (const link of links.filter((item) => item.dataset.checkoutPlan !== undefined)) {
   if (link.dataset.checkoutState === "fallback") {
-    failures.push(`${link.dataset.checkoutPlan}: runtime checkout state is fallback instead of live/contact`);
+    const message = `${link.dataset.checkoutPlan}: runtime checkout state is fallback instead of live/contact`;
+    if (allowEmpty) {
+      warnings.push(message);
+    } else {
+      failures.push(message);
+    }
   }
 }
 
 for (const link of links.filter((item) => item.dataset.contactLink !== undefined)) {
   if (link.dataset.contactState === "fallback") {
-    failures.push("runtime contact CTA state is fallback instead of contact");
+    const message = "runtime contact CTA state is fallback instead of contact";
+    if (allowEmpty) {
+      warnings.push(message);
+    } else {
+      failures.push(message);
+    }
   }
 }
 
@@ -174,6 +206,14 @@ if (failures.length > 0) {
   }
   console.error("Fix: add live allowed payment links or a real pilot contact email in public/payment-links.js.");
   process.exit(1);
+}
+
+if (warnings.length > 0) {
+  console.warn("CTA configuration check passed with warnings:");
+  for (const warning of warnings) {
+    console.warn(`- ${warning}`);
+  }
+  console.warn("Deploy is allowed, but paid-pilot readiness remains blocked until a real email or allowed payment link is configured.");
 }
 
 console.log("CTA configuration check passed");
