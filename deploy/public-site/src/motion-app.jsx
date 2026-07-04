@@ -56,7 +56,8 @@ function MotionHero() {
 
   useEffect(() => {
     const element = ref.current;
-    if (!element || reduce) return;
+    const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    if (!element || reduce || !canHover) return;
     function updateRect() {
       rectRef.current = element.getBoundingClientRect();
     }
@@ -219,16 +220,25 @@ function installSiteMotion() {
     intentObserver.observe(intentSection);
   }
 
+  const canHoverPrecisely = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   const magneticTargets = document.querySelectorAll(".button, .market-cards article, .cards article, .request-card, .contract-card");
   for (const target of magneticTargets) {
     target.classList.add("magnetic-ready");
+    if (reduce || !canHoverPrecisely) continue;
+    let scheduled = false;
+    let lastEvent = null;
     target.addEventListener("pointermove", (event) => {
-      if (reduce) return;
-      const rect = target.getBoundingClientRect();
-      const x = (event.clientX - rect.left) / rect.width - 0.5;
-      const y = (event.clientY - rect.top) / rect.height - 0.5;
-      target.style.setProperty("--mx", (x * 10).toFixed(2));
-      target.style.setProperty("--my", (y * 10).toFixed(2));
+      lastEvent = event;
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(() => {
+        scheduled = false;
+        const rect = target.getBoundingClientRect();
+        const x = (lastEvent.clientX - rect.left) / rect.width - 0.5;
+        const y = (lastEvent.clientY - rect.top) / rect.height - 0.5;
+        target.style.setProperty("--mx", (x * 10).toFixed(2));
+        target.style.setProperty("--my", (y * 10).toFixed(2));
+      });
     });
     target.addEventListener("pointerleave", () => {
       target.style.setProperty("--mx", "0");
