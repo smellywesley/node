@@ -26,3 +26,7 @@
 Thumbs.db
 outputs/*.png
 outputs/*audit*.json
+outputs/backend-load-report.json
+outputs/pay-ready-proof.md
+outputs/pay-ready-proof-transcript.txt
+outputs/pay-ready-proof-recording.md

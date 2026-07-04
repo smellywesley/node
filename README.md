@@ -57,11 +57,12 @@ For local review evidence after the pay-ready demo, use:
 ```powershell
 .\scripts\demo-github-artifact.cmd
 .\scripts\new-pay-ready-proof-packet.cmd
+.\scripts\new-pay-ready-proof-recording-brief.cmd -RecordingUrl https://www.loom.com/share/...
 .\scripts\measure-backend-load.cmd -Count 4 -MaxParallel 2
 .\scripts\test-pilot-readiness.cmd
 ```
 
-The GitHub artifact demo creates a local branch, captures diff/test evidence, and links the run audit bundle without pushing anything to GitHub. The proof packet script captures the pay-ready transcript, audit hash, event counts, and recording checklist in `outputs\pay-ready-proof.md`. The backend load script runs bounded concurrent smoke processes and writes `outputs\backend-load-report.json`.
+The GitHub artifact demo creates a local branch, captures diff/test evidence, and links the run audit bundle without pushing anything to GitHub. The proof packet script captures the pay-ready transcript, audit hash, event counts, and recording checklist in `outputs\pay-ready-proof.md`. After recording, the recording brief script stamps the reviewed video URL and proof packet hash in `outputs\pay-ready-proof-recording.md`. The backend load script runs bounded concurrent smoke processes and writes `outputs\backend-load-report.json`.
 The pilot readiness audit summarizes public CTA, proof packet, Docker, load, security, and sales-playbook gates in one local report.
 ## Quick start
 

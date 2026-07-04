@@ -63,6 +63,25 @@ function Invoke-AgentOS {
     }
 }
 
+function Invoke-DockerBuild {
+    param(
+        [string]$Dockerfile,
+        [string]$Tag,
+        [string]$Context
+    )
+
+    $previousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        docker build -f $Dockerfile -t $Tag $Context
+        $dockerExitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
+    if ($dockerExitCode -ne 0) { exit $dockerExitCode }
+}
+
 Assert-DockerReady
 
 Write-Step "building AgentOS binary"
@@ -75,8 +94,7 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Step "building pay-ready worker image"
 $dockerfile = Join-Path $root "examples\pay-ready\Dockerfile"
-docker build -f $dockerfile -t agentos/pay-ready-demo:local $root
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+Invoke-DockerBuild -Dockerfile $dockerfile -Tag "agentos/pay-ready-demo:local" -Context $root
 
 New-Item -ItemType Directory -Force $stateHome, $internalDir, $webDir, $outputs | Out-Null
 foreach ($path in @(

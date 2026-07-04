@@ -51,6 +51,24 @@ function Assert-DockerReady {
     }
 }
 
+function Invoke-DockerBuild {
+    param(
+        [string]$Dockerfile,
+        [string]$Tag,
+        [string]$Context
+    )
+
+    $previousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        docker build -f $Dockerfile -t $Tag $Context
+        $dockerExitCode = $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
+    if ($dockerExitCode -ne 0) { exit $dockerExitCode }
+}
+
 function New-LoadJob {
     param([int]$Index)
 
@@ -117,12 +135,14 @@ if (-not $SkipBuild) {
 
 Write-Step "building smoke worker image"
 $dockerfile = Join-Path $root "examples\smoke\Dockerfile"
-docker build -f $dockerfile -t agentos/protocol-smoke:local $root
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+Invoke-DockerBuild -Dockerfile $dockerfile -Tag "agentos/protocol-smoke:local" -Context $root
 
 New-Item -ItemType Directory -Force $stateHome, $outputs | Out-Null
 $env:AGENTOS_HOME = $stateHome
 $env:AGENTOS_ADDR = $Address
+if ([string]::IsNullOrWhiteSpace($env:AGENTOS_APPROVER_TOKEN)) {
+    $env:AGENTOS_APPROVER_TOKEN = [guid]::NewGuid().ToString("N") + [guid]::NewGuid().ToString("N")
+}
 
 Write-Step "starting isolated daemon on $Address"
 $daemon = Start-Process -FilePath $agentos `

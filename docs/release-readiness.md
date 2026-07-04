@@ -31,6 +31,7 @@ git diff --check
 .\bin\agentos.exe doctor --support
 .\bin\agentos.exe validate .\examples\pay-ready\agent-process.yaml
 .\scripts\new-pay-ready-proof-packet.cmd
+.\scripts\new-pay-ready-proof-recording-brief.cmd -RecordingUrl https://www.loom.com/share/...
 .\scripts\measure-backend-load.cmd -Count 4 -MaxParallel 2
 .\scripts\test-pilot-readiness.cmd
 ```
@@ -40,6 +41,8 @@ Docker-off path: `doctor --support` and `demo-pay-ready.cmd` must explain the pr
 Docker-on path: `scripts\demo-pay-ready.cmd` must complete the allowed write, denied forbidden write, approval, usage/cost, replay, and redacted audit export checks.
 
 Proof packet path: `scripts\new-pay-ready-proof-packet.cmd` must write `outputs\pay-ready-proof.md` with all proof checks in `PASS` state before the five-minute buyer proof is recorded.
+
+Recording path: after recording the buyer-safe five-minute proof, `scripts\new-pay-ready-proof-recording-brief.cmd -RecordingUrl <url>` must write `outputs\pay-ready-proof-recording.md` with `Status: PASS`, the reviewed recording URL, and the proof packet hash.
 
 Backend load path: `scripts\measure-backend-load.cmd` must write `outputs\backend-load-report.json` with all requested smoke processes in `succeeded` state before a paid local-team beta.
 

@@ -62,6 +62,25 @@ function Invoke-AgentOS {
     }
 }
 
+function Invoke-DockerBuild {
+    param(
+        [string]$Dockerfile,
+        [string]$Tag,
+        [string]$Context
+    )
+
+    $previousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        docker build -f $Dockerfile -t $Tag $Context
+        $dockerExitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
+    if ($dockerExitCode -ne 0) { exit $dockerExitCode }
+}
+
 if ([string]::IsNullOrWhiteSpace($env:OPENAI_API_KEY)) {
     Write-Host "OPENAI_API_KEY is not set. This live SDK demo is intentionally not run without an explicit provider key."
     Write-Host "Set OPENAI_API_KEY and rerun .\scripts\demo-live-agents-sdk.cmd when you are ready to spend a small amount of API credit."
@@ -80,8 +99,7 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Step "building live OpenAI Agents SDK worker image"
 $dockerfile = Join-Path $root "examples\agents-sdk-live-coding\Dockerfile"
-docker build -f $dockerfile -t agentos/openai-agents-live-coding:local $root
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+Invoke-DockerBuild -Dockerfile $dockerfile -Tag "agentos/openai-agents-live-coding:local" -Context $root
 
 New-Item -ItemType Directory -Force $stateHome, $reviewedDir, $outputs | Out-Null
 foreach ($path in @(
