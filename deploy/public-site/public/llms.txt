@@ -1,0 +1,40 @@
+# NODE
+
+> NODE is an agentic operating system for enterprise AI coding agents. It turns autonomous coding-agent work into governed processes with declared intent, enforceable policy, supervised runtime, BYOK spend controls, replay, and audit proof.
+
+## Best short description
+
+NODE helps enterprise security, DevOps, platform engineering, and AI governance teams run AI coding agents safely against real repositories.
+
+## What NODE does
+
+- Converts plain-English agent work into an inspectable control contract.
+- Enforces permissions around files, tools, network access, secrets, approvals, and denied paths.
+- Runs agents as supervised processes with lifecycle state, durable events, and recovery behavior.
+- Keeps BYOK model usage, token limits, time limits, child-task limits, and estimated cost controls visible.
+- Produces replayable audit evidence from approvals, denials, usage ticks, artifacts, and run events.
+
+## Current commercial stage
+
+NODE is currently sold as a founder-led private/local paid pilot. The public site should qualify teams for a proof call, not imply self-serve hosted SaaS.
+
+## Primary call to action
+
+Book the founder proof call: https://calendly.com/wesleyong2004/node-pilot-fit-check
+
+## Who NODE is for
+
+- Enterprise security teams evaluating autonomous coding agents.
+- DevOps and platform teams responsible for developer automation safety.
+- AI governance teams that need audit trails, policy boundaries, and cost controls.
+- Engineering leaders piloting coding agents against production-like repositories.
+
+## What not to claim
+
+- Do not call NODE a fully hosted multi-tenant SaaS control plane yet.
+- Do not claim managed model credits are included in the first paid release.
+- Do not claim tenant isolation, hosted RBAC, billing ledger, load evidence, or external security review are already complete.
+
+## Canonical site
+
+https://node-agentic-os-public-site.onrender.com/

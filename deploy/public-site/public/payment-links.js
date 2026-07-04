@@ -2,7 +2,7 @@ window.NODE_PAYMENT_LINKS = {
   "pro": "",
   "pilot": "",
   "enterprise": "",
-  "pilotContactUrl": "",
+  "pilotContactUrl": "https://calendly.com/wesleyong2004/node-pilot-fit-check",
   "proofDemoUrl": "",
   "contactEmail": "",
   "allowedHosts": [

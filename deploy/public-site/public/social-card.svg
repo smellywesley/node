@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">NODE Agentic OS</title>
+  <desc id="desc">A dark green technical preview card for NODE, an agentic operating system for controlled AI coding agents.</desc>
+  <defs>
+    <radialGradient id="glow" cx="62%" cy="44%" r="58%">
+      <stop offset="0%" stop-color="#48f6b2" stop-opacity="0.52"/>
+      <stop offset="46%" stop-color="#0f5f49" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#020403" stop-opacity="1"/>
+    </radialGradient>
+    <linearGradient id="line" x1="0" x2="1">
+      <stop offset="0" stop-color="#48f6b2" stop-opacity="0.15"/>
+      <stop offset="0.5" stop-color="#7df7ff" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#48f6b2" stop-opacity="0.15"/>
+    </linearGradient>
+    <filter id="soft">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="630" fill="#020403"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <g opacity="0.28" stroke="#48f6b2" stroke-width="1">
+    <path d="M0 426H1200M0 506H1200M180 0V630M370 0V630M560 0V630M750 0V630M940 0V630"/>
+    <path d="M116 442L302 330L520 372L710 245L956 330" fill="none" stroke="url(#line)" stroke-width="5"/>
+    <path d="M302 330L412 194M520 372L630 460M710 245L812 144M956 330L1080 232" fill="none" stroke="url(#line)" stroke-width="4"/>
+  </g>
+  <g filter="url(#soft)" opacity="0.74" fill="#48f6b2">
+    <circle cx="302" cy="330" r="28"/>
+    <circle cx="520" cy="372" r="24"/>
+    <circle cx="710" cy="245" r="25"/>
+    <circle cx="956" cy="330" r="30"/>
+  </g>
+  <g fill="#03110c">
+    <rect x="690" y="208" width="230" height="122" rx="28" fill="#48f6b2" opacity="0.92"/>
+  </g>
+  <text x="805" y="276" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="900" fill="#03110c">NODE</text>
+  <text x="86" y="154" font-family="Inter, Arial, sans-serif" font-size="46" font-weight="900" letter-spacing="5" fill="#48f6b2">NODE</text>
+  <text x="86" y="250" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="500" fill="#f0fff8">Controlled AI</text>
+  <text x="86" y="334" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="500" fill="#f0fff8">agent execution.</text>
+  <text x="88" y="414" font-family="Inter, Arial, sans-serif" font-size="28" fill="#b8d5ca">Policy, runtime, spend caps, replay, and audit proof.</text>
+  <text x="88" y="470" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" fill="#7df7ff">Founder-led private/local pilot</text>
+</svg>
