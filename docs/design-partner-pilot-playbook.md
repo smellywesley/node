@@ -72,8 +72,9 @@ Do not include:
 
 Keep the ask concrete and narrow:
 
-- Price: founder-led paid pilot by request; start with a low five-figure services-style pilot when the buyer needs custom policy/workflow support, or a smaller paid proof when they only need evidence review.
-- Payment trigger: payment or signed pilot order before custom integration work begins.
+- Paid proof review: USD 1,500-3,000 for a buyer-specific walkthrough, proof packet review, one repository-shaped scenario, and a written next-step recommendation.
+- Private pilot: USD 10,000-25,000 for 2-4 weeks, one local/private workflow, policy templates, proof packet, support bundle review, and final hosted-readiness gap report.
+- Payment trigger: payment link, invoice, or signed pilot order before custom integration work begins.
 - Buyer owner: named Platform, DevEx, AppSec, or Security Engineering sponsor.
 - Close step: 25-minute fit check, written pilot scenario, payment link or invoice, then local/private proof session.
 - 30-day review: decide whether the next paid phase is policy templates, GitHub artifact workflow, local team roles, or hosted-readiness planning.

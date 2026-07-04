@@ -22,10 +22,30 @@ vm.runInContext(configSource, sandbox, {filename: path.basename(configPath)});
 
 const config = sandbox.window.NODE_PAYMENT_LINKS || {};
 const reviewedPaymentHosts = new Set(["buy.stripe.com"]);
+const reviewedContactHosts = new Set([
+  "calendly.com",
+  "www.calendly.com",
+  "tally.so",
+  "www.tally.so",
+  "form.typeform.com",
+  "forms.gle",
+  "docs.google.com"
+]);
+const reviewedProofHosts = new Set([
+  "youtube.com",
+  "www.youtube.com",
+  "youtu.be",
+  "loom.com",
+  "www.loom.com",
+  "vimeo.com",
+  "www.vimeo.com"
+]);
 const configuredHosts = config.allowedHosts || ["buy.stripe.com"];
 const allowedHosts = new Set(configuredHosts.filter((host) => reviewedPaymentHosts.has(host)));
 const contactEmail = typeof config.contactEmail === "string" ? config.contactEmail.trim() : "";
-const configuredContact = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail);
+const configuredEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail);
+const configuredContactUrl = safeContactUrl(config.pilotContactUrl);
+const configuredContact = configuredEmail || Boolean(configuredContactUrl);
 const checkoutPlanPattern = /<a\b[^>]*\bdata-checkout-plan="([^"]+)"[^>]*>/g;
 const contactLinkPattern = /<a\b[^>]*\bdata-contact-link\b[^>]*>/g;
 const fallbackPattern = /\bdata-fallback-href="([^"]*)"/;
@@ -39,6 +59,32 @@ function safeExternalUrl(value) {
     const url = new URL(value);
     if (url.protocol !== "https:") return null;
     if (!allowedHosts.has(url.hostname)) return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+function safeContactUrl(value) {
+  if (!value) return null;
+
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:") return null;
+    if (!reviewedContactHosts.has(url.hostname)) return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+function safeProofUrl(value) {
+  if (!value) return null;
+
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:") return null;
+    if (!reviewedProofHosts.has(url.hostname)) return null;
     return url.toString();
   } catch {
     return null;
@@ -125,6 +171,9 @@ const runtimeSandbox = {
       if (selector === "[data-contact-link]") {
         return links.filter((link) => link.dataset.contactLink !== undefined);
       }
+      if (selector === "[data-proof-demo-link]") {
+        return links.filter((link) => link.dataset.proofDemoLink !== undefined);
+      }
       return [];
     }
   }
@@ -151,7 +200,7 @@ for (const match of html.matchAll(checkoutPlanPattern)) {
   const fallback = attr(tag, fallbackPattern);
 
   if (!liveUrl && !configuredContact) {
-    const message = `${plan}: missing allowed Stripe/payment URL and missing real contactEmail`;
+    const message = `${plan}: missing allowed Stripe/payment URL, reviewed intake URL, and real contactEmail`;
     if (allowEmpty) {
       warnings.push(message);
     } else {
@@ -169,7 +218,7 @@ if (seenPlans.size === 0) {
 }
 
 if (html.match(contactLinkPattern) && !configuredContact) {
-  const message = "data-contact-link exists but contactEmail is empty or invalid";
+  const message = "data-contact-link exists but contactEmail and pilotContactUrl are empty or invalid";
   if (allowEmpty) {
     warnings.push(message);
   } else {
@@ -199,12 +248,18 @@ for (const link of links.filter((item) => item.dataset.contactLink !== undefined
   }
 }
 
+for (const link of links.filter((item) => item.dataset.proofDemoLink !== undefined)) {
+  if (config.proofDemoUrl && !safeProofUrl(config.proofDemoUrl)) {
+    failures.push("proof demo URL is not on a reviewed video host");
+  }
+}
+
 if (failures.length > 0) {
   console.error("CTA configuration check failed:");
   for (const failure of failures) {
     console.error(`- ${failure}`);
   }
-  console.error("Fix: add live allowed payment links or a real pilot contact email in public/payment-links.js.");
+  console.error("Fix: add live allowed payment links, a real pilot contact email, or a reviewed pilot intake URL in public/payment-links.js.");
   process.exit(1);
 }
 
@@ -213,7 +268,7 @@ if (warnings.length > 0) {
   for (const warning of warnings) {
     console.warn(`- ${warning}`);
   }
-  console.warn("Deploy is allowed, but paid-pilot readiness remains blocked until a real email or allowed payment link is configured.");
+  console.warn("Deploy is allowed, but paid-pilot readiness remains blocked until a real email, reviewed intake URL, or allowed payment link is configured.");
 }
 
 console.log("CTA configuration check passed");

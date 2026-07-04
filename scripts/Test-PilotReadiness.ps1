@@ -9,6 +9,7 @@ $ErrorActionPreference = "Stop"
 
 $root = Split-Path -Parent $PSScriptRoot
 $checks = @()
+$generatedPaymentConfigPath = ""
 
 function Resolve-RepoPath([string]$Path) {
     if ([System.IO.Path]::IsPathRooted($Path)) { return $Path }
@@ -76,25 +77,72 @@ function Get-DockerReadiness {
 }
 
 function Test-PaymentConfig {
-    $paymentPath = Resolve-RepoPath "deploy\public-site\public\payment-links.js"
-    if (-not (Test-Path -LiteralPath $paymentPath)) {
+    $generatedDir = Join-Path ([System.IO.Path]::GetTempPath()) "node-pilot-readiness"
+    $generatedPath = Join-Path $generatedDir "payment-links.generated.js"
+    $script:generatedPaymentConfigPath = $generatedPath
+    New-Item -ItemType Directory -Force $generatedDir | Out-Null
+
+    $previous = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        $configureOutput = & node "scripts\write-payment-config.mjs" --output $generatedPath 2>&1
+        $configureExit = $LASTEXITCODE
+        $checkOutput = if ($configureExit -eq 0) { & node "scripts\check-cta-config.mjs" $generatedPath 2>&1 } else { @() }
+        $checkExit = if ($configureExit -eq 0) { $LASTEXITCODE } else { 1 }
+    } finally {
+        $ErrorActionPreference = $previous
+    }
+
+    if ($configureExit -ne 0) {
         return [pscustomobject]@{
             pass = $false
-            evidence = "deploy\public-site\public\payment-links.js is missing."
-            fix = "Run npm run configure:cta in deploy\public-site with NODE_PUBLIC_CONTACT_EMAIL or NODE_PUBLIC_PILOT_PAYMENT_LINK set."
+            evidence = "generated CTA config failed: $configureOutput"
+            fix = "Set only reviewed public CTA env vars in the hosting provider, then rerun npm run configure:cta."
         }
     }
 
-    $raw = Get-Content -LiteralPath $paymentPath -Raw
+    $raw = Get-Content -LiteralPath $generatedPath -Raw
     $hasContactEmail = $raw -match '"contactEmail"\s*:\s*"[^"]+@[^"]+\.[^"]+"'
+    $hasPilotContactUrl = $raw -match '"pilotContactUrl"\s*:\s*"https://(calendly\.com|www\.calendly\.com|tally\.so|www\.tally\.so|form\.typeform\.com|forms\.gle|docs\.google\.com)/[^"]+"'
     $hasStripeLink = $raw -match '"pilot"\s*:\s*"https://buy\.stripe\.com/[^"]+"'
-    $configured = $hasContactEmail -or $hasStripeLink
-    $evidence = "contact_email_configured=$hasContactEmail; stripe_payment_link_configured=$hasStripeLink"
+    $configured = ($hasContactEmail -or $hasPilotContactUrl -or $hasStripeLink) -and ($checkExit -eq 0)
+    $evidence = "generated_from_env=True; strict_cta_exit=$checkExit; contact_email_configured=$hasContactEmail; pilot_contact_url_configured=$hasPilotContactUrl; stripe_payment_link_configured=$hasStripeLink"
 
     return [pscustomobject]@{
         pass = $configured
         evidence = $evidence
-        fix = "Set NODE_PUBLIC_CONTACT_EMAIL and/or NODE_PUBLIC_PILOT_PAYMENT_LINK, then run npm run configure:cta and npm run test:cta before claiming paid-pilot readiness."
+        fix = "Set NODE_PUBLIC_CONTACT_EMAIL, NODE_PUBLIC_PILOT_CONTACT_URL, and/or NODE_PUBLIC_PILOT_PAYMENT_LINK in the hosting env, then run npm run configure:cta and npm run test:cta before claiming paid-pilot readiness."
+    }
+}
+
+function Test-ProofDemoConfig {
+    $generatedPath = $script:generatedPaymentConfigPath
+    if (-not (Test-Path -LiteralPath $generatedPath)) {
+        return [pscustomobject]@{
+            pass = $false
+            evidence = "generated CTA config is missing."
+            fix = "Run npm run configure:cta in deploy\public-site with NODE_PUBLIC_PROOF_DEMO_URL set after recording the proof."
+        }
+    }
+
+    $raw = Get-Content -LiteralPath $generatedPath -Raw
+    $hasProofDemoUrl = $raw -match '"proofDemoUrl"\s*:\s*"https://(youtube\.com|www\.youtube\.com|youtu\.be|loom\.com|www\.loom\.com|vimeo\.com|www\.vimeo\.com)/[^"]+"'
+
+    return [pscustomobject]@{
+        pass = $hasProofDemoUrl
+        evidence = "proof_demo_url_configured=$hasProofDemoUrl"
+        fix = "Record the five-minute proof and set NODE_PUBLIC_PROOF_DEMO_URL to a reviewed public video URL."
+    }
+}
+
+function Test-RecordingBrief {
+    $recordingPath = Resolve-RepoPath "outputs\pay-ready-proof-recording.md"
+    $hasRecordingBrief = (Test-Path -LiteralPath $recordingPath) -and (Test-FileContains "outputs\pay-ready-proof-recording.md" '^Status:\s+PASS\s*$')
+
+    return [pscustomobject]@{
+        pass = $hasRecordingBrief
+        evidence = "recording_brief_pass=$hasRecordingBrief"
+        fix = "Add outputs\pay-ready-proof-recording.md with Status: PASS, recording URL, date, owner, and packet hash after recording."
     }
 }
 
@@ -152,8 +200,13 @@ function Test-BackendLoadReport {
     }
 }
 
-$paymentConfig = Test-PaymentConfig
-Add-ReadinessCheck "Public CTA" "Real contact email or Stripe pilot link configured" $paymentConfig.pass $paymentConfig.evidence $paymentConfig.fix
+Push-Location (Resolve-RepoPath "deploy\public-site")
+try {
+    $paymentConfig = Test-PaymentConfig
+} finally {
+    Pop-Location
+}
+Add-ReadinessCheck "Public CTA" "Generated env CTA has real pilot path" $paymentConfig.pass $paymentConfig.evidence $paymentConfig.fix
 
 $ctaGuard = (Test-FileContains "deploy\public-site\package.json" '"test:cta"') -and
     (Test-FileContains "deploy\public-site\package.json" '"test:cta:deploy"') -and
@@ -180,6 +233,12 @@ Add-ReadinessCheck "Buyer Demo" "Proof packet generator exists" $proofScript "sc
 
 $proofPacket = Test-ProofPacket
 Add-ReadinessCheck "Buyer Demo" "Fresh pay-ready proof packet passes" $proofPacket.pass $proofPacket.evidence $proofPacket.fix
+
+$proofDemo = Test-ProofDemoConfig
+Add-ReadinessCheck "Buyer Demo" "Public proof demo URL is configured" $proofDemo.pass $proofDemo.evidence $proofDemo.fix
+
+$recordingBrief = Test-RecordingBrief
+Add-ReadinessCheck "Buyer Demo" "Recorded proof demo brief exists" $recordingBrief.pass $recordingBrief.evidence $recordingBrief.fix
 
 $docker = Get-DockerReadiness
 Add-ReadinessCheck "Backend Runtime" "Docker engine reachable for local agent runs" $docker.pass $docker.evidence $docker.fix

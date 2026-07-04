@@ -30,8 +30,8 @@
           <h1 id="hero-title">Turn AI coding agents into <span>controlled</span> workers.</h1>
           <p>NODE gives every coding-agent run a process ID, permissions, budgets, approvals, replay, and audit proof. Your team brings its own agents and model keys; NODE governs how those agents operate against real repositories.</p>
           <div class="actions">
-            <a class="button primary" href="#proof">See the 5-minute proof</a>
-            <a class="button secondary" data-contact-link data-contact-subject="NODE Paid Pilot" data-contact-body="I want to discuss a paid design-partner pilot for NODE." data-fallback-href="#pilot-path" href="#pilot-path">Request paid pilot</a>
+            <a class="button primary" data-proof-demo-link data-live-label="Watch the 5-minute proof" data-fallback-label="Review proof steps" data-fallback-href="#proof" href="#proof">Review proof steps</a>
+            <a class="button secondary" data-contact-link data-live-label="Request paid pilot" data-fallback-label="Review pilot criteria" data-contact-subject="NODE Paid Pilot" data-contact-body="I want to discuss a paid design-partner pilot for NODE." data-fallback-href="#pilot-path" href="#pilot-path">Review pilot criteria</a>
           </div>
           <dl class="value-metrics" aria-label="NODE value pillars">
             <div><dt>Bring Your Agents</dt><dd>OpenAI, internal tools, coding agents, or future models.</dd></div>
@@ -212,7 +212,7 @@ approval_rules:
         <h2>Sell the private proof before the broad platform.</h2>
       </div>
       <div>
-        <p>NODE is currently best sold as a paid design-partner pilot for teams already testing autonomous coding agents. The first pilot should prove one controlled repository run end to end: real agent execution, forbidden write denied, allowed write approved, nonzero token/cost accounting, replay, and a redacted audit bundle.</p>
+        <p>NODE is currently best sold as a paid design-partner pilot for teams already testing autonomous coding agents. The deterministic local proof available now shows one controlled repository-shaped run end to end: agent execution, forbidden write denied, allowed write approved, nonzero token/cost accounting, replay, and a redacted audit bundle. Provider-backed and GitHub artifact proof can be added during a qualified pilot.</p>
         <ul class="pilot-list">
           <li>Private/local deployment only until tenant auth, RBAC, rate limits, and support workflows are ready.</li>
           <li>Subscription plus BYOK posture; managed model usage waits for a billable usage ledger and spend caps.</li>
@@ -235,13 +235,13 @@ approval_rules:
         <article class="featured">
           <span>Paid Pilot</span>
           <h3>By request</h3>
-          <p>Guided local proof with audit bundles, replay, policy templates, and GitHub artifact workflow. No model credits included.</p>
+          <p>Guided local proof with audit bundles, replay, policy templates, and optional GitHub artifact workflow during qualified pilots. No model credits included.</p>
           <ul class="plan-list">
             <li>Private design-partner onboarding</li>
             <li>BYOK subscription posture</li>
             <li>5-minute proof and support bundle</li>
           </ul>
-          <a class="button primary" data-checkout-plan="pilot" data-live-label="Request paid pilot" data-contact-subject="NODE Paid Pilot" data-contact-body="I want to discuss a paid design-partner pilot for NODE." data-fallback-href="#pilot-path" href="#pilot-path">Request paid pilot</a>
+          <a class="button primary" data-checkout-plan="pilot" data-live-label="Request paid pilot" data-fallback-label="Review pilot criteria" data-contact-subject="NODE Paid Pilot" data-contact-body="I want to discuss a paid design-partner pilot for NODE." data-fallback-href="#pilot-path" href="#pilot-path">Review pilot criteria</a>
         </article>
         <article>
           <span>Enterprise Preview</span>
@@ -252,10 +252,10 @@ approval_rules:
             <li>Security and audit review</li>
             <li>Tenant auth and RBAC gates</li>
           </ul>
-          <a class="button secondary" data-checkout-plan="enterprise" data-live-label="Book preview call" data-contact-subject="NODE Enterprise Preview" data-contact-body="I want to discuss the enterprise readiness path for NODE." data-fallback-href="#pilot-path" href="#pilot-path">Discuss roadmap</a>
+          <a class="button secondary" data-checkout-plan="enterprise" data-live-label="Book preview call" data-fallback-label="Review readiness path" data-contact-subject="NODE Enterprise Preview" data-contact-body="I want to discuss the enterprise readiness path for NODE." data-fallback-href="#pilot-path" href="#pilot-path">Review readiness path</a>
         </article>
       </div>
-      <p class="payment-note">Checkout is wired for provider-hosted payment links or a real pilot email in <code>payment-links.js</code>. The static site never ships Stripe secrets; run <code>npm run test:cta</code> before deploying so empty commercial CTAs cannot go live unnoticed.</p>
+      <p class="payment-note">Pilot access is wired for provider-hosted payment links, a reviewed intake URL, or a real pilot email in <code>payment-links.js</code>. The static site never ships Stripe secrets; run <code>npm run test:cta</code> before claiming paid-pilot readiness.</p>
     </section>
 
     <section id="security" class="section split security">

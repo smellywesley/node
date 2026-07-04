@@ -39,9 +39,10 @@ It intentionally does not include:
 
 ## Before going live
 
-- Add the real sales or founder email as `NODE_PUBLIC_CONTACT_EMAIL` in the hosting provider, or edit `public/payment-links.js` locally for a static manual deploy.
+- Add the real sales/founder email as `NODE_PUBLIC_CONTACT_EMAIL`, or add a reviewed intake link as `NODE_PUBLIC_PILOT_CONTACT_URL` in the hosting provider.
 - Connect the production domain in the hosting provider.
 - If Stripe Payment Links exist, add the hosted `https://buy.stripe.com/...` URL as `NODE_PUBLIC_PILOT_PAYMENT_LINK`, `NODE_PUBLIC_PRO_PAYMENT_LINK`, or `NODE_PUBLIC_ENTERPRISE_PAYMENT_LINK`.
+- After recording the buyer-safe proof, add it as `NODE_PUBLIC_PROOF_DEMO_URL`.
 - Run `npm run test:cta`; it fails if the site has commercial CTAs without a real email or allowed hosted payment link. Hosted static builds may use `npm run test:cta:deploy` so Render can publish a non-payment site while paid-pilot readiness remains blocked.
 - If Stripe Checkout is linked through an app backend, keep the checkout endpoint server-side and keep STRIPE_SECRET_KEY server-side.
 - Keep the local dashboard URL and operator token out of public docs, issue trackers, and screenshots.
@@ -55,20 +56,27 @@ window.NODE_PAYMENT_LINKS = {
   pro: "",
   pilot: "https://buy.stripe.com/...",
   enterprise: "",
+  pilotContactUrl: "https://calendly.com/your-team/node-pilot",
+  proofDemoUrl: "https://www.loom.com/share/...",
   contactEmail: "sales@example.com",
   allowedHosts: ["buy.stripe.com"]
 };
 ```
 
-Leave a checkout value empty to keep the email fallback. Do not deploy public commercial CTAs with both checkout values and `contactEmail` empty; `npm run test:cta` is the guard for that. Do not add Stripe secret keys, webhook secrets, operator tokens, raw checkout session JSON, or internal billing API URLs to this file.
+Leave a checkout value empty to keep the intake-link or email fallback. Do not claim paid-pilot readiness with checkout values, `pilotContactUrl`, and `contactEmail` all empty; `npm run test:cta` is the guard for that. Do not add Stripe secret keys, webhook secrets, operator tokens, raw checkout session JSON, or internal billing API URLs to this file.
 
 For hosted builds, prefer environment variables so the repo does not need to carry live sales links:
 
 ```bash
 NODE_PUBLIC_CONTACT_EMAIL=sales@example.com
+NODE_PUBLIC_PILOT_CONTACT_URL=https://calendly.com/your-team/node-pilot
+NODE_PUBLIC_PROOF_DEMO_URL=https://www.loom.com/share/...
 NODE_PUBLIC_PILOT_PAYMENT_LINK=https://buy.stripe.com/...
 NODE_PUBLIC_PAYMENT_ALLOWED_HOSTS=buy.stripe.com
 ```
+
+`NODE_PUBLIC_PILOT_CONTACT_URL` accepts reviewed public intake hosts only: Calendly, Tally, Typeform, Google Forms, or Google Docs forms.
+`NODE_PUBLIC_PROOF_DEMO_URL` accepts reviewed public video hosts only: YouTube, Loom, or Vimeo.
 
 Then run the strict paid-pilot gate:
 
