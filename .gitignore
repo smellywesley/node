@@ -2,6 +2,9 @@
 /dist/
 /deploy/public-site/dist/
 /deploy/public-site/node_modules/
+/deploy/public-site/work/
+/deploy/public-site-v1/
+/deploy/public-site-v2/
 /work/
 /data/learning/
 .gstack/

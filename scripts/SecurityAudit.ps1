@@ -19,6 +19,9 @@ if ($tracked.Count -eq 0) {
 $forbiddenPaths = @(
     '^bin/',
     '^dist/',
+    '^deploy/public-site/work/',
+    '^deploy/public-site-v1/',
+    '^deploy/public-site-v2/',
     '^work/',
     '^\.git/',
     '^\.gstack/',
@@ -71,6 +74,9 @@ foreach ($path in $tracked) {
         $content = Get-Content -LiteralPath $path -Raw -ErrorAction Stop
     } catch {
         continue
+    }
+    if ($null -eq $content) {
+        $content = ''
     }
     foreach ($rule in $secretPatterns) {
         $matches = [regex]::Matches($content, $rule.Pattern)

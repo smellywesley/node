@@ -3,4 +3,4 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
   Permissions-Policy: camera=(), microphone=(), geolocation=()
-  Content-Security-Policy: default-src 'self'; style-src 'self'; script-src 'self' 'sha256-Ne+jJNWkJ4xkXS7rJNOx/Nyhc8SO8agp7CL91ssuVOg='; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'
+  Content-Security-Policy: default-src 'self'; style-src 'self'; script-src 'self' 'sha256-WTa/tSilaNzxb8WJQbhveNZ5JuSjlJJev9wGf4DNbtg='; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'

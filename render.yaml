@@ -28,4 +28,4 @@ services:
         value: camera=(), microphone=(), geolocation=()
       - path: /*
         name: Content-Security-Policy
-        value: default-src 'self'; style-src 'self'; img-src 'self' data:; script-src 'self' 'sha256-Ne+jJNWkJ4xkXS7rJNOx/Nyhc8SO8agp7CL91ssuVOg='; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'
+        value: default-src 'self'; style-src 'self'; img-src 'self' data:; script-src 'self' 'sha256-WTa/tSilaNzxb8WJQbhveNZ5JuSjlJJev9wGf4DNbtg='; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'

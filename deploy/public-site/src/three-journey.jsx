@@ -4,11 +4,11 @@ import { Float, Grid, Line, RoundedBox, Sparkles } from "@react-three/drei";
 import * as THREE from "three";
 
 const nodeSpecs = [
-  { id: "intent", label: "Intent", position: [-5.4, .42, -1.6], color: "#82f7ff" },
-  { id: "policy", label: "Policy", position: [-2.35, .42, 1.65], color: "#48f6b2" },
-  { id: "runtime", label: "Runtime", position: [2.45, .42, 1.5], color: "#9d8cff" },
-  { id: "spend", label: "Spend", position: [-1.15, .42, -4.1], color: "#ffe58a" },
-  { id: "proof", label: "Proof", position: [5.05, .42, -2.35], color: "#48f6b2" }
+  { id: "intent", label: "Request", position: [-5.4, .42, -1.6], color: "#82f7ff" },
+  { id: "policy", label: "Policy Gate", position: [-2.35, .42, 1.65], color: "#48f6b2" },
+  { id: "runtime", label: "Sandbox", position: [2.45, .42, 1.5], color: "#9d8cff" },
+  { id: "spend", label: "Cost Meter", position: [-1.15, .42, -4.1], color: "#ffe58a" },
+  { id: "proof", label: "Audit Bundle", position: [5.05, .42, -2.35], color: "#48f6b2" }
 ];
 
 const connections = [
@@ -109,7 +109,7 @@ function CoreChip({ active }) {
           opacity={.92}
         />
       </RoundedBox>
-      <LabelSprite text="NODE" color="#73ffc9" position={[0, .72, 0]} scale={[1.7, .6, 1]} />
+      <LabelSprite text="NODE CONTROL" color="#73ffc9" position={[0, .72, 0]} scale={[2.15, .6, 1]} />
     </group>
   );
 }
@@ -172,6 +172,48 @@ function NetworkLines({ activeId }) {
   });
 }
 
+function MovingPacket({ reduce }) {
+  const packet = useRef(null);
+  const points = useMemo(() => [
+    new THREE.Vector3(-5.4, .68, -1.6),
+    new THREE.Vector3(-2.35, .72, 1.65),
+    new THREE.Vector3(2.45, .72, 1.5),
+    new THREE.Vector3(-1.15, .72, -4.1),
+    new THREE.Vector3(5.05, .72, -2.35)
+  ], []);
+
+  useFrame((state) => {
+    if (!packet.current || reduce) return;
+    const route = (state.clock.elapsedTime * .22) % (points.length - 1);
+    const index = Math.floor(route);
+    const local = route - index;
+    packet.current.position.lerpVectors(points[index], points[index + 1], local);
+  });
+
+  return (
+    <group ref={packet}>
+      <mesh>
+        <sphereGeometry args={[.14, 24, 12]} />
+        <meshBasicMaterial color="#7df7ff" />
+      </mesh>
+      <pointLight intensity={2.4} distance={5} color="#7df7ff" />
+    </group>
+  );
+}
+
+function BlockedActionMarker({ activeId }) {
+  const show = activeId === "policy" || activeId === "core";
+  return (
+    <group position={[-2.36, 1.18, 2.72]} scale={show ? 1 : .72}>
+      <mesh>
+        <boxGeometry args={[.72, .05, .72]} />
+        <meshBasicMaterial color="#ff6f7d" transparent opacity={show ? .64 : .24} />
+      </mesh>
+      <LabelSprite text="frontend/* blocked" color="#ff8b96" position={[0, .42, 0]} scale={[1.9, .56, 1]} />
+    </group>
+  );
+}
+
 function ArchitectureScene({ chapters, progress, reduce }) {
   const group = useRef(null);
   const light = useRef(null);
@@ -212,6 +254,8 @@ function ArchitectureScene({ chapters, progress, reduce }) {
         />
         <Sparkles count={reduce ? 16 : 58} scale={[14, 3, 11]} size={reduce ? 1.2 : 1.8} speed={reduce ? 0 : .32} color="#73ffc9" opacity={.45} />
         <NetworkLines activeId={activeId} />
+        <MovingPacket reduce={reduce} />
+        <BlockedActionMarker activeId={activeId} />
         <CoreChip active={activeId === "core"} />
         {nodeSpecs.map((spec) => (
           <NodeOrb key={spec.id} spec={spec} active={activeId === "core" || activeId === spec.id} reduce={reduce} />
