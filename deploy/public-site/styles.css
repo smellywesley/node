@@ -138,6 +138,14 @@ a {
   mix-blend-mode: screen;
 }
 
+.nav-hover-zone {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 19;
+  height: 112px;
+  pointer-events: auto;
+}
+
 .top-nav {
   position: fixed;
   left: clamp(16px, 4vw, 64px);
@@ -154,6 +162,18 @@ a {
   background: rgba(3, 14, 12, .68);
   box-shadow: 0 22px 80px rgba(0, 0, 0, .28), inset 0 1px 0 rgba(255, 255, 255, .08);
   backdrop-filter: blur(22px);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-130%);
+  transition: opacity .42s var(--ease), transform .42s var(--ease), border-color .32s var(--ease);
+}
+
+.nav-hover-zone:hover + .top-nav,
+.top-nav:hover,
+.top-nav:focus-within {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
 .brand {
@@ -320,6 +340,66 @@ h2 {
   color: #f7fffc;
   font-size: 1.1rem;
   line-height: 1.52;
+}
+
+.control-flow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 18px;
+  padding: 12px;
+  border: 1px solid rgba(130, 247, 255, .15);
+  border-radius: 18px;
+  background:
+    linear-gradient(120deg, rgba(72, 246, 178, .08), rgba(130, 247, 255, .025)),
+    rgba(0, 0, 0, .18);
+}
+
+.flow-step {
+  position: relative;
+  min-height: 86px;
+  padding: 12px;
+  border: 1px solid rgba(143, 255, 211, .14);
+  border-radius: 14px;
+  background: rgba(3, 17, 14, .66);
+  overflow: hidden;
+}
+
+.flow-step::before {
+  content: "";
+  position: absolute;
+  left: -30%;
+  right: -30%;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(130, 247, 255, .8), transparent);
+  animation: beamSweep 4.6s linear infinite;
+}
+
+.flow-step span,
+.flow-step small {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+.flow-step span {
+  display: block;
+  margin-bottom: 8px;
+  color: rgba(130, 247, 255, .7);
+  font-size: .66rem;
+  font-weight: 900;
+}
+
+.flow-step b {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--ink);
+  font-size: .95rem;
+}
+
+.flow-step small {
+  color: rgba(222, 248, 238, .68);
+  font-size: .7rem;
+  line-height: 1.42;
 }
 
 .agent-hud {
@@ -869,6 +949,10 @@ h2 {
     grid-template-columns: 1fr;
   }
 
+  .control-flow {
+    grid-template-columns: 1fr;
+  }
+
   .hud-meta,
   .policy-checks,
   .pricing-grid {
@@ -906,7 +990,25 @@ h2 {
   }
 }
 
+@media (hover: none) {
+  .nav-hover-zone {
+    display: none;
+  }
+
+  .top-nav {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+}
+
 @keyframes scanSweep {
   0% { transform: translateY(-100%); }
   100% { transform: translateY(100%); }
+}
+
+@keyframes beamSweep {
+  0% { transform: translateX(-34%); opacity: 0; }
+  18% { opacity: 1; }
+  100% { transform: translateX(34%); opacity: 0; }
 }

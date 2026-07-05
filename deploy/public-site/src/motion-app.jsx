@@ -59,10 +59,18 @@ const chapters = [
     id: "control",
     nav: "Control",
     kicker: "01 / Policy gate",
-    title: "Set exactly where an agent can operate.",
-    hook: "Prompt instructions are not a boundary. NODE turns intent into rules the runtime can enforce.",
-    body: "Allow backend and test paths. Block frontend, secrets, billing, and production-only files. Consequential writes pause until a human approves.",
+    title: "One request lights the whole control brain.",
+    hook: "This is the specialized operating path: Request -> Policy Gate -> NODE Control -> Sandbox -> Cost Meter -> Audit Bundle.",
+    body: "The agent does not float around the repo. NODE routes the work through a controlled neural path, checks each boundary, and only lets approved execution continue.",
     focus: "policy",
+    flow: [
+      ["Request", "Fix auth timeout. Do not touch frontend."],
+      ["Policy Gate", "backend/** allowed, frontend/** denied."],
+      ["NODE Control", "The run becomes a supervised process."],
+      ["Sandbox", "Writes happen inside a controlled worker."],
+      ["Cost Meter", "$5.00 cap enforced outside the model."],
+      ["Audit", "Replay bundle generated for review."]
+    ],
     proof: [
       ["Allow", "backend/** and tests/backend/**"],
       ["Block", "frontend/**, .env, billing/**"],
@@ -394,6 +402,7 @@ function ChapterCard({ chapter, index, active }) {
       <p className="hook">{chapter.hook}</p>
       <p>{chapter.body}</p>
       {chapter.heroCta ? <CTAButtons chapter={chapter} /> : null}
+      {chapter.flow ? <ControlFlowStrip items={chapter.flow} /> : null}
       <AgentRunHUD hud={chapter.hud} />
       <div className="proof-grid">
         {chapter.proof.map(([label, copy]) => (
@@ -407,6 +416,20 @@ function ChapterCard({ chapter, index, active }) {
       {chapter.faq ? <FAQPanel /> : null}
       {chapter.cta && !chapter.heroCta ? <CTAButtons chapter={chapter} /> : null}
     </motion.article>
+  );
+}
+
+function ControlFlowStrip({ items }) {
+  return (
+    <div className="control-flow" aria-label="NODE controlled agent execution route">
+      {items.map(([label, copy], index) => (
+        <div className="flow-step" key={label}>
+          <span>{String(index + 1).padStart(2, "0")}</span>
+          <b>{label}</b>
+          <small>{copy}</small>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -430,6 +453,7 @@ function CTAButtons({ chapter }) {
 
 function scrollToChapter(event, id) {
   event?.preventDefault?.();
+  event?.currentTarget?.blur?.();
   const section = document.getElementById(id);
   if (!section) return;
   const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -533,10 +557,11 @@ function App() {
       <div className="scanline" aria-hidden="true" />
       <div className="scene-vignette" aria-hidden="true" />
       <div className="cursor-aura" aria-hidden="true" />
+      <div className="nav-hover-zone" aria-hidden="true" />
       <TopNav activeIndex={activeIndex} />
       <main id="story" className="story-shell">
         {chapters.map((chapter, index) => (
-          <section className="chapter" id={chapter.id} aria-labelledby={`${chapter.id}-title`} key={chapter.id}>
+          <section className={`chapter chapter-${chapter.id}`} id={chapter.id} aria-labelledby={`${chapter.id}-title`} key={chapter.id}>
             <ChapterCard chapter={chapter} index={index} active={index === activeIndex} />
           </section>
         ))}

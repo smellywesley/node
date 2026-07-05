@@ -1,27 +1,27 @@
 import React, { useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Float, Grid, Line, RoundedBox, Sparkles } from "@react-three/drei";
+import { Float, Grid, Line, Sparkles } from "@react-three/drei";
 import * as THREE from "three";
 
 const nodeSpecs = [
-  { id: "intent", label: "Request", position: [-5.4, .42, -1.6], color: "#82f7ff" },
-  { id: "policy", label: "Policy Gate", position: [-2.35, .42, 1.65], color: "#48f6b2" },
-  { id: "runtime", label: "Sandbox", position: [2.45, .42, 1.5], color: "#9d8cff" },
-  { id: "spend", label: "Cost Meter", position: [-1.15, .42, -4.1], color: "#ffe58a" },
-  { id: "proof", label: "Audit Bundle", position: [5.05, .42, -2.35], color: "#48f6b2" }
+  { id: "intent", label: "Request", position: [-5.6, .78, -1.6], color: "#82f7ff" },
+  { id: "policy", label: "Policy Gate", position: [-2.75, .78, 2.2], color: "#48f6b2" },
+  { id: "runtime", label: "Sandbox", position: [3.05, .78, 1.82], color: "#9d8cff" },
+  { id: "spend", label: "Cost Meter", position: [-1.2, .78, -4.45], color: "#ffe58a" },
+  { id: "proof", label: "Audit Bundle", position: [5.25, .78, -2.42], color: "#48f6b2" }
 ];
 
 const connections = [
   ["intent", "policy"],
-  ["policy", "runtime"],
-  ["runtime", "proof"],
-  ["spend", "runtime"],
-  ["intent", "core"],
   ["policy", "core"],
-  ["runtime", "core"],
-  ["proof", "core"],
-  ["spend", "core"]
+  ["core", "runtime"],
+  ["runtime", "spend"],
+  ["spend", "proof"],
+  ["intent", "core"],
+  ["proof", "core"]
 ];
+
+const corePosition = [0, .9, 0];
 
 function easeInOutPower2(t) {
   return t < .5 ? 2 * t * t : 1 - ((-2 * t + 2) ** 2) / 2;
@@ -93,30 +93,92 @@ function SceneCamera({ chapters, progress, reduce }) {
   return null;
 }
 
-function CoreChip({ active }) {
+function organicOffsets(seed) {
+  return Array.from({ length: 5 }, (_, index) => {
+    const t = seed + index * 1.47;
+    return [
+      Math.sin(t) * .32,
+      Math.cos(t * 1.2) * .18,
+      Math.sin(t * .7) * .3
+    ];
+  });
+}
+
+function BrainCore({ active, reduce }) {
+  const group = useRef(null);
+  const lobes = useMemo(() => [
+    { position: [-.44, .08, .02], scale: [.82, .52, .68] },
+    { position: [.42, .06, .03], scale: [.78, .5, .64] },
+    { position: [-.04, .28, -.1], scale: [.88, .48, .7] },
+    { position: [.02, -.2, .08], scale: [.62, .36, .48] },
+    { position: [.08, -.48, .02], scale: [.3, .52, .28] }
+  ], []);
+
+  useFrame((state) => {
+    if (!group.current || reduce) return;
+    const pulse = 1 + Math.sin(state.clock.elapsedTime * 1.6) * .026;
+    group.current.scale.lerp(new THREE.Vector3(pulse, pulse, pulse), .08);
+  });
+
   return (
-    <group position={[0, .58, 0]}>
-      <RoundedBox args={[2.5, .46, 1.52]} radius={.18} smoothness={8}>
-        <meshPhysicalMaterial
-          color="#071c17"
-          emissive="#48f6b2"
-          emissiveIntensity={active ? .72 : .38}
-          roughness={.18}
-          metalness={.42}
-          transmission={.32}
-          thickness={.8}
+    <group ref={group} position={corePosition}>
+      {lobes.map((lobe, index) => (
+        <mesh key={index} position={lobe.position} scale={lobe.scale}>
+          <sphereGeometry args={[.74, 36, 18]} />
+          <meshPhysicalMaterial
+            color="#071c17"
+            emissive="#48f6b2"
+            emissiveIntensity={active ? .72 : .38}
+            roughness={.24}
+            metalness={.36}
+            clearcoat={.7}
+            transparent
+            opacity={.9}
+          />
+        </mesh>
+      ))}
+      {organicOffsets(1.6).map((offset, index) => (
+        <Line
+          key={`brain-filament-${index}`}
+          points={[
+            [offset[0] - .36, offset[1], offset[2] - .18],
+            [offset[0] * .3, offset[1] + .15, offset[2] * .22],
+            [offset[0] + .38, offset[1] - .02, offset[2] + .18]
+          ]}
+          color="#b7ffe5"
+          lineWidth={active ? 1.6 : .8}
           transparent
-          opacity={.92}
+          opacity={active ? .55 : .28}
         />
-      </RoundedBox>
-      <LabelSprite text="NODE CONTROL" color="#73ffc9" position={[0, .72, 0]} scale={[2.15, .6, 1]} />
+      ))}
+      <mesh position={[0, .02, 0]}>
+        <sphereGeometry args={[1.18, 48, 24]} />
+        <meshPhysicalMaterial
+          color="#061813"
+          emissive="#48f6b2"
+          emissiveIntensity={active ? .2 : .1}
+          roughness={.1}
+          metalness={.12}
+          transparent
+          opacity={.16}
+        />
+      </mesh>
+      <LabelSprite text="NODE CONTROL" color="#73ffc9" position={[0, 1.22, 0]} scale={[2.15, .6, 1]} />
     </group>
   );
 }
 
-function NodeOrb({ spec, active, reduce }) {
+function NeuronNode({ spec, active, reduce }) {
   const group = useRef(null);
   const color = new THREE.Color(spec.color);
+  const branches = useMemo(() => {
+    return organicOffsets(spec.position[0] + spec.position[2]).map((offset, index) => {
+      const start = [0, 0, 0];
+      const mid = [offset[0] * .9, .1 + offset[1] * .4, offset[2] * .9];
+      const end = [offset[0] * 1.85, .12 + offset[1], offset[2] * 1.85];
+      return { key: `${spec.id}-${index}`, points: [start, mid, end] };
+    });
+  }, [spec.id, spec.position]);
 
   useFrame((state) => {
     if (!group.current || reduce) return;
@@ -127,21 +189,41 @@ function NodeOrb({ spec, active, reduce }) {
 
   const content = (
     <group ref={group} position={spec.position}>
+      {branches.map((branch) => (
+        <Line
+          key={branch.key}
+          points={branch.points}
+          color={spec.color}
+          lineWidth={active ? 1.7 : .85}
+          transparent
+          opacity={active ? .78 : .35}
+        />
+      ))}
       <mesh>
-        <sphereGeometry args={[.34, 36, 18]} />
+        <icosahedronGeometry args={[.34, 2]} />
         <meshPhysicalMaterial
           color="#071713"
           emissive={color}
-          emissiveIntensity={active ? 1.05 : .32}
+          emissiveIntensity={active ? 1.28 : .42}
           roughness={.24}
           metalness={.42}
           clearcoat={.6}
         />
       </mesh>
-      <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[.62, .016, 12, 86]} />
-        <meshBasicMaterial color={color} transparent opacity={active ? .9 : .42} />
-      </mesh>
+      {spec.id === "spend" ? (
+        <group position={[0, -.5, 0]}>
+          {[-.38, -.19, 0, .19, .38].map((x, index) => (
+            <Line
+              key={`cost-tick-${index}`}
+              points={[[x, 0, -.16], [x + .05, .18 + index * .04, .16]]}
+              color="#ffe58a"
+              lineWidth={active ? 2.1 : 1.1}
+              transparent
+              opacity={active ? .88 : .42}
+            />
+          ))}
+        </group>
+      ) : null}
       <LabelSprite text={spec.label} color={spec.color} position={[0, .92, 0]} scale={[1.45, .52, 1]} />
     </group>
   );
@@ -150,23 +232,30 @@ function NodeOrb({ spec, active, reduce }) {
   return <Float speed={1.25} rotationIntensity={.08} floatIntensity={.12}>{content}</Float>;
 }
 
-function NetworkLines({ activeId }) {
+function NeuralPathways({ activeId }) {
   const positions = useMemo(() => {
     const map = new Map(nodeSpecs.map((node) => [node.id, node.position]));
-    map.set("core", [0, .58, 0]);
+    map.set("core", corePosition);
     return map;
   }, []);
 
   return connections.map(([from, to]) => {
     const active = activeId === "core" || activeId === from || activeId === to;
+    const start = positions.get(from);
+    const end = positions.get(to);
+    const mid = [
+      (start[0] + end[0]) / 2,
+      Math.max(start[1], end[1]) + (active ? 1.05 : .62),
+      (start[2] + end[2]) / 2 + Math.sin(start[0] + end[2]) * .48
+    ];
     return (
       <Line
         key={`${from}-${to}`}
-        points={[positions.get(from), positions.get(to)]}
+        points={[start, mid, end]}
         color={active ? "#48f6b2" : "#1f6b54"}
-        lineWidth={active ? 2.4 : 1.1}
+        lineWidth={active ? 2.7 : 1.1}
         transparent
-        opacity={active ? .82 : .35}
+        opacity={active ? .86 : .32}
       />
     );
   });
@@ -175,11 +264,12 @@ function NetworkLines({ activeId }) {
 function MovingPacket({ reduce }) {
   const packet = useRef(null);
   const points = useMemo(() => [
-    new THREE.Vector3(-5.4, .68, -1.6),
-    new THREE.Vector3(-2.35, .72, 1.65),
-    new THREE.Vector3(2.45, .72, 1.5),
-    new THREE.Vector3(-1.15, .72, -4.1),
-    new THREE.Vector3(5.05, .72, -2.35)
+    new THREE.Vector3(-5.6, 1.1, -1.6),
+    new THREE.Vector3(-2.75, 1.16, 2.2),
+    new THREE.Vector3(...corePosition),
+    new THREE.Vector3(3.05, 1.16, 1.82),
+    new THREE.Vector3(-1.2, 1.16, -4.45),
+    new THREE.Vector3(5.25, 1.16, -2.42)
   ], []);
 
   useFrame((state) => {
@@ -193,8 +283,8 @@ function MovingPacket({ reduce }) {
   return (
     <group ref={packet}>
       <mesh>
-        <sphereGeometry args={[.14, 24, 12]} />
-        <meshBasicMaterial color="#7df7ff" />
+        <tetrahedronGeometry args={[.18, 1]} />
+        <meshBasicMaterial color="#7df7ff" transparent opacity={.95} />
       </mesh>
       <pointLight intensity={2.4} distance={5} color="#7df7ff" />
     </group>
@@ -204,12 +294,11 @@ function MovingPacket({ reduce }) {
 function BlockedActionMarker({ activeId }) {
   const show = activeId === "policy" || activeId === "core";
   return (
-    <group position={[-2.36, 1.18, 2.72]} scale={show ? 1 : .72}>
-      <mesh>
-        <boxGeometry args={[.72, .05, .72]} />
-        <meshBasicMaterial color="#ff6f7d" transparent opacity={show ? .64 : .24} />
-      </mesh>
-      <LabelSprite text="frontend/* blocked" color="#ff8b96" position={[0, .42, 0]} scale={[1.9, .56, 1]} />
+    <group position={[-2.7, 1.28, 3.02]} scale={show ? 1 : .72}>
+      <Line points={[[-.56, -.18, 0], [.56, .18, 0]]} color="#ff6f7d" lineWidth={show ? 4.2 : 2.2} transparent opacity={show ? .86 : .32} />
+      <Line points={[[-.56, .18, 0], [.56, -.18, 0]]} color="#ff6f7d" lineWidth={show ? 4.2 : 2.2} transparent opacity={show ? .86 : .32} />
+      <pointLight intensity={show ? 3.8 : 1.2} distance={5} color="#ff6f7d" />
+      <LabelSprite text="frontend/* blocked" color="#ff8b96" position={[0, .5, 0]} scale={[1.9, .56, 1]} />
     </group>
   );
 }
@@ -253,12 +342,12 @@ function ArchitectureScene({ chapters, progress, reduce }) {
           infiniteGrid
         />
         <Sparkles count={reduce ? 16 : 58} scale={[14, 3, 11]} size={reduce ? 1.2 : 1.8} speed={reduce ? 0 : .32} color="#73ffc9" opacity={.45} />
-        <NetworkLines activeId={activeId} />
+        <NeuralPathways activeId={activeId} />
         <MovingPacket reduce={reduce} />
         <BlockedActionMarker activeId={activeId} />
-        <CoreChip active={activeId === "core"} />
+        <BrainCore active={activeId === "core" || activeId === "policy"} reduce={reduce} />
         {nodeSpecs.map((spec) => (
-          <NodeOrb key={spec.id} spec={spec} active={activeId === "core" || activeId === spec.id} reduce={reduce} />
+          <NeuronNode key={spec.id} spec={spec} active={activeId === "core" || activeId === spec.id} reduce={reduce} />
         ))}
       </group>
     </>
