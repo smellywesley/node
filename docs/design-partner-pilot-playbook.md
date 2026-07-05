@@ -7,6 +7,8 @@ Status: operating playbook for paid design-partner pilots, not broad self-serve 
 
 Secure 3-5 serious design partners who already use or are actively evaluating AI coding agents, then prove that NODE makes those agents safer to run against real repositories.
 
+Use `docs\private-pilot-beneficiary-proposal.md` before outreach to choose the first buyer segment, qualify who benefits, and avoid broad or premature enterprise sales.
+
 This playbook keeps the commercial motion narrow:
 
 > Safe execution and audit trails for AI coding agents.
