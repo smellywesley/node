@@ -103,13 +103,32 @@ const chapters = [
     nav: "Pilot",
     layout: "program",
     scene: "program",
-    kicker: "Choose one NODE program",
-    title: "Start with one risky workflow, not a platform promise.",
-    body: "The current commercial motion is founder-led: qualify the workflow, reserve a private pilot, produce the proof packet, then invoice or attach a Stripe payment link after fit.",
+    kicker: "Pricing / pilot path",
+    title: "Choose how much control you need.",
+    body: "Start small if you need proof. Move to Pro when one team is running agents against real repos. Go Enterprise when security, roles, and audit evidence become board-level concerns.",
     plans: [
-      ["1", "Founder Proof Call", "Free", "30-minute fit check"],
-      ["2", "Private Pilot", "From S$500", "One controlled repo workflow"],
-      ["3", "Managed Control Layer", "Custom", "Hosted later, after security review"]
+      {
+        number: "1",
+        name: "Proof",
+        price: "Free",
+        copy: "30-minute founder fit check",
+        details: ["One risky workflow", "Control gap review", "Pilot go/no-go"]
+      },
+      {
+        number: "2",
+        name: "Pro",
+        price: "From S$500",
+        copy: "Private pilot for one controlled repo workflow",
+        details: ["Policy gate", "Sandbox run", "Cost cap", "Audit bundle"],
+        featured: true
+      },
+      {
+        number: "3",
+        name: "Enterprise",
+        price: "Custom",
+        copy: "Security-led rollout for teams scaling agent access",
+        details: ["Multi-repo controls", "Approvals", "Roles", "Security review"]
+      }
     ],
     camera: [2.8, 4.4, 8.8],
     target: [1.2, .35, 0]
@@ -132,8 +151,9 @@ const chapters = [
     layout: "proof",
     scene: "chart",
     kicker: "Proof beats trust",
-    title: "Teams scale agents when the evidence is exportable.",
-    body: "IBM-reported coverage of a 2,000-executive study said 77% believed AI adoption had outpaced governance, only 11% felt fully prepared for large-scale agents, and organizations averaged 54 AI-related incidents last year. NODE is built for the gap between adoption and control.",
+    title: "No proof. No scale. NODE turns every run into evidence.",
+    body: "Agent adoption is already outrunning governance. IBM-reported coverage of a 2,000-executive study said 77% believed AI adoption had outpaced governance, only 11% felt fully prepared for large-scale agents, and organizations averaged 54 AI-related incidents last year. NODE makes control visible enough for security, platform, and leadership to say yes.",
+    impact: ["54", "AI-related incidents per organization last year", "Turn incidents into controlled, replayable proof."],
     facts: [
       ["33%", "enterprise software with agentic capabilities by 2028"],
       ["15%", "day-to-day work decisions made autonomously by 2028"],
@@ -410,15 +430,18 @@ function Program({ chapter, id }) {
         <p>{chapter.body}</p>
       </header>
       <div className="program-stack" aria-label="NODE pilot options">
-        {chapter.plans.map(([number, name, price, copy], index) => (
-          <article className={`program-card program-${index}`} key={name}>
+        {chapter.plans.map((plan, index) => (
+          <article className={`program-card program-${index} ${plan.featured ? "is-featured" : ""}`} key={plan.name}>
             <div>
-              <span>{number}</span>
-              <b>{name}</b>
+              <span>{plan.number}</span>
+              <b>{plan.name}</b>
             </div>
-            <strong>{price}</strong>
-            <p>{copy}</p>
-            {index === 1 ? <a href={contactHref} target="_blank" rel="noopener noreferrer">Learn more</a> : null}
+            <strong>{plan.price}</strong>
+            <p>{plan.copy}</p>
+            <ul>
+              {plan.details.map((detail) => <li key={detail}>{detail}</li>)}
+            </ul>
+            {index === 1 ? <a href={contactHref} target="_blank" rel="noopener noreferrer">Start Pro pilot</a> : null}
           </article>
         ))}
       </div>
@@ -447,6 +470,11 @@ function Proof({ chapter, id }) {
         <h2 id={id}>{chapter.title}</h2>
       </header>
       <article className="proof-copy">
+        <div className="impact-lockup" aria-label="AI governance incident proof point">
+          <strong>{chapter.impact[0]}</strong>
+          <span>{chapter.impact[1]}</span>
+          <small>{chapter.impact[2]}</small>
+        </div>
         <p>{chapter.body}</p>
         <div className="source-line">
           <a href="https://www.itpro.com/technology/artificial-intelligence/practical-ai-the-age-of-agentic-ai" target="_blank" rel="noreferrer">Gartner forecast coverage</a>
