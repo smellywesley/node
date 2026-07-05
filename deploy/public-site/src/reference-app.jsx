@@ -19,6 +19,44 @@ const proofRun = {
   audit: "replay bundle ready"
 };
 
+const controlStages = [
+  {
+    id: "request",
+    label: "Request",
+    title: "Intent enters",
+    copy: "Fix auth timeout. Do not touch frontend.",
+    value: "plain English"
+  },
+  {
+    id: "policy",
+    label: "Policy",
+    title: "Gate decides",
+    copy: "backend/** allowed. frontend/** denied.",
+    value: "blocked path"
+  },
+  {
+    id: "sandbox",
+    label: "Sandbox",
+    title: "Work is contained",
+    copy: "Agent writes only inside the controlled worker.",
+    value: "scoped run"
+  },
+  {
+    id: "cost",
+    label: "Cost",
+    title: "Meter stays armed",
+    copy: "$2.17 spent against a $5.00 run cap.",
+    value: "$5 cap"
+  },
+  {
+    id: "audit",
+    label: "Audit",
+    title: "Proof exports",
+    copy: "Prompt, policy, denial, spend, and replay bundle.",
+    value: "bundle"
+  }
+];
+
 const chapters = [
   {
     id: "home",
@@ -55,6 +93,7 @@ const chapters = [
     title: "The request becomes a controlled process.",
     body: "NODE does not ask the model to behave. It places the model inside an operating path where each action is checked before it lands.",
     tabs: ["request", "policy", "sandbox", "cost", "audit"],
+    stages: controlStages,
     run: proofRun,
     camera: [-1.5, 3.8, 7.2],
     target: [0, .45, 0]
@@ -267,7 +306,7 @@ function ChapterFrame({ chapter, index, active }) {
       <motion.div
         className="section-inner"
         initial={false}
-        animate={{ opacity: active ? 1 : .48, y: active ? 0 : 26, scale: active ? 1 : .985 }}
+        animate={{ opacity: active ? 1 : .78, y: active ? 0 : 26, scale: active ? 1 : .985 }}
         transition={{ duration: .72, ease: [.16, 1, .3, 1] }}
       >
         {content}
@@ -333,16 +372,29 @@ function Console({ chapter, id }) {
       <div className="tab-row" aria-label="Control sequence">
         {chapter.tabs.map((tab, index) => <span className={index === 1 ? "is-selected" : ""} key={tab}>{tab}</span>)}
       </div>
+      <div className="execution-map" aria-label="NODE execution path">
+        <div className="execution-beam" aria-hidden="true">
+          {chapter.stages.map((stage) => <i className={`beam-node node-${stage.id}`} key={stage.id} />)}
+        </div>
+        {chapter.stages.map((stage, index) => (
+          <article className={`stage-lens stage-${stage.id}`} key={stage.id}>
+            <span>{String(index + 1).padStart(2, "0")} / {stage.label}</span>
+            <b>{stage.title}</b>
+            <p>{stage.copy}</p>
+            <small>{stage.value}</small>
+          </article>
+        ))}
+      </div>
       <article className="run-terminal">
         <div className="terminal-top">
           <span>NODE RUN</span>
           <b>{chapter.run.status}</b>
         </div>
-        <code>request: "{chapter.run.request}"</code>
-        <code>repo: {chapter.run.repo}</code>
-        <code>policy: {chapter.run.policy}</code>
-        <code>cost: {chapter.run.spend}</code>
-        <code>audit: {chapter.run.audit}</code>
+        <code><span>request</span>"{chapter.run.request}"</code>
+        <code><span>repo</span>{chapter.run.repo}</code>
+        <code className="decision-deny"><span>policy</span>{chapter.run.policy}</code>
+        <code><span>cost</span>{chapter.run.spend}</code>
+        <code><span>audit</span>{chapter.run.audit}</code>
       </article>
     </div>
   );

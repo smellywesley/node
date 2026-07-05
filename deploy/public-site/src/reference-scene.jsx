@@ -227,6 +227,91 @@ function Packet({ points, reduce }) {
   );
 }
 
+const runNodes = [
+  { id: "request", label: "Request", position: [-4.8, .25, -1.2], color: "#f7fffb" },
+  { id: "policy", label: "Policy Gate", position: [-2.65, 1.05, -.2], color: "#58ffb9" },
+  { id: "control", label: "NODE Control", position: [0, .58, .1], color: "#58ffb9" },
+  { id: "sandbox", label: "Sandbox", position: [2.55, .95, -.45], color: "#dffaf2" },
+  { id: "cost", label: "Cost Meter", position: [4.15, .12, -1.25], color: "#bfffe9" },
+  { id: "audit", label: "Audit Bundle", position: [5.45, 1.12, -.05], color: "#ffffff" }
+];
+
+function getRunNodePath() {
+  return new THREE.CatmullRomCurve3(runNodes.map((node) => new THREE.Vector3(...node.position))).getPoints(140);
+}
+
+function RunNode({ node, index, active, reduce }) {
+  const group = useRef(null);
+  const color = new THREE.Color(node.color);
+
+  useFrame((state) => {
+    if (!group.current || reduce) return;
+    const pulse = active ? 1 + Math.sin(state.clock.elapsedTime * 2.2 + index) * .06 : .82;
+    group.current.scale.lerp(new THREE.Vector3(pulse, pulse, pulse), .1);
+  });
+
+  return (
+    <group ref={group} position={node.position}>
+      <mesh>
+        <icosahedronGeometry args={[index === 2 ? .34 : .23, 2]} />
+        <meshPhysicalMaterial color="#061411" emissive={color} emissiveIntensity={active ? 1.4 : .38} roughness={.2} metalness={.38} clearcoat={.8} />
+      </mesh>
+      <mesh scale={[1.85, 1.85, 1.85]}>
+        <sphereGeometry args={[index === 2 ? .34 : .23, 24, 12]} />
+        <meshBasicMaterial color={node.color} transparent opacity={active ? .12 : .04} />
+      </mesh>
+      <pointLight color={node.color} intensity={active ? 2.6 : .5} distance={active ? 6 : 3} />
+      <Label text={node.label} position={[0, .52, 0]} scale={[index === 2 ? 1.35 : 1.05, .34, 1]} color={node.color} />
+    </group>
+  );
+}
+
+function HandoffPacket({ points, active, reduce }) {
+  const packet = useRef(null);
+
+  useFrame((state) => {
+    if (!packet.current || reduce) return;
+    const speed = active ? .16 : .06;
+    const t = (state.clock.elapsedTime * speed) % 1;
+    const index = Math.min(points.length - 1, Math.floor(t * points.length));
+    packet.current.position.copy(points[index]);
+    packet.current.rotation.y += .03;
+  });
+
+  return (
+    <group ref={packet}>
+      <mesh>
+        <tetrahedronGeometry args={[.14, 1]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={active ? .96 : .38} />
+      </mesh>
+      <pointLight color="#ffffff" intensity={active ? 5.8 : 1.2} distance={6} />
+    </group>
+  );
+}
+
+function HandoffGraph({ activeScene, reduce }) {
+  const group = useRef(null);
+  const path = useMemo(() => getRunNodePath(), []);
+  const active = activeScene === "ribbon";
+
+  useFrame((state) => {
+    if (!group.current || reduce) return;
+    group.current.position.y = Math.sin(state.clock.elapsedTime * .42) * .08;
+    group.current.rotation.y = Math.sin(state.clock.elapsedTime * .14) * .035;
+  });
+
+  return (
+    <group ref={group} position={[0, -.2, -.25]} scale={active ? 1 : .76}>
+      <Line points={path} color="#ffffff" lineWidth={active ? 4 : 1.4} transparent opacity={active ? .28 : .08} />
+      <Line points={path} color="#58ffb9" lineWidth={active ? 2.25 : .82} transparent opacity={active ? .78 : .2} />
+      <HandoffPacket points={path} active={active} reduce={reduce} />
+      {runNodes.map((node, index) => (
+        <RunNode key={node.id} node={node} index={index} active={active || index === 2} reduce={reduce} />
+      ))}
+    </group>
+  );
+}
+
 function ConsolePlate({ activeScene }) {
   const active = activeScene === "console" || activeScene === "program";
   return (
@@ -301,6 +386,7 @@ function SceneWorld({ chapters, progress, activeIndex, reduce }) {
       <Sparkles count={reduce ? 16 : 72} scale={[15, 6, 9]} size={1.25} speed={reduce ? 0 : .24} color="#f2fffb" opacity={.36} />
       <MathField reduce={reduce} />
       <RibbonField activeScene={activeScene} reduce={reduce} />
+      <HandoffGraph activeScene={activeScene} reduce={reduce} />
       <WireBox position={[-2.7, .15, -1.2]} scale={1.24} opacity={activeScene === "wire" ? .66 : .22} />
       <ConsolePlate activeScene={activeScene} />
       <ProgramGhosts activeScene={activeScene} />
