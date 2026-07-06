@@ -26,7 +26,9 @@ Pricing path:
 
 ## Primary call to action
 
-Book founder proof call or reserve pilot slot: https://calendly.com/wesleyong2004/node-pilot-fit-check
+Answer the pilot-fit questions before booking the founder proof call or reserving a pilot slot: https://calendly.com/wesleyong2004/node-pilot-fit-check
+
+The site qualifies buyers before Calendly by asking which coding agents already touch repositories, what action would be dangerous without approval, what proof would make a pilot worthwhile, whether the team can run a local/private Docker and BYOK proof, and whether the team can become a paid pilot if fit is clear.
 
 ## Who NODE is for
 

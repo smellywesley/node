@@ -9,6 +9,30 @@ gsap.registerPlugin(ScrollTrigger);
 const Scene = lazy(() => import("./reference-scene.jsx"));
 
 const CONTACT_URL = "https://calendly.com/wesleyong2004/node-pilot-fit-check";
+const DEFAULT_INTAKE_EMAIL = "";
+
+const intakeDefaults = {
+  name: "",
+  email: "",
+  company: "",
+  agent: "",
+  riskyAction: "",
+  proofNeed: "",
+  localProof: "yes",
+  budget: "yes"
+};
+
+const localProofLabels = {
+  yes: "Can run a local/private Docker + BYOK proof",
+  maybe: "May need help running local/private proof",
+  no: "Requires hosted/SaaS before evaluation"
+};
+
+const budgetLabels = {
+  yes: "Can pay for a focused pilot if fit is clear",
+  maybe: "Budget is possible but sponsor is not confirmed",
+  no: "Not ready to pay for a pilot yet"
+};
 
 const proofRun = {
   request: "Fix auth timeout. Do not touch frontend.",
@@ -194,6 +218,52 @@ function safeContactHref() {
   }
 }
 
+function safeIntakeEmail() {
+  const config = window.NODE_PAYMENT_LINKS || {};
+  const email = typeof config.contactEmail === "string" ? config.contactEmail.trim() : DEFAULT_INTAKE_EMAIL;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : "";
+}
+
+function scorePilotFit(values) {
+  let score = 0;
+  if (values.agent.trim().length > 8) score += 2;
+  if (values.riskyAction.trim().length > 12) score += 2;
+  if (values.proofNeed.trim().length > 10) score += 2;
+  if (values.localProof === "yes") score += 2;
+  if (values.localProof === "maybe") score += 1;
+  if (values.budget === "yes") score += 2;
+  if (values.budget === "maybe") score += 1;
+
+  const label = score >= 9 ? "Strong pilot candidate" : score >= 6 ? "Needs founder review" : "Not ready yet";
+  return { score, label };
+}
+
+function buildIntakeSummary(values) {
+  const fit = scorePilotFit(values);
+  return [
+    `Pilot fit: ${fit.label} (${fit.score}/10)`,
+    "",
+    `Name: ${values.name || "Not provided"}`,
+    `Email: ${values.email || "Not provided"}`,
+    `Company/team: ${values.company || "Not provided"}`,
+    "",
+    `Coding agents in use: ${values.agent || "Not provided"}`,
+    `Riskiest agent action: ${values.riskyAction || "Not provided"}`,
+    `Proof needed: ${values.proofNeed || "Not provided"}`,
+    `Local/private proof readiness: ${localProofLabels[values.localProof]}`,
+    `Pilot budget readiness: ${budgetLabels[values.budget]}`,
+    "",
+    "Requested next step: NODE pilot fit check"
+  ].join("\n");
+}
+
+function buildMailtoHref(values) {
+  const to = safeIntakeEmail();
+  if (!to) return "";
+  const subject = `NODE pilot intake: ${values.company || values.name || "new fit check"}`;
+  return `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(buildIntakeSummary(values))}`;
+}
+
 function useJourneyProgress(reduce) {
   const [progress, setProgress] = useState(0);
 
@@ -279,7 +349,7 @@ function scrollToChapter(event, id) {
   window.history.pushState(null, "", `#${id}`);
 }
 
-function TopNav({ activeIndex }) {
+function TopNav({ activeIndex, onPilotClick }) {
   const contactHref = safeContactHref();
   return (
     <>
@@ -301,7 +371,7 @@ function TopNav({ activeIndex }) {
           ))}
         </div>
         <a className="fx-login" href="#faq" onClick={(event) => scrollToChapter(event, "faq")}>FAQ</a>
-        <a className="fx-cta" data-contact-link data-live-label="Start a pilot" data-fallback-label="Start a pilot" data-contact-subject="NODE Pilot Fit Check" data-contact-body="I want to review whether NODE is a fit for a paid private pilot." href={contactHref} target="_blank" rel="noopener noreferrer">
+        <a className="fx-cta" data-contact-link data-live-label="Start a pilot" data-fallback-label="Start a pilot" data-contact-subject="NODE Pilot Fit Check" data-contact-body="I want to review whether NODE is a fit for a paid private pilot." href={contactHref} target="_blank" rel="noopener noreferrer" onClick={onPilotClick}>
           Start a pilot
         </a>
       </nav>
@@ -309,16 +379,16 @@ function TopNav({ activeIndex }) {
   );
 }
 
-function ChapterFrame({ chapter, index, active }) {
+function ChapterFrame({ chapter, index, active, onPilotClick }) {
   const id = `${chapter.id}-title`;
   const content = {
-    hero: <Hero chapter={chapter} id={id} />,
+    hero: <Hero chapter={chapter} id={id} onPilotClick={onPilotClick} />,
     split: <Split chapter={chapter} id={id} />,
     console: <Console chapter={chapter} id={id} />,
-    program: <Program chapter={chapter} id={id} />,
+    program: <Program chapter={chapter} id={id} onPilotClick={onPilotClick} />,
     ribbon: <Ribbon chapter={chapter} id={id} />,
     proof: <Proof chapter={chapter} id={id} />,
-    faq: <FAQ chapter={chapter} id={id} />
+    faq: <FAQ chapter={chapter} id={id} onPilotClick={onPilotClick} />
   }[chapter.layout];
 
   return (
@@ -346,7 +416,7 @@ function GlowTitle({ lines, id }) {
   );
 }
 
-function Hero({ chapter, id }) {
+function Hero({ chapter, id, onPilotClick }) {
   const contactHref = safeContactHref();
   return (
     <div className="hero-copy">
@@ -357,7 +427,7 @@ function Hero({ chapter, id }) {
         {chapter.micro.map((item) => <span key={item}>{item}</span>)}
       </div>
       <div className="hero-actions">
-        <a className="fx-button primary" data-contact-link data-live-label="Start pilot fit check" data-fallback-label="Start pilot fit check" data-contact-subject="NODE Pilot Fit Check" data-contact-body="I want to review whether NODE is a fit for a paid private pilot." href={contactHref} target="_blank" rel="noopener noreferrer">Start pilot fit check</a>
+        <a className="fx-button primary" data-contact-link data-live-label="Start pilot fit check" data-fallback-label="Start pilot fit check" data-contact-subject="NODE Pilot Fit Check" data-contact-body="I want to review whether NODE is a fit for a paid private pilot." href={contactHref} target="_blank" rel="noopener noreferrer" onClick={onPilotClick}>Start pilot fit check</a>
         <a className="fx-button ghost" href="#control" onClick={(event) => scrollToChapter(event, "control")}>See the control path</a>
       </div>
     </div>
@@ -420,7 +490,7 @@ function Console({ chapter, id }) {
   );
 }
 
-function Program({ chapter, id }) {
+function Program({ chapter, id, onPilotClick }) {
   const contactHref = safeContactHref();
   return (
     <div className="program-wrap">
@@ -441,7 +511,7 @@ function Program({ chapter, id }) {
             <ul>
               {plan.details.map((detail) => <li key={detail}>{detail}</li>)}
             </ul>
-            {index === 1 ? <a href={contactHref} target="_blank" rel="noopener noreferrer">Start Pro pilot</a> : null}
+            {index === 1 ? <a href={contactHref} target="_blank" rel="noopener noreferrer" onClick={onPilotClick}>Start Pro pilot</a> : null}
           </article>
         ))}
       </div>
@@ -493,7 +563,7 @@ function Proof({ chapter, id }) {
   );
 }
 
-function FAQ({ chapter, id }) {
+function FAQ({ chapter, id, onPilotClick }) {
   const contactHref = safeContactHref();
   return (
     <div className="faq-wrap">
@@ -510,7 +580,131 @@ function FAQ({ chapter, id }) {
           </details>
         ))}
       </div>
-      <a className="fx-button primary final-cta" href={contactHref} target="_blank" rel="noopener noreferrer">Book the pilot fit check</a>
+      <a className="fx-button primary final-cta" href={contactHref} target="_blank" rel="noopener noreferrer" onClick={onPilotClick}>Book the pilot fit check</a>
+    </div>
+  );
+}
+
+function PilotIntake({ open, onClose, contactHref }) {
+  const [values, setValues] = useState(intakeDefaults);
+  const [submitted, setSubmitted] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const mailtoHref = buildMailtoHref(values);
+  const fit = scorePilotFit(values);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    setSubmitted(false);
+    setCopied(false);
+    document.body.classList.add("intake-open");
+    return () => document.body.classList.remove("intake-open");
+  }, [open]);
+
+  if (!open) return null;
+
+  function updateField(event) {
+    const { name, value } = event.target;
+    setValues((current) => ({ ...current, [name]: value }));
+  }
+
+  function submitIntake(event) {
+    event.preventDefault();
+    setSubmitted(true);
+    window.setTimeout(() => document.querySelector(".intake-result")?.scrollIntoView({ block: "nearest" }), 0);
+  }
+
+  async function copySummary() {
+    const summary = buildIntakeSummary(values);
+    try {
+      await navigator.clipboard?.writeText(summary);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  return (
+    <div className="intake-shell" role="dialog" aria-modal="true" aria-labelledby="intake-title">
+      <button className="intake-backdrop" type="button" aria-label="Close pilot intake" onClick={onClose} />
+      <article className="intake-panel">
+        <button className="intake-close" type="button" aria-label="Close pilot intake" onClick={onClose}>x</button>
+        <div className="intake-head">
+          <p className="mini-kicker">Before Calendly</p>
+          <h2 id="intake-title">Tell us what the pilot must prove.</h2>
+          <p>These answers score fit before the call and prepare the exact proof you need.</p>
+        </div>
+
+        <form className="intake-form" onSubmit={submitIntake}>
+          <div className="field-grid">
+            <label>
+              <span>Your name</span>
+              <input name="name" value={values.name} onChange={updateField} autoComplete="name" required />
+            </label>
+            <label>
+              <span>Email</span>
+              <input name="email" value={values.email} onChange={updateField} type="email" autoComplete="email" required />
+            </label>
+            <label>
+              <span>Company / team</span>
+              <input name="company" value={values.company} onChange={updateField} autoComplete="organization" required />
+            </label>
+            <label>
+              <span>Which coding agents are touching repos?</span>
+              <textarea name="agent" value={values.agent} onChange={updateField} placeholder="Cursor, Claude Code, Copilot agents, Devin, internal repo agent..." required />
+            </label>
+            <label>
+              <span>What action would be dangerous without approval?</span>
+              <textarea name="riskyAction" value={values.riskyAction} onChange={updateField} placeholder="Write outside backend, touch secrets, change deployment config..." required />
+            </label>
+            <label>
+              <span>What proof would make this worth a pilot?</span>
+              <textarea name="proofNeed" value={values.proofNeed} onChange={updateField} placeholder="Denied write, approval gate, cost cap, audit bundle, security review artifact..." required />
+            </label>
+          </div>
+
+          <fieldset>
+            <legend>Can you run a local/private Docker + BYOK proof?</legend>
+            {Object.entries(localProofLabels).map(([value, label]) => (
+              <label className="radio-row" key={value}>
+                <input type="radio" name="localProof" value={value} checked={values.localProof === value} onChange={updateField} />
+                <span>{label}</span>
+              </label>
+            ))}
+          </fieldset>
+
+          <fieldset>
+            <legend>If fit is clear, can this become a paid pilot?</legend>
+            {Object.entries(budgetLabels).map(([value, label]) => (
+              <label className="radio-row" key={value}>
+                <input type="radio" name="budget" value={value} checked={values.budget === value} onChange={updateField} />
+                <span>{label}</span>
+              </label>
+            ))}
+          </fieldset>
+
+          <div className="fit-readout" aria-live="polite">
+            <strong>{fit.label}</strong>
+            <span>{fit.score}/10 fit score</span>
+          </div>
+
+          <button className="fx-button primary intake-submit" type="submit">Review answers</button>
+        </form>
+
+        {submitted ? (
+          <div className="intake-result">
+            <p>Send this intake first, then book Calendly. That keeps the call focused on your exact control proof.</p>
+            <div className="intake-actions">
+              {mailtoHref ? (
+                <a className="fx-button primary" href={mailtoHref} onClick={copySummary}>Email answers to NODE</a>
+              ) : (
+                <button className="fx-button primary" type="button" onClick={copySummary}>{copied ? "Copied answers" : "Copy answers"}</button>
+              )}
+              <a className="fx-button ghost" href={contactHref} target="_blank" rel="noopener noreferrer" onClick={onClose}>Continue to Calendly</a>
+            </div>
+            {!mailtoHref ? <small>Set NODE_PUBLIC_CONTACT_EMAIL on Render to enable the prefilled email step automatically.</small> : null}
+          </div>
+        ) : null}
+      </article>
     </div>
   );
 }
@@ -533,6 +727,8 @@ function App() {
   const reduce = useReducedMotion();
   const progress = useJourneyProgress(reduce);
   const activeIndex = useActiveChapter();
+  const [intakeOpen, setIntakeOpen] = useState(false);
+  const contactHref = safeContactHref();
   useCursorAura();
 
   useEffect(() => {
@@ -551,12 +747,19 @@ function App() {
       <div className="fx-noise" aria-hidden="true" />
       <div className="fx-vignette" aria-hidden="true" />
       <div className="fx-cursor" aria-hidden="true" />
-      <TopNav activeIndex={activeIndex} />
+      <TopNav activeIndex={activeIndex} onPilotClick={(event) => {
+        event.preventDefault();
+        setIntakeOpen(true);
+      }} />
       <main className="reference-story">
         {chapters.map((chapter, index) => (
-          <ChapterFrame chapter={chapter} index={index} active={index === activeIndex} key={chapter.id} />
+          <ChapterFrame chapter={chapter} index={index} active={index === activeIndex} key={chapter.id} onPilotClick={(event) => {
+            event.preventDefault();
+            setIntakeOpen(true);
+          }} />
         ))}
       </main>
+      <PilotIntake open={intakeOpen} onClose={() => setIntakeOpen(false)} contactHref={contactHref} />
       <SeoBand />
     </div>
   );

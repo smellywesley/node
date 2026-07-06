@@ -39,7 +39,7 @@ It intentionally does not include:
 
 ## Before going live
 
-- Add the real sales/founder email as `NODE_PUBLIC_CONTACT_EMAIL`, or add a reviewed intake link as `NODE_PUBLIC_PILOT_CONTACT_URL` in the hosting provider.
+- Add the real sales/founder email as `NODE_PUBLIC_CONTACT_EMAIL`, or add a reviewed intake link as `NODE_PUBLIC_PILOT_CONTACT_URL` in the hosting provider. The React pilot-fit gate uses `NODE_PUBLIC_CONTACT_EMAIL` to prepare the buyer's answers for email before Calendly; if it is empty, the site still lets the buyer copy the answers and continue to Calendly.
 - Connect the production domain in the hosting provider.
 - If Stripe Payment Links exist, add the hosted `https://buy.stripe.com/...` URL as `NODE_PUBLIC_PILOT_PAYMENT_LINK`, `NODE_PUBLIC_PRO_PAYMENT_LINK`, or `NODE_PUBLIC_ENTERPRISE_PAYMENT_LINK`.
 - After recording the buyer-safe proof, add it as `NODE_PUBLIC_PROOF_DEMO_URL`.
@@ -64,6 +64,8 @@ window.NODE_PAYMENT_LINKS = {
 ```
 
 Leave a checkout value empty to keep the intake-link or email fallback. Do not claim paid-pilot readiness with checkout values, `pilotContactUrl`, and `contactEmail` all empty; `npm run test:cta` is the guard for that. Do not add Stripe secret keys, webhook secrets, operator tokens, raw checkout session JSON, or internal billing API URLs to this file.
+
+The visible pilot CTAs should ask qualification questions before Calendly. The current static implementation scores fit in the browser, prepares a summary email when `contactEmail` is configured, and then lets the buyer continue to the Calendly URL. Use a reviewed Tally, Typeform, Google Form, or server-side endpoint later if silent form delivery is required.
 
 For hosted builds, prefer environment variables so the repo does not need to carry live sales links:
 
