@@ -253,7 +253,7 @@ Use it for the first live deployment while keeping the AgentOS daemon on loopbac
 .\scripts\package.cmd
 ```
 
-Release readiness lives in `docs\release-readiness.md`; deployment and scaling live in `docs\deployment-and-scaling.md`; billing and metering live in `docs\billing-and-metering.md`; the local-first threat model lives in `docs\security-threat-model.md`; paid pilot operations live in `docs\design-partner-pilot-playbook.md`; uninstall/reset guidance lives in `docs\uninstall-and-reset.md`. Run `scripts\security-audit.cmd` and `scripts\test-pilot-readiness.cmd` before publishing, deploying, or demoing from a shared branch.
+Release readiness lives in `docs\release-readiness.md`; deployment and scaling live in `docs\deployment-and-scaling.md`; billing and metering live in `docs\billing-and-metering.md`; Stripe pilot payment setup lives in `docs\stripe-pilot-payment-setup.md`; the local-first threat model lives in `docs\security-threat-model.md`; paid pilot operations live in `docs\design-partner-pilot-playbook.md`; uninstall/reset guidance lives in `docs\uninstall-and-reset.md`. Run `scripts\security-audit.cmd` and `scripts\test-pilot-readiness.cmd` before publishing, deploying, or demoing from a shared branch.
 
 Architecture decisions and session memory live under `data/`. Use the commands
 in `.Codex/commands/` to reconstruct and close persistent work sessions.
@@ -281,3 +281,4 @@ The matching Codex commands are `/instinct-status`, `/evolve`,
 ## License
 
 NODE is released under the MIT License. See `LICENSE` for details.
+

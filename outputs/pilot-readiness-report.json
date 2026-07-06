@@ -1,0 +1,128 @@
+﻿{
+    "generated_at":  "2026-07-06T09:39:04Z",
+    "status":  "BLOCKED",
+    "required_blockers":  4,
+    "optional_blockers":  0,
+    "checks":  [
+                   {
+                       "area":  "Public CTA",
+                       "name":  "Generated env CTA has real pilot path",
+                       "required":  true,
+                       "pass":  false,
+                       "evidence":  "generated_from_env=True; strict_cta_exit=1; contact_email_configured=False; pilot_contact_url_configured=False; stripe_payment_link_configured=False",
+                       "fix":  "Set NODE_PUBLIC_CONTACT_EMAIL, NODE_PUBLIC_PILOT_CONTACT_URL, and/or NODE_PUBLIC_PILOT_PAYMENT_LINK in the hosting env, then run npm run configure:cta and npm run test:cta before claiming paid-pilot readiness."
+                   },
+                   {
+                       "area":  "Public CTA",
+                       "name":  "Render build uses static deploy-safe CTA check",
+                       "required":  true,
+                       "pass":  true,
+                       "evidence":  "strict and deploy CTA scripts plus Render static dist build present=True",
+                       "fix":  "Keep configure:cta, test:cta:deploy, and build in the Render static-site build command. Use npm run test:cta separately for paid-pilot readiness."
+                   },
+                   {
+                       "area":  "Public CTA",
+                       "name":  "Netlify config does not bypass static build",
+                       "required":  true,
+                       "pass":  true,
+                       "evidence":  "Netlify dist publish and deploy CTA build chain present=True",
+                       "fix":  "Keep Netlify publishing deploy/public-site/dist through the same deploy-safe build chain."
+                   },
+                   {
+                       "area":  "Public CTA",
+                       "name":  "Vercel config does not bypass static build",
+                       "required":  true,
+                       "pass":  true,
+                       "evidence":  "Vercel dist output and deploy CTA build chain present=True",
+                       "fix":  "Keep Vercel publishing deploy/public-site/dist through the same deploy-safe build chain."
+                   },
+                   {
+                       "area":  "Buyer Demo",
+                       "name":  "Mac/Linux demo scripts exist",
+                       "required":  true,
+                       "pass":  true,
+                       "evidence":  "build.sh, demo-pay-ready.sh, and security-audit.sh present=True",
+                       "fix":  "Add or restore Linux/macOS shell wrappers for the buyer demo."
+                   },
+                   {
+                       "area":  "Buyer Demo",
+                       "name":  "Proof packet generator exists",
+                       "required":  true,
+                       "pass":  true,
+                       "evidence":  "scripts\\New-PayReadyProofPacket.ps1 present=True",
+                       "fix":  "Restore scripts\\New-PayReadyProofPacket.ps1 and scripts\\new-pay-ready-proof-packet.cmd."
+                   },
+                   {
+                       "area":  "Buyer Demo",
+                       "name":  "Fresh pay-ready proof packet passes",
+                       "required":  true,
+                       "pass":  true,
+                       "evidence":  "status_pass=True; audit_exists=True; transcript_exists=True; approved_artifact_exists=True",
+                       "fix":  "Rerun .\\scripts\\new-pay-ready-proof-packet.cmd with Docker running and fix any failed proof checks."
+                   },
+                   {
+                       "area":  "Buyer Demo",
+                       "name":  "Public proof demo URL is configured",
+                       "required":  true,
+                       "pass":  false,
+                       "evidence":  "proof_demo_url_configured=False",
+                       "fix":  "Record the five-minute proof and set NODE_PUBLIC_PROOF_DEMO_URL to a reviewed public video URL."
+                   },
+                   {
+                       "area":  "Buyer Demo",
+                       "name":  "Recorded proof demo brief exists",
+                       "required":  true,
+                       "pass":  false,
+                       "evidence":  "recording_brief_pass=False",
+                       "fix":  "Add outputs\\pay-ready-proof-recording.md with Status: PASS, recording URL, date, owner, and packet hash after recording."
+                   },
+                   {
+                       "area":  "Backend Runtime",
+                       "name":  "Docker engine reachable for local agent runs",
+                       "required":  true,
+                       "pass":  false,
+                       "evidence":  "Docker installed but engine unreachable:  failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.",
+                       "fix":  "Start Docker Desktop, wait until it is running, then rerun .\\bin\\agentos.exe doctor --support."
+                   },
+                   {
+                       "area":  "Backend Runtime",
+                       "name":  "Backend load script exists",
+                       "required":  true,
+                       "pass":  true,
+                       "evidence":  "scripts\\Measure-BackendLoad.ps1 present=True",
+                       "fix":  "Restore scripts\\Measure-BackendLoad.ps1 and scripts\\measure-backend-load.cmd."
+                   },
+                   {
+                       "area":  "Backend Runtime",
+                       "name":  "Backend load report has all runs succeeded",
+                       "required":  true,
+                       "pass":  true,
+                       "evidence":  "requested_runs=4; max_parallel=2; terminal=4; succeeded=4; failed=0",
+                       "fix":  "Rerun .\\scripts\\measure-backend-load.cmd -Count 4 -MaxParallel 2 with Docker running and investigate failed runs."
+                   },
+                   {
+                       "area":  "Security",
+                       "name":  "Threat model is documented",
+                       "required":  true,
+                       "pass":  true,
+                       "evidence":  "docs\\security-threat-model.md present=True",
+                       "fix":  "Restore the local-first threat model and hosted-readiness blockers."
+                   },
+                   {
+                       "area":  "Security",
+                       "name":  "Race-sensitive backend packages run in CI",
+                       "required":  true,
+                       "pass":  true,
+                       "evidence":  "CI race step present=True",
+                       "fix":  "Keep go test -race for internal/core, internal/store, and internal/api on Linux CI."
+                   },
+                   {
+                       "area":  "Sales",
+                       "name":  "Design partner pilot playbook exists",
+                       "required":  true,
+                       "pass":  true,
+                       "evidence":  "docs\\design-partner-pilot-playbook.md present=True",
+                       "fix":  "Restore the pilot playbook before selling design-partner pilots."
+                   }
+               ]
+}
