@@ -21,7 +21,7 @@ NODE is currently sold as a founder-led private/local paid pilot. The public sit
 
 Pricing path:
 - Founder Proof Call: free 30-minute workflow review.
-- Private Pilot: typically from S$500-S$2,000 for one controlled agent workflow, policy boundary setup, spend limit configuration, approval gate, audit bundle, and founder-led setup.
+- Private Pilot: S$750 entry proof for one controlled agent workflow, policy boundary setup, spend limit configuration, approval gate, audit bundle, and founder-led setup. Larger enterprise rollout is custom after scope review.
 - Managed Platform: custom and later-stage after hosted controls are ready.
 
 ## Primary call to action

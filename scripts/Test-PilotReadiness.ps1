@@ -101,17 +101,40 @@ function Test-PaymentConfig {
         }
     }
 
-    $raw = Get-Content -LiteralPath $generatedPath -Raw
-    $hasContactEmail = $raw -match '"contactEmail"\s*:\s*"[^"]+@[^"]+\.[^"]+"'
-    $hasPilotContactUrl = $raw -match '"pilotContactUrl"\s*:\s*"https://(calendly\.com|www\.calendly\.com|tally\.so|www\.tally\.so|form\.typeform\.com|forms\.gle|docs\.google\.com)/[^"]+"'
-    $hasStripeLink = $raw -match '"pilot"\s*:\s*"https://buy\.stripe\.com/[^"]+"'
-    $configured = ($hasContactEmail -or $hasPilotContactUrl -or $hasStripeLink) -and ($checkExit -eq 0)
-    $evidence = "generated_from_env=True; strict_cta_exit=$checkExit; contact_email_configured=$hasContactEmail; pilot_contact_url_configured=$hasPilotContactUrl; stripe_payment_link_configured=$hasStripeLink"
+    function Read-CtaState([string]$ConfigPath) {
+        $rawConfig = Get-Content -LiteralPath $ConfigPath -Raw
+        return [pscustomobject]@{
+            hasContactEmail = $rawConfig -match '"contactEmail"\s*:\s*"[^"]+@[^"]+\.[^"]+"'
+            hasPilotContactUrl = $rawConfig -match '"pilotContactUrl"\s*:\s*"https://(calendly\.com|www\.calendly\.com|tally\.so|www\.tally\.so|form\.typeform\.com|forms\.gle|docs\.google\.com)/[^"]+"'
+            hasStripeLink = $rawConfig -match '"pilot"\s*:\s*"https://buy\.stripe\.com/[^"]+"'
+        }
+    }
+
+    $generatedState = Read-CtaState $generatedPath
+    $committedPath = Resolve-RepoPath "deploy\public-site\public\payment-links.js"
+    $committedState = if (Test-Path -LiteralPath $committedPath) { Read-CtaState $committedPath } else { $null }
+
+    $committedCheckExit = 1
+    if ($committedState) {
+        $previous = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        try {
+            & node "scripts\check-cta-config.mjs" "public\payment-links.js" | Out-Null
+            $committedCheckExit = $LASTEXITCODE
+        } finally {
+            $ErrorActionPreference = $previous
+        }
+    }
+
+    $generatedConfigured = ($generatedState.hasContactEmail -or $generatedState.hasPilotContactUrl -or $generatedState.hasStripeLink) -and ($checkExit -eq 0)
+    $committedConfigured = $committedState -and (($committedState.hasContactEmail -or $committedState.hasPilotContactUrl -or $committedState.hasStripeLink) -and ($committedCheckExit -eq 0))
+    $configured = $generatedConfigured -or $committedConfigured
+    $evidence = "generated_from_env=True; strict_cta_exit=$checkExit; contact_email_configured=$($generatedState.hasContactEmail); pilot_contact_url_configured=$($generatedState.hasPilotContactUrl); stripe_payment_link_configured=$($generatedState.hasStripeLink); committed_cta_exit=$committedCheckExit; committed_contact_email_configured=$($committedState.hasContactEmail); committed_pilot_contact_url_configured=$($committedState.hasPilotContactUrl); committed_stripe_payment_link_configured=$($committedState.hasStripeLink)"
 
     return [pscustomobject]@{
         pass = $configured
         evidence = $evidence
-        fix = "Set NODE_PUBLIC_CONTACT_EMAIL, NODE_PUBLIC_PILOT_CONTACT_URL, and/or NODE_PUBLIC_PILOT_PAYMENT_LINK in the hosting env, then run npm run configure:cta and npm run test:cta before claiming paid-pilot readiness."
+        fix = "Set NODE_PUBLIC_CONTACT_EMAIL, NODE_PUBLIC_PILOT_CONTACT_URL, and/or NODE_PUBLIC_PILOT_PAYMENT_LINK in the hosting env or committed public CTA config, then run npm run configure:cta and npm run test:cta before claiming paid-pilot readiness."
     }
 }
 
@@ -206,7 +229,7 @@ try {
 } finally {
     Pop-Location
 }
-Add-ReadinessCheck "Public CTA" "Generated env CTA has real pilot path" $paymentConfig.pass $paymentConfig.evidence $paymentConfig.fix
+Add-ReadinessCheck "Public CTA" "Reviewed public CTA has real pilot path" $paymentConfig.pass $paymentConfig.evidence $paymentConfig.fix
 
 $ctaGuard = (Test-FileContains "deploy\public-site\package.json" '"test:cta"') -and
     (Test-FileContains "deploy\public-site\package.json" '"test:cta:deploy"') -and

@@ -181,7 +181,7 @@ const chapters = [
     focus: "core",
     proof: [
       ["Free", "30-minute founder proof call."],
-      ["Pilot", "From S$500-S$2,000 for a controlled workflow."],
+      ["Pilot", "S$750 entry proof for one controlled workflow."],
       ["Later", "Managed platform once hosted controls are ready."],
       ["Payment", "Reserve slot, request invoice, or use a payment link after fit."]
     ],
@@ -224,7 +224,7 @@ const pricingPlans = [
   },
   {
     name: "Private Pilot",
-    price: "From S$500",
+    price: "S$750",
     copy: "Founder-led local/private setup for teams testing coding agents on real repositories.",
     items: ["One controlled repo workflow", "Policy boundary setup", "Spend cap and approval gate", "Audit bundle"],
     featured: true,
@@ -368,7 +368,7 @@ function PricingCards() {
         <b>Payment flow</b>
         <span>Book call</span>
         <span>Request invoice</span>
-        <span>Stripe payment link placeholder</span>
+        <span>Stripe payment link after fit</span>
       </div>
     </div>
   );

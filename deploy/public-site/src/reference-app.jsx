@@ -141,8 +141,8 @@ const chapters = [
       {
         number: "2",
         name: "Pro",
-        price: "From S$500",
-        copy: "Private pilot for one controlled repo workflow",
+        price: "S$750",
+        copy: "Entry private pilot for one controlled repo workflow",
         details: ["Policy gate", "Sandbox run", "Cost cap", "Audit bundle"],
         featured: true
       },

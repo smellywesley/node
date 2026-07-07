@@ -22,14 +22,14 @@ Use this first.
 Create a Stripe Payment Link for one pilot package, for example:
 
 - name: NODE Private Pilot
-- price: S$500 to S$2,000 for the first lightweight controlled workflow, or the buyer-specific amount from the proposal
+- price: S$750 for the entry controlled-workflow proof, or the buyer-specific amount from the proposal for larger enterprise scope
 - description: Founder-led local/private AI-agent control proof: one workflow, policy gate, sandbox run, spend cap, approval path, replay, and redacted audit bundle
 - tax/invoice settings: configure in Stripe based on your Stripe account and jurisdiction
 
 Then set the public-site environment variable:
 
 ```text
-NODE_PUBLIC_PILOT_PAYMENT_LINK=https://buy.stripe.com/...
+NODE_PUBLIC_PILOT_PAYMENT_LINK=https://buy.stripe.com/bJeeVfc0h6cJ95m9dK7g400
 ```
 
 Keep the Calendly fit-check URL active too:
@@ -54,7 +54,7 @@ STRIPE_SECRET_KEY=sk_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 STRIPE_PRICE_PRO_MONTHLY=price_...
 STRIPE_PRICE_PRO_YEARLY=price_...
-AGENTOS_PUBLIC_URL=https://...
+APP_PUBLIC_URL=https://...
 ```
 
 ## Render/Public Site Variables
@@ -64,7 +64,7 @@ For the static public site, configure only public-safe values in Render or the d
 ```text
 NODE_PUBLIC_CONTACT_EMAIL=owowesley@gmail.com
 NODE_PUBLIC_PILOT_CONTACT_URL=https://calendly.com/wesleyong2004/node-pilot-fit-check
-NODE_PUBLIC_PILOT_PAYMENT_LINK=https://buy.stripe.com/...
+NODE_PUBLIC_PILOT_PAYMENT_LINK=https://buy.stripe.com/bJeeVfc0h6cJ95m9dK7g400
 NODE_PUBLIC_PROOF_DEMO_URL=https://...
 ```
 

@@ -20,7 +20,7 @@ The current public story already points in the right direction:
 - Claim: NODE turns AI agents into controlled workers.
 - Proof path: request, policy gate, NODE control, sandbox, cost meter, audit bundle.
 - CTA: book a founder-led pilot fit check.
-- Pricing path: Proof is free, Pro starts from S$500, Enterprise is custom.
+- Pricing path: Proof call is free, the entry Pro Pilot is S$750 after qualification, and Enterprise is custom.
 - Public boundary: private/local pilot now; hosted enterprise backend later.
 
 The website should support the sale, not carry the sale. The next commercial artifact should be a buyer-specific pilot proposal and proof packet.
@@ -139,7 +139,7 @@ Sell one narrow proof:
 
 **NODE Pro Private Pilot**
 
-- Price: from S$500 for a founder-led initial private proof, with higher pricing for deeper integration.
+- Price: S$750 for a founder-led entry private proof, with higher pricing for deeper integration after scope review.
 - Duration: 1-2 weeks for the first paid proof, 2-4 weeks for a deeper design-partner pilot.
 - Scope: one repo-shaped workflow, one policy boundary, one approval gate, one cost cap, one audit bundle.
 - Deployment: local/private only.
@@ -222,4 +222,3 @@ The offer should be:
 > Bring one risky coding-agent workflow. NODE will show the request, policy gate, sandbox, cost meter, approval, replay, and audit bundle around that run.
 
 That is the wedge. Everything else, including hosted backend, broader pricing, and enterprise platform claims, comes after those pilots prove repeated buyer pain.
-

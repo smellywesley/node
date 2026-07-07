@@ -5,8 +5,12 @@ services:
     buildCommand: "cd deploy/public-site && npm ci && npm run configure:cta && npm run test:cta:deploy && npm run build"
     staticPublishPath: ./deploy/public-site/dist
     envVars:
+      - key: NODE_PUBLIC_CONTACT_EMAIL
+        value: owowesley@gmail.com
       - key: NODE_PUBLIC_PILOT_CONTACT_URL
         value: https://calendly.com/wesleyong2004/node-pilot-fit-check
+      - key: NODE_PUBLIC_PILOT_PAYMENT_LINK
+        value: https://buy.stripe.com/bJeeVfc0h6cJ95m9dK7g400
     previews:
       generation: automatic
     buildFilter:
