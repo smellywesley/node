@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import vm from "node:vm";
 import {fileURLToPath} from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -29,7 +30,23 @@ const reviewedProofHosts = new Set([
 ]);
 
 const env = process.env;
-const allowedHosts = (env.NODE_PUBLIC_PAYMENT_ALLOWED_HOSTS || "buy.stripe.com")
+function readExistingConfig(file) {
+  if (!fs.existsSync(file)) return {};
+
+  const sandbox = {window: {}};
+  vm.createContext(sandbox);
+  vm.runInContext(fs.readFileSync(file, "utf8"), sandbox, {filename: path.basename(file)});
+  return sandbox.window.NODE_PAYMENT_LINKS || {};
+}
+
+const existingConfig = readExistingConfig(outputPath);
+
+function envOrExisting(name, key) {
+  if (Object.prototype.hasOwnProperty.call(env, name)) return env[name];
+  return existingConfig[key] || "";
+}
+
+const allowedHosts = (env.NODE_PUBLIC_PAYMENT_ALLOWED_HOSTS || (Array.isArray(existingConfig.allowedHosts) ? existingConfig.allowedHosts.join(",") : "buy.stripe.com"))
   .split(",")
   .map((host) => host.trim())
   .filter(Boolean);
@@ -92,12 +109,12 @@ function cleanProofUrl(name, value) {
 }
 
 const config = {
-  pro: cleanPaymentUrl("NODE_PUBLIC_PRO_PAYMENT_LINK", env.NODE_PUBLIC_PRO_PAYMENT_LINK),
-  pilot: cleanPaymentUrl("NODE_PUBLIC_PILOT_PAYMENT_LINK", env.NODE_PUBLIC_PILOT_PAYMENT_LINK),
-  enterprise: cleanPaymentUrl("NODE_PUBLIC_ENTERPRISE_PAYMENT_LINK", env.NODE_PUBLIC_ENTERPRISE_PAYMENT_LINK),
-  pilotContactUrl: cleanContactUrl("NODE_PUBLIC_PILOT_CONTACT_URL", env.NODE_PUBLIC_PILOT_CONTACT_URL),
-  proofDemoUrl: cleanProofUrl("NODE_PUBLIC_PROOF_DEMO_URL", env.NODE_PUBLIC_PROOF_DEMO_URL),
-  contactEmail: cleanEmail(env.NODE_PUBLIC_CONTACT_EMAIL),
+  pro: cleanPaymentUrl("NODE_PUBLIC_PRO_PAYMENT_LINK", envOrExisting("NODE_PUBLIC_PRO_PAYMENT_LINK", "pro")),
+  pilot: cleanPaymentUrl("NODE_PUBLIC_PILOT_PAYMENT_LINK", envOrExisting("NODE_PUBLIC_PILOT_PAYMENT_LINK", "pilot")),
+  enterprise: cleanPaymentUrl("NODE_PUBLIC_ENTERPRISE_PAYMENT_LINK", envOrExisting("NODE_PUBLIC_ENTERPRISE_PAYMENT_LINK", "enterprise")),
+  pilotContactUrl: cleanContactUrl("NODE_PUBLIC_PILOT_CONTACT_URL", envOrExisting("NODE_PUBLIC_PILOT_CONTACT_URL", "pilotContactUrl")),
+  proofDemoUrl: cleanProofUrl("NODE_PUBLIC_PROOF_DEMO_URL", envOrExisting("NODE_PUBLIC_PROOF_DEMO_URL", "proofDemoUrl")),
+  contactEmail: cleanEmail(envOrExisting("NODE_PUBLIC_CONTACT_EMAIL", "contactEmail")),
   allowedHosts
 };
 
