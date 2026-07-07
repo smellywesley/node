@@ -1,17 +1,41 @@
 # NODE Private Pilot Beneficiary Proposal
 
-Updated: 2026-07-05
+Updated: 2026-07-07
 Status: pre-sales proposal before selling 3-5 private pilots
 
 ## Executive Decision
 
 Do not make the website the main sales motion yet. Keep the landing page as a credibility and booking surface, but sell through founder-led proof conversations.
 
-NODE should first target teams with one urgent problem:
+NODE should first target AppSec, security engineering, and platform teams with one urgent problem:
 
 > AI coding agents are starting to touch real repositories, but the team cannot prove what the agent was allowed to do, what it was blocked from doing, who approved it, what it cost, and what evidence can be exported afterward.
 
 The first paid pilots should not be sold as a broad AI operating system, hosted SaaS platform, or model-credit product. They should be sold as a private/local control proof for one real repository-shaped workflow.
+
+## Five-Minute Proof Wedge
+
+The first demo should be a courtroom exhibit:
+
+1. AI coding agents are already producing real software work.
+2. Prompt instructions are not an enforceable security boundary.
+3. NODE maps the run through Request -> Policy Gate -> NODE Control -> Sandbox -> Cost Meter -> Audit Bundle.
+4. The buyer sees an allowed backend write, a denied frontend write, approval evidence, cost evidence, and an exported audit bundle.
+5. The close is S$750 for the buyer's own private/local proof.
+
+One sentence to test:
+
+> Bring one risky coding-agent workflow. NODE will prove what the agent was allowed to do, what was blocked, who approved it, what it cost, and what audit evidence remains.
+
+## Market Evidence To Use
+
+Use these as sourced market validation, not as NODE customer claims:
+
+- Microsoft rollout research associated AI coding-agent adoption with roughly 24% more merged PRs, while token spend at organization scale can reach millions annually: https://arxiv.org/abs/2607.01418
+- AIDev found 932,791 agent-authored pull requests across Codex, Devin, Copilot, Cursor, and Claude Code ecosystems: https://arxiv.org/abs/2602.09185
+- Claude Code permission-gate testing reported an 81.0% false negative rate in ambiguous authorization scenarios: https://arxiv.org/abs/2604.04978
+- AI development-tool research found prompt-injection and tool-abuse risks across MCP/client ecosystems: https://arxiv.org/abs/2603.21642
+- GitInject shows agentic GitHub and CI workflows can be attacked through configuration and credential paths: https://arxiv.org/abs/2606.09935
 
 ## Website Scrape Summary
 
@@ -27,28 +51,7 @@ The website should support the sale, not carry the sale. The next commercial art
 
 ## Who Benefits Most
 
-### 1. Platform Engineering And DevEx Teams
-
-Best fit when they are already rolling out Cursor, Claude Code, Copilot agents, Devin-style workflows, Codex-style coding agents, or internal repo agents.
-
-Why they benefit:
-
-- They own developer productivity but inherit the operational risk.
-- They need a repeatable way to say which paths, tools, and actions are allowed.
-- They need evidence before expanding agent usage across more repositories.
-- They can evaluate a local/private proof without requiring a full hosted enterprise platform.
-
-Pilot hook:
-
-> Let your coding agent work inside one repo, but make every consequential action pass through policy, approval, cost, and audit.
-
-Best first workflow:
-
-- Backend-only fix where frontend, infra, or secrets paths must be denied.
-- Test-running workflow where the agent can propose a branch/diff but cannot freely write outside scope.
-- Internal tool maintenance task with a known safe path and one intentionally forbidden path.
-
-### 2. Security Engineering And AppSec Teams
+### 1. Security Engineering And AppSec Teams
 
 Best fit when security is being asked to approve AI coding tools but has no concrete audit evidence.
 
@@ -68,6 +71,27 @@ Best first workflow:
 - "Agent may edit backend test files, but cannot touch frontend, deployment, secrets, or config."
 - "Agent must pause for human approval before any write outside a predeclared safe path."
 - "Agent run must produce an audit bundle suitable for internal review."
+
+### 2. Platform Engineering And DevEx Teams
+
+Best fit when they are already rolling out Cursor, Claude Code, Copilot agents, Devin-style workflows, Codex-style coding agents, or internal repo agents.
+
+Why they benefit:
+
+- They own developer productivity but inherit the operational risk.
+- They need a repeatable way to say which paths, tools, and actions are allowed.
+- They need evidence before expanding agent usage across more repositories.
+- They can evaluate a local/private proof without requiring a full hosted enterprise platform.
+
+Pilot hook:
+
+> Let your coding agent work inside one repo, but make every consequential action pass through policy, approval, cost, and audit.
+
+Best first workflow:
+
+- Backend-only fix where frontend, infra, or secrets paths must be denied.
+- Test-running workflow where the agent can propose a branch/diff but cannot freely write outside scope.
+- Internal tool maintenance task with a known safe path and one intentionally forbidden path.
 
 ### 3. AI Governance, Risk, And Compliance Teams
 
@@ -127,8 +151,8 @@ These segments may matter later, but they will slow down the first evidence cycl
 
 | Rank | Segment | Buyer | Pain | Why Now | Pilot Fit |
 |---:|---|---|---|---|---|
-| 1 | AI-enabled software teams | Platform / DevEx lead | Agent file scope and approval control | Agents are already in repos | Strong |
-| 2 | Security-conscious engineering orgs | AppSec / Security Engineering | Prompt instructions are not enforceable controls | Security needs proof before rollout | Strong |
+| 1 | Security-conscious engineering orgs | AppSec / Security Engineering | Prompt instructions are not enforceable controls | Security needs proof before rollout | Strong |
+| 2 | AI-enabled software teams | Platform / DevEx lead | Agent file scope and approval control | Agents are already in repos | Strong |
 | 3 | AI governance teams | AI governance / risk owner | No exportable run evidence | Leadership wants AI adoption with controls | Medium-strong |
 | 4 | AI-native startups | CTO / founder | Fast agent usage without process trail | They want speed without future chaos | Medium |
 | 5 | Regulated enterprises | CISO / compliance | Audit, retention, roles, tenant isolation | Need formal control plane | Later, after hosted gates |
@@ -215,7 +239,7 @@ Do not count compliments. Count only workflows, owners, payment willingness, and
 
 ## Recommendation
 
-The first 3-5 pilots should focus on platform, DevEx, AppSec, and security engineering teams that already permit or are actively evaluating AI coding agents against repositories.
+The first 3-5 pilots should focus on AppSec, security engineering, platform, and DevEx teams that already permit or are actively evaluating AI coding agents against repositories.
 
 The offer should be:
 

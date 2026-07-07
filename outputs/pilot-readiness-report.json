@@ -1,7 +1,7 @@
 ﻿{
-    "generated_at":  "2026-07-06T14:55:38Z",
+    "generated_at":  "2026-07-07T12:00:24Z",
     "status":  "BLOCKED",
-    "required_blockers":  2,
+    "required_blockers":  3,
     "optional_blockers":  0,
     "checks":  [
                    {
@@ -80,9 +80,9 @@
                        "area":  "Backend Runtime",
                        "name":  "Docker engine reachable for local agent runs",
                        "required":  true,
-                       "pass":  true,
-                       "evidence":  "Docker engine reachable; server version 29.5.3.",
-                       "fix":  ""
+                       "pass":  false,
+                       "evidence":  "Docker installed but engine unreachable:  failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.",
+                       "fix":  "Start Docker Desktop, wait until it is running, then rerun .\\bin\\agentos.exe doctor --support."
                    },
                    {
                        "area":  "Backend Runtime",

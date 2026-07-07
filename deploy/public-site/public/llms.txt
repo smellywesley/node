@@ -6,6 +6,8 @@
 
 NODE helps enterprise security, DevOps, platform engineering, and AI governance teams control autonomous coding agents before they touch real repositories.
 
+Primary buyer: AppSec and security engineering teams that need proof before approving AI coding agents.
+
 ## What NODE does
 
 - Converts plain-English agent work into an inspectable control contract.
@@ -15,13 +17,21 @@ NODE helps enterprise security, DevOps, platform engineering, and AI governance 
 - Produces replayable audit evidence from approvals, denials, usage ticks, artifacts, and run events.
 - Shows a concrete workflow: backend-auth-fix-042 is allowed in backend paths, denied in frontend paths, metered against a cost cap, paused for approval, and exported as an audit bundle.
 
+## Why this matters now
+
+- Microsoft rollout research associated AI coding-agent adoption with roughly 24% more merged PRs, while token spend at organization scale can reach millions annually: https://arxiv.org/abs/2607.01418
+- AIDev found 932,791 agent-authored pull requests across Codex, Devin, Copilot, Cursor, and Claude Code ecosystems: https://arxiv.org/abs/2602.09185
+- Claude Code permission-gate testing reported an 81.0% false negative rate in ambiguous authorization scenarios: https://arxiv.org/abs/2604.04978
+- AI development-tool research found prompt-injection and tool-abuse risks across MCP/client ecosystems: https://arxiv.org/abs/2603.21642
+- GitInject shows agentic GitHub and CI workflows can be attacked through configuration and credential paths: https://arxiv.org/abs/2606.09935
+
 ## Current commercial stage
 
 NODE is currently sold as a founder-led private/local paid pilot. The public site should qualify teams for a proof call, not imply self-serve hosted SaaS.
 
 Pricing path:
 - Founder Proof Call: free 30-minute workflow review.
-- Private Pilot: S$750 entry proof for one controlled agent workflow, policy boundary setup, spend limit configuration, approval gate, audit bundle, and founder-led setup. Larger enterprise rollout is custom after scope review.
+- Private Pilot: S$750 AppSec proof for one controlled agent workflow, policy boundary setup, spend limit configuration, approval gate, denied action evidence, audit bundle, go/no-go recommendation, and founder-led setup. Larger enterprise rollout is custom after scope review.
 - Managed Platform: custom and later-stage after hosted controls are ready.
 
 ## Primary call to action
@@ -33,6 +43,7 @@ The site qualifies buyers before Calendly by asking which coding agents already 
 ## Who NODE is for
 
 - Enterprise security teams evaluating autonomous coding agents.
+- AppSec and security engineering teams approving AI coding agents.
 - DevOps and platform teams responsible for developer automation safety.
 - AI governance teams that need audit trails, policy boundaries, and cost controls.
 - Engineering leaders piloting coding agents against production-like repositories.
